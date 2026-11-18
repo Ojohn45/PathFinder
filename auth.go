@@ -154,6 +154,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	username := strings.TrimSpace(r.FormValue("username"))
 	email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
 	password := r.FormValue("password")
+	confirm := r.FormValue("confirm_password")
 
 	// If something is wrong we show the form again with the error
 	// and keep what the person already typed (except the password).
@@ -173,6 +174,10 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if password != confirm {
+		fail("The two passwords do not match - please type them again")
+		return
+	}
 	if !isValidPassword(password) {
 		fail("Password must contain both letters and numbers")
 		return
@@ -223,17 +228,22 @@ func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // authenticate checks a username + password. One check, used by both login doors.
-func authenticate(username, password string) (User, bool) {
+// It returns the user and an empty reason on success, or the reason it failed
+// (the reason is only written in the server terminal, never shown on the page).
+func authenticate(username, password string) (User, string) {
 	user, found := findUserByUsername(username)
 	hash := dummyHash
 	if found {
 		hash = []byte(user.PasswordHash)
 	}
 	err := bcrypt.CompareHashAndPassword(hash, []byte(password))
-	if !found || err != nil {
-		return User{}, false
+	switch {
+	case !found:
+		return User{}, "no account with that username"
+	case err != nil:
+		return User{}, "wrong password"
 	}
-	return user, true
+	return user, ""
 }
 
 // Door 1: the normal login page (everyone, admins included).
@@ -243,8 +253,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	username := strings.TrimSpace(r.FormValue("username"))
 	password := r.FormValue("password")
 
-	user, ok := authenticate(username, password)
-	if !ok {
+	user, why := authenticate(username, password)
+	if why != "" {
+		log.Printf("LOGIN FAILED for %q: %s", username, why)
 		w.WriteHeader(http.StatusUnauthorized)
 		render(w, "login.html", PageData{Error: "Invalid username or password", Username: username})
 		return
@@ -273,10 +284,14 @@ func adminLoginHandler(w http.ResponseWriter, r *http.Request) {
 	username := strings.TrimSpace(r.FormValue("username"))
 	password := r.FormValue("password")
 
-	user, ok := authenticate(username, password)
-	if !ok || !user.IsAdmin() {
-		// Same message for "wrong password" and "not an admin", so nobody can
-		// use this page to find out which usernames are admins.
+	user, why := authenticate(username, password)
+	if why == "" && !user.IsAdmin() {
+		why = "this account is not an admin"
+	}
+	if why != "" {
+		log.Printf("ADMIN LOGIN FAILED for %q: %s", username, why)
+		// Same message on the page for every reason, so nobody can use this
+		// page to find out which usernames are admins.
 		w.WriteHeader(http.StatusUnauthorized)
 		render(w, "admin-login.html", PageData{Error: "Invalid admin username or password", Username: username})
 		return

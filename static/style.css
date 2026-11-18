@@ -1017,3 +1017,53 @@ body.wide {
     color: #8fc4ff;
     font-size: 0.7rem;
 }
+
+
+/* ===== Email log page ===== */
+.email-actions {
+    max-width: 420px;
+    margin: 0 auto 18px;
+}
+
+.email-test-btn {
+    margin-top: 0;
+}
+
+.mail-failed {
+    color: #ff8fa3;
+}
+
+.users-table td small {
+    display: block;
+    max-width: 380px;
+    white-space: normal;
+    color: #6b8cad;
+}
+
+
+/* ===== Share the invite link by hand ===== */
+.share-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: -4px 0 16px;
+}
+
+
+/* ===== "Show password" button ===== */
+.show-pass {
+    align-self: flex-end;
+    background: none;
+    border: none;
+    padding: 2px 0;
+    margin-top: 2px;
+    color: #6cb2ff;
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.show-pass:hover {
+    text-decoration: underline;
+}

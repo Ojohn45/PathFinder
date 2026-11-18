@@ -43,3 +43,24 @@
 </script>
 {{end}}
 {{end}}
+
+{{define "showpass"}}
+<script>
+    // Adds ONE small "Show password" button under the password box(es) of each form,
+    // so you can check what you typed (no more locked-out typos).
+    document.querySelectorAll("form").forEach(function (form) {
+        var boxes = form.querySelectorAll('input[type="password"]');
+        if (!boxes.length) { return; }
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "show-pass";
+        btn.textContent = "👁 Show password";
+        btn.addEventListener("click", function () {
+            var hide = boxes[0].type === "text";
+            boxes.forEach(function (b) { b.type = hide ? "password" : "text"; });
+            btn.textContent = hide ? "👁 Show password" : "🙈 Hide password";
+        });
+        boxes[boxes.length - 1].insertAdjacentElement("afterend", btn);
+    });
+</script>
+{{end}}

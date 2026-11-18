@@ -44,6 +44,15 @@ func (u User) RoleLabel() string {
 	return "User"
 }
 
+// One line in the email diary: what the server did with an email.
+type EmailRecord struct {
+	Time    time.Time `json:"time"`
+	To      string    `json:"to"`
+	Subject string    `json:"subject"`
+	Status  string    `json:"status"` // "sent", "failed" or "not_configured"
+	Error   string    `json:"error,omitempty"`
+}
+
 // An invitation for someone to become an admin.
 // We only keep a HASH of the secret token, like a password.
 type Invite struct {
@@ -52,8 +61,6 @@ type Invite struct {
 	InvitedBy int       `json:"invited_by"`
 	ForUser   bool      `json:"for_user,omitempty"` // true = invite a normal user; false = invite an admin
 	CreatedAt time.Time `json:"created_at"`
-	ExpiresAt time.Time `json:"expires_at"`
-	Used      bool      `json:"used"`
 }
 
 type HistoryEntry struct {
@@ -72,13 +79,15 @@ var (
 	usersFile   = filepath.Join(storageDir, "users.json")
 	historyFile = filepath.Join(storageDir, "history.json")
 	invitesFile = filepath.Join(storageDir, "invites.json")
+	emailsFile  = filepath.Join(storageDir, "emails.json")
 
 	// One lock protects both slices below, so two requests
 	// can never write to the files at the same moment.
-	mu      sync.Mutex
-	users   []User
-	history []HistoryEntry
-	invites []Invite
+	mu       sync.Mutex
+	users    []User
+	history  []HistoryEntry
+	invites  []Invite
+	emailLog []EmailRecord
 )
 
 var (
@@ -99,6 +108,9 @@ func initDB() {
 	}
 	if err := loadJSON(invitesFile, &invites); err != nil {
 		log.Fatal("Cannot read invites.json:", err)
+	}
+	if err := loadJSON(emailsFile, &emailLog); err != nil {
+		log.Fatal("Cannot read emails.json:", err)
 	}
 	seedHeadAdmin()
 	log.Printf("Storage ready: %d user(s), %d history entries", len(users), len(history))
@@ -276,16 +288,14 @@ func setUserRole(id int, role string) error {
 
 // ---------- Admin invites ----------
 
-const inviteTTL = 7 * 24 * time.Hour
-
 func hashToken(token string) string {
 	sum := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(sum[:])
 }
 
-// createInvite makes a secret token for this email. Any older unused
-// invite for the same email is replaced. The token is returned ONCE
-// (to put in the email link); only its hash is saved.
+// createInvite makes a secret token for this email. Older links for the
+// same email keep working. The token is returned ONCE (to put in the email
+// link); only its hash is saved.
 func createInvite(email string, invitedBy int, forUser bool) (string, error) {
 	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
@@ -296,55 +306,32 @@ func createInvite(email string, invitedBy int, forUser bool) (string, error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	backup := make([]Invite, len(invites))
-	copy(backup, invites)
-
-	kept := invites[:0]
-	for _, inv := range invites {
-		if !(strings.EqualFold(inv.Email, email) && !inv.Used) {
-			kept = append(kept, inv)
-		}
-	}
-	invites = append(kept, Invite{
+	invites = append(invites, Invite{
 		TokenHash: hashToken(token),
 		Email:     email,
 		InvitedBy: invitedBy,
 		ForUser:   forUser,
 		CreatedAt: time.Now(),
-		ExpiresAt: time.Now().Add(inviteTTL),
 	})
-
 	if err := saveJSON(invitesFile, invites); err != nil {
-		invites = backup
+		invites = invites[:len(invites)-1]
 		return "", err
 	}
 	return token, nil
 }
 
-// findInvite returns the invite only if it is unused and not expired.
+// findInvite finds the invite for a secret link. Links never expire and can
+// be opened as many times as you like.
 func findInvite(token string) (Invite, bool) {
 	h := hashToken(token)
 	mu.Lock()
 	defer mu.Unlock()
 	for _, inv := range invites {
-		if inv.TokenHash == h && !inv.Used && time.Now().Before(inv.ExpiresAt) {
+		if inv.TokenHash == h {
 			return inv, true
 		}
 	}
 	return Invite{}, false
-}
-
-func markInviteUsed(token string) error {
-	h := hashToken(token)
-	mu.Lock()
-	defer mu.Unlock()
-	for i := range invites {
-		if invites[i].TokenHash == h {
-			invites[i].Used = true
-			return saveJSON(invitesFile, invites)
-		}
-	}
-	return nil
 }
 
 // promoteToHeadAdmin turns an EXISTING account into the head admin and
@@ -376,4 +363,49 @@ func promoteToHeadAdmin(id int, fullName, username, passwordHash string) error {
 		return err
 	}
 	return nil
+}
+
+// ---------- Email diary ----------
+
+const maxEmailRecords = 300 // keep the newest 300 only
+
+func addEmailRecord(rec EmailRecord) {
+	mu.Lock()
+	defer mu.Unlock()
+	emailLog = append(emailLog, rec)
+	if len(emailLog) > maxEmailRecords {
+		emailLog = emailLog[len(emailLog)-maxEmailRecords:]
+	}
+	if err := saveJSON(emailsFile, emailLog); err != nil {
+		log.Println("Could not save the email diary:", err)
+	}
+}
+
+// recentEmails returns the newest n records, newest first.
+func recentEmails(n int) []EmailRecord {
+	mu.Lock()
+	defer mu.Unlock()
+	var out []EmailRecord
+	for i := len(emailLog) - 1; i >= 0 && len(out) < n; i-- {
+		out = append(out, emailLog[i])
+	}
+	return out
+}
+
+// setUserPassword replaces one user's password hash.
+func setUserPassword(id int, passwordHash string) error {
+	mu.Lock()
+	defer mu.Unlock()
+	for i := range users {
+		if users[i].ID == id {
+			old := users[i].PasswordHash
+			users[i].PasswordHash = passwordHash
+			if err := saveJSON(usersFile, users); err != nil {
+				users[i].PasswordHash = old
+				return err
+			}
+			return nil
+		}
+	}
+	return errors.New("user not found")
 }

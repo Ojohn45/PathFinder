@@ -23,12 +23,26 @@ import (
 // The other details have defaults below, and can be changed with
 // ADMIN_EMAIL, ADMIN_FULLNAME and ADMIN_USERNAME.
 //
-// This only happens while there is NO head admin yet. If an account with the
-// admin email already exists, it is upgraded to head admin.
+// If there is NO head admin yet, one is created. If an account with the admin
+// email already exists, it is upgraded to head admin. After that, ADMIN_PASSWORD
+// in .env is always the head admin's password.
 
 func seedHeadAdmin() {
-	if _, exists := headAdmin(); exists {
-		return // already there
+	if head, exists := headAdmin(); exists {
+		// The head admin already exists. If ADMIN_PASSWORD in .env is different from
+		// the saved password, .env wins - so changing it there really changes it.
+		if pw := os.Getenv("ADMIN_PASSWORD"); pw != "" &&
+			bcrypt.CompareHashAndPassword([]byte(head.PasswordHash), []byte(pw)) != nil {
+			hash, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
+			if err != nil {
+				log.Println("Could not update the head admin password:", err, "(passwords can be at most 72 characters)")
+			} else if err := setUserPassword(head.ID, string(hash)); err != nil {
+				log.Println("Could not update the head admin password:", err)
+			} else {
+				log.Printf("Head admin %q: password updated from ADMIN_PASSWORD in .env", head.Username)
+			}
+		}
+		return
 	}
 
 	password := os.Getenv("ADMIN_PASSWORD")
@@ -188,14 +202,21 @@ func processInvite(w http.ResponseWriter, r *http.Request, u *User, forUser bool
 	if forUser {
 		subject = "You're invited to join Redirect 🎉"
 		heading = "You're invited to join Redirect"
-		message = u.FullName + " thinks you'd love Redirect. " + redirectShort + " Would you like to join us?"
+		message = "Redirect would like you to join as a user and start studying programming. " +
+			"Why join? It's free, it saves you hours of searching, and it points you straight to 10 of the best places " +
+			"to learn any programming language: official docs, interactive tutorials, full courses and practice sites. " +
+			"Your account also remembers every resource you've visited, so you never lose your place. " +
+			"Would you like to join us?"
 	} else {
 		subject = "You're invited to be an admin on Redirect"
 		heading = "Join the Redirect team as an admin"
-		message = u.FullName + " (Head Admin) would love for you to join the Redirect team as an admin. " + redirectShort +
-			" As an admin, you'd help look after our community of learners and help the site grow. Would you like to join the team?"
+		message = "Redirect would like you to join the team as an admin. " +
+			"As an admin, you'll help look after our community of learners and help the site grow. " +
+			"Redirect is free and saves learners hours of searching by pointing them straight to 10 of the best places " +
+			"to learn any programming language. " +
+			"Would you like to join the team?"
 	}
-	text, htmlBody := inviteEmail(heading, message, link)
+	text, htmlBody := inviteEmail(heading, message, "Accept Invite", link)
 
 	// Send in the background, but wait up to 15 seconds to tell the admin how it went.
 	done := make(chan error, 1)
@@ -210,8 +231,10 @@ func processInvite(w http.ResponseWriter, r *http.Request, u *User, forUser bool
 	data := PageData{User: u}
 	switch {
 	case sendErr == nil:
-		log.Println("Invite email sent to", email)
-		data.Info = "Invitation sent to " + email + " ✅"
+		log.Println("Invite email handed to the mail server for", email)
+		data.Info = "Invitation handed to the mail server for " + email + " ✅ It usually arrives within a minute. " +
+			"If " + email + " can't find it, ask them to check Spam, or share the link below with them directly."
+		data.InviteLink = link
 	case errors.Is(sendErr, errEmailNotConfigured):
 		log.Println("Invite link for", email, ":", link)
 		data.Info = "Email isn't set up yet, so nothing was emailed. Add SMTP_USER and SMTP_PASS to your .env file and restart the server. For now, send this link to " + email + " yourself:"
@@ -220,12 +243,53 @@ func processInvite(w http.ResponseWriter, r *http.Request, u *User, forUser bool
 		log.Println("Could not email invite to", email, ":", sendErr)
 		hint := ""
 		if msg := sendErr.Error(); strings.Contains(msg, "535") || strings.Contains(msg, "Username and Password not accepted") {
-			hint = " Gmail refused the login: check SMTP_USER in your .env, and make sure SMTP_PASS is a Gmail App Password (not your normal password)."
+			hint = " The mail server refused the login: check SMTP_USER and SMTP_PASS in your .env. Gmail needs an App Password, and Brevo needs its SMTP key (never your normal password)."
 		}
 		data.Error = "The invitation was saved, but the email could not be sent (" + sendErr.Error() + ")." + hint + " You can send this link yourself:"
 		data.InviteLink = link
 	}
 	render(w, page, data)
+}
+
+// ---------- Email diary page + test email ----------
+
+func emailsPageHandler(w http.ResponseWriter, r *http.Request) {
+	u := requireAdmin(w, r)
+	if u == nil {
+		return
+	}
+	data := PageData{User: u, Emails: recentEmails(100)}
+	switch r.URL.Query().Get("test") {
+	case "sent":
+		data.Info = "Test email sent to " + u.Email + " ✅ Open your inbox (and check Spam) to see it."
+	case "failed":
+		data.Error = "The test email could not be sent. Look at the newest line in the table below to see why."
+	case "off":
+		data.Error = "Email is not set up yet. Add SMTP_USER and SMTP_PASS to your .env file and restart the server."
+	}
+	render(w, "admin-emails.html", data)
+}
+
+// Sends a test email to the admin's OWN address, so you can check everything works.
+func emailTestHandler(w http.ResponseWriter, r *http.Request) {
+	u := requireAdmin(w, r)
+	if u == nil {
+		return
+	}
+	heading := "Test email ✅"
+	message := "Hi " + u.FullName + "! If you can read this, Redirect can send emails. " +
+		"This is how the invitation emails will look to the people you invite."
+	text, htmlBody := inviteEmail(heading, message, "Open the admin page", baseURL()+"/admin")
+
+	err := sendEmail(u.Email, "Redirect test email ✅", text, htmlBody)
+	result := "sent"
+	switch {
+	case errors.Is(err, errEmailNotConfigured):
+		result = "off"
+	case err != nil:
+		result = "failed"
+	}
+	http.Redirect(w, r, "/admin/emails?test="+result, http.StatusSeeOther)
 }
 
 // A row in the "Check Users" table. Passwords are never included.
@@ -267,11 +331,12 @@ func usersPageHandler(w http.ResponseWriter, r *http.Request) {
 func acceptPageData(r *http.Request, token string, forUser bool) (PageData, bool) {
 	inv, ok := findInvite(token)
 	if !ok || inv.ForUser != forUser { // an admin link can't be used on the user page, and vice versa
-		return PageData{Error: "This invitation link is invalid or has expired. Ask the head admin to send a new one."}, false
+		return PageData{Error: "This invitation link is not valid. Please ask the person who invited you to send it again."}, false
 	}
 	data := PageData{Token: token, InviteEmail: inv.Email}
 	if existing, found := findUserByEmail(inv.Email); found {
 		data.Existing = true
+		data.AlreadyMember = existing.IsAdmin()
 		if me := currentUser(r); me != nil && me.ID == existing.ID {
 			data.CanAccept = true
 		}
@@ -320,7 +385,6 @@ func acceptAdminHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		markInviteUsed(token)
 		http.Redirect(w, r, "/admin", http.StatusSeeOther)
 		return
 	}
@@ -332,6 +396,10 @@ func acceptAdminHandler(w http.ResponseWriter, r *http.Request) {
 
 	if fullName == "" || username == "" || password == "" {
 		fail("All fields are required")
+		return
+	}
+	if password != r.FormValue("confirm_password") {
+		fail("The two passwords do not match - please type them again")
 		return
 	}
 	if !isValidPassword(password) {
@@ -362,7 +430,6 @@ func acceptAdminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	markInviteUsed(token)
 	if err := startSession(w, newUser.ID); err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
@@ -412,6 +479,10 @@ func joinHandler(w http.ResponseWriter, r *http.Request) {
 		fail("All fields are required")
 		return
 	}
+	if password != r.FormValue("confirm_password") {
+		fail("The two passwords do not match - please type them again")
+		return
+	}
 	if !isValidPassword(password) {
 		fail("Password must contain both letters and numbers")
 		return
@@ -440,7 +511,6 @@ func joinHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	markInviteUsed(token)
 	go sendWelcomeEmail(data.InviteEmail, fullName)
 	if err := startSession(w, newUser.ID); err != nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)

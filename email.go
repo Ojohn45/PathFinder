@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"encoding/json"
+	"io"
+	"net/http"
 	"bytes"
 	"crypto/rand"
 	"crypto/tls"
@@ -37,8 +41,7 @@ var bannerGIF []byte
 
 const bannerCID = "redirect-banner@redirect.local"
 
-var errEmailNotConfigured = errors.New("email is not configured (SMTP_USER / SMTP_PASS missing)")
-
+var errEmailNotConfigured = errors.New("Resend is not configured (RESEND_API_KEY missing)")
 func getenv(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
@@ -88,17 +91,12 @@ func loadDotEnv() {
 
 // logEmailStatus tells you right at startup whether email is ready.
 func logEmailStatus() {
-	user := os.Getenv("SMTP_USER")
-	pass := os.Getenv("SMTP_PASS")
-	switch {
-	case user == "" && pass == "":
-		log.Println("EMAIL: NOT set up - add SMTP_USER and SMTP_PASS to your .env file, then restart")
-	case user == "" || pass == "":
-		log.Println("EMAIL: only one of SMTP_USER / SMTP_PASS is set - you need both")
-	default:
-		log.Println("EMAIL: settings found, testing the login with Gmail...")
-		go checkEmailLogin() // runs in the background, result appears in a few seconds
-	}
+    if os.Getenv("RESEND_API_KEY") == "" {
+        log.Println("EMAIL: Resend API key missing. Check your .env file.")
+        return
+    }
+
+    log.Println("EMAIL: Resend API configured successfully.")
 }
 
 // checkEmailLogin connects to the mail server and logs in, WITHOUT sending
@@ -135,8 +133,9 @@ func checkEmailLogin() {
 	if err := c.Auth(smtp.PlainAuth("", user, pass, host)); err != nil {
 		log.Println("EMAIL CHECK: FAILED - the mail server refused the login for", user)
 		log.Println("   reason:", err)
-		log.Println("   FIX: SMTP_USER must be the SAME Gmail account that created the App Password,")
-		log.Println("        and SMTP_PASS must be that 16-letter App Password (not your normal password).")
+		log.Println("   FIX: use the login details from your email provider in .env:")
+		log.Println("        Gmail -> SMTP_USER = the Gmail that created the App Password, SMTP_PASS = that 16-letter App Password")
+		log.Println("        Brevo -> SMTP_USER = the Login on Brevo's SMTP page, SMTP_PASS = the SMTP key (not your Brevo password)")
 		return
 	}
 	c.Quit()
@@ -145,27 +144,115 @@ func checkEmailLogin() {
 
 // ---------- Sending ----------
 
-// sendEmail sends an email. If htmlBody is empty it is plain text; otherwise
-// it is a "text + pretty HTML" email (mail apps show the HTML version).
+// sendEmail sends an email to ONE person and writes the result in the email diary.
+// If htmlBody is empty it is plain text; otherwise it is a "text + pretty HTML" email.
 // toEmail must already be validated.
-func sendEmail(toEmail, subject, textBody, htmlBody string) error {
-	user := os.Getenv("SMTP_USER")
-	pass := strings.ReplaceAll(os.Getenv("SMTP_PASS"), " ", "") // Google shows App Passwords with spaces
-	if user == "" || pass == "" {
-		return errEmailNotConfigured
-	}
+func sendEmail(toEmail, subject, textBody, htmlBody string) (err error) {
+    defer func() {
+        rec := EmailRecord{
+            Time:    time.Now(),
+            To:      toEmail,
+            Subject: subject,
+            Status:  "sent",
+        }
 
-	host := getenv("SMTP_HOST", "smtp.gmail.com")
-	port := getenv("SMTP_PORT", "587")
-	from := getenv("SMTP_FROM", user)
+        if errors.Is(err, errEmailNotConfigured) {
+            rec.Status = "not_configured"
+        } else if err != nil {
+            rec.Status = "failed"
+            rec.Error = err.Error()
+        }
 
-	msg, err := buildMessage(from, toEmail, subject, textBody, htmlBody)
-	if err != nil {
-		return err
-	}
+        addEmailRecord(rec)
+    }()
 
-	auth := smtp.PlainAuth("", user, pass, host)
-	return smtp.SendMail(net.JoinHostPort(host, port), auth, from, []string{toEmail}, msg)
+    apiKey := os.Getenv("RESEND_API_KEY")
+
+    if apiKey == "" {
+        return errEmailNotConfigured
+    }
+
+    from := getenv("RESEND_FROM", "onboarding@resend.dev")
+
+    type Attachment struct {
+        Filename  string `json:"filename"`
+        Content   string `json:"content"`
+        Type      string `json:"content_type"`
+        ContentID string `json:"content_id"`
+    }
+
+    type EmailRequest struct {
+        From        string       `json:"from"`
+        To          []string     `json:"to"`
+        Subject     string       `json:"subject"`
+        Text        string       `json:"text"`
+        HTML        string       `json:"html,omitempty"`
+        Attachments []Attachment `json:"attachments,omitempty"`
+    }
+
+    params := EmailRequest{
+        From:    from,
+        To:      []string{toEmail},
+        Subject: subject,
+        Text:    textBody,
+        HTML:    htmlBody,
+    }
+
+    // Attach the animated banner when the email uses it.
+    if strings.Contains(htmlBody, "cid:"+bannerCID) {
+        params.Attachments = append(params.Attachments, Attachment{
+            Filename:  "redirect-banner.gif",
+            Content:   base64.StdEncoding.EncodeToString(bannerGIF),
+            Type:      "image/gif",
+            ContentID: bannerCID,
+        })
+    }
+
+    body, err := json.Marshal(params)
+    if err != nil {
+        return err
+    }
+
+    req, err := http.NewRequest(
+        http.MethodPost,
+        "https://api.resend.com/emails",
+        bytes.NewReader(body),
+    )
+
+    if err != nil {
+        return err
+    }
+
+    req.Header.Set("Authorization", "Bearer "+apiKey)
+    req.Header.Set("Content-Type", "application/json")
+
+    client := &http.Client{
+        Timeout: 15 * time.Second,
+    }
+
+    resp, err := client.Do(req)
+    if err != nil {
+        return err
+    }
+
+    defer resp.Body.Close()
+
+    responseBody, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return err
+    }
+
+    if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+        return fmt.Errorf(
+            "Resend API error (%d): %s",
+            resp.StatusCode,
+            string(responseBody),
+        )
+    }
+
+    log.Println("EMAIL: Resend accepted email for", toEmail)
+
+    return nil
 }
 
 func writeQP(w interface{ Write([]byte) (int, error) }, s string) {
@@ -186,7 +273,11 @@ func buildMessage(from, to, subject, textBody, htmlBody string) ([]byte, error) 
 	header("To", to)
 	header("Subject", mime.QEncoding.Encode("utf-8", subject))
 	header("Date", time.Now().Format(time.RFC1123Z))
-	header("Message-ID", "<"+hex.EncodeToString(idBytes)+"@redirect.local>")
+	msgDomain := "redirect.local"
+	if at := strings.LastIndex(from, "@"); at >= 0 && at < len(from)-1 {
+		msgDomain = from[at+1:]
+	}
+	header("Message-ID", "<"+hex.EncodeToString(idBytes)+"@"+msgDomain+">")
 	header("MIME-Version", "1.0")
 
 	// Plain text email (no HTML)
@@ -226,7 +317,10 @@ func buildMessage(from, to, subject, textBody, htmlBody string) ([]byte, error) 
 		if err := writeAlternatives(mw); err != nil {
 			return nil, err
 		}
-		return buf.Bytes(), mw.Close()
+		if err := mw.Close(); err != nil { // write the closing line FIRST...
+			return nil, err
+		}
+		return buf.Bytes(), nil // ...and only then take the finished message
 	}
 
 	// related( alternative(text, html), image )
@@ -270,23 +364,22 @@ func buildMessage(from, to, subject, textBody, htmlBody string) ([]byte, error) 
 		iw.Write([]byte(encoded[:n] + "\r\n"))
 		encoded = encoded[n:]
 	}
-	return buf.Bytes(), outer.Close()
+	if err := outer.Close(); err != nil { // write the closing line FIRST...
+		return nil, err
+	}
+	return buf.Bytes(), nil // ...and only then take the finished message
 }
 
 // ---------- The emails themselves ----------
 
-// A short description of the site, used in every invitation.
-const redirectShort = "Redirect is a free launchpad for learning to code. Pick a programming language and we point you " +
-	"straight to 10 of the best free places to learn it: official docs, interactive tutorials, full courses and practice sites."
-
 // inviteEmail builds the dark-blue invitation email: an animated banner,
 // a heading, ONE short paragraph that ends with the question "would you
 // like to join?", and an Accept Invite button.
-func inviteEmail(heading, message, link string) (text, htmlBody string) {
+func inviteEmail(heading, message, buttonText, link string) (text, htmlBody string) {
 	text = heading + "\n\n" +
 		message + "\n\n" +
-		"ACCEPT INVITE:\n" + link + "\n\n" +
-		"This invitation works for 7 days. If you weren't expecting it, you can safely ignore this email.\n\n" +
+		strings.ToUpper(buttonText) + ":\n" + link + "\n\n" +
+		"If you weren't expecting this email, you can safely ignore it.\n\n" +
 		"The Redirect Team\n"
 
 	e := html.EscapeString
@@ -307,13 +400,13 @@ func inviteEmail(heading, message, link string) (text, htmlBody string) {
 	// button
 	h.WriteString(`<tr><td align="center" style="padding:24px 36px 28px;">` +
 		`<table role="presentation" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="#2b7de9" style="background:#2b7de9;border-radius:10px;">` +
-		`<a href="` + e(link) + `" style="display:inline-block;padding:15px 44px;color:#ffffff;font-family:'Segoe UI',Arial,sans-serif;font-size:17px;font-weight:bold;text-decoration:none;border-radius:10px;">Accept Invite</a>` +
+		`<a href="` + e(link) + `" style="display:inline-block;padding:15px 44px;color:#ffffff;font-family:'Segoe UI',Arial,sans-serif;font-size:17px;font-weight:bold;text-decoration:none;border-radius:10px;">` + e(buttonText) + `</a>` +
 		`</td></tr></table></td></tr>`)
 	// small print
 	h.WriteString(`<tr><td style="padding:0 36px 30px;font-family:'Segoe UI',Arial,sans-serif;font-size:12px;line-height:1.6;color:#7f9bc0;">` +
 		`If the button doesn't work, copy this link into your browser:<br>` +
 		`<a href="` + e(link) + `" style="color:#6cb2ff;word-break:break-all;">` + e(link) + `</a><br><br>` +
-		`This invitation works for 7 days. If you weren't expecting it, you can safely ignore this email.` +
+		`If you weren't expecting this email, you can safely ignore it.` +
 		`</td></tr>`)
 	h.WriteString(`</table></td></tr></table></body></html>`)
 	return text, h.String()

@@ -18,16 +18,18 @@ type PageData struct {
 	Recent    []HistoryEntry
 
 	// Admin pages
-	HeadAdmin   *User
-	UserRows    []UserRow
-	TotalUsers  int
-	OnlineUsers int
-	Info        string // green message
-	InviteLink  string // link to share by hand if the email could not be sent
-	Token       string // invite token (accept page)
-	InviteEmail string
-	Existing    bool // the invited email already has an account
-	CanAccept   bool // ...and the visitor is logged into it
+	Emails        []EmailRecord
+	HeadAdmin     *User
+	UserRows      []UserRow
+	TotalUsers    int
+	OnlineUsers   int
+	Info          string // green message
+	InviteLink    string // link to share by hand if the email could not be sent
+	Token         string // invite token (accept page)
+	InviteEmail   string
+	Existing      bool // the invited email already has an account
+	CanAccept     bool // ...and the visitor is logged into it
+	AlreadyMember bool // ...and that account is already an admin
 
 	Error     string
 	Created   bool // "account created" message on the login page
@@ -170,6 +172,8 @@ func main() {
 	mux.HandleFunc("GET /admin/invite-user", inviteUserPageHandler)
 	mux.HandleFunc("POST /admin/invite-user", inviteUserHandler)
 	mux.HandleFunc("GET /admin/users", usersPageHandler)
+	mux.HandleFunc("GET /admin/emails", emailsPageHandler)
+	mux.HandleFunc("POST /admin/emails/test", emailTestHandler)
 	mux.HandleFunc("GET /join", joinPageHandler)
 	mux.HandleFunc("POST /join", joinHandler)
 	mux.HandleFunc("GET /admin/accept", acceptAdminPageHandler)
