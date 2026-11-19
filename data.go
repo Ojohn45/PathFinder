@@ -7,13 +7,14 @@ type Resource struct {
 	Description string
 }
 
-type Language struct {
+type Topic struct {
 	Slug      string
 	Name      string
+	Blurb     string // one short line under the name on the box
 	Resources []Resource
 }
 
-var languages = map[string]Language{
+var programmingTopics = map[string]Topic{
 	"python": {
 		Slug: "python",
 		Name: "Python",
@@ -28,6 +29,11 @@ var languages = map[string]Language{
 			{ID: "python-cs50p", Name: "Harvard CS50P", URL: "https://cs50.harvard.edu/python/", Description: "Free university course on Python"},
 			{ID: "python-exercism", Name: "Exercism Python Track", URL: "https://exercism.org/tracks/python", Description: "Practice exercises with free mentoring"},
 			{ID: "python-codecademy", Name: "Codecademy Learn Python 3", URL: "https://www.codecademy.com/learn/learn-python-3", Description: "Interactive lessons in the browser"},
+			{ID: "python-hackerrank", Name: "HackerRank Python", URL: "https://www.hackerrank.com/domains/python", Description: "Practice problems from easy to hard"},
+			{ID: "python-pythontutor", Name: "Python Tutor", URL: "https://pythontutor.com", Description: "See your code run line by line"},
+			{ID: "python-awesome", Name: "Awesome Python", URL: "https://github.com/vinta/awesome-python", Description: "Huge curated list of libraries and tools"},
+			{ID: "python-kaggle", Name: "Kaggle Learn Python", URL: "https://www.kaggle.com/learn/python", Description: "Short hands-on data lessons"},
+			{ID: "python-morsels", Name: "Python Morsels", URL: "https://www.pythonmorsels.com", Description: "Weekly exercises that actually stick"},
 		},
 	},
 	"go": {
@@ -44,6 +50,11 @@ var languages = map[string]Language{
 			{ID: "go-exercism", Name: "Exercism Go Track", URL: "https://exercism.org/tracks/go", Description: "Practice exercises with free mentoring"},
 			{ID: "go-learnxiny", Name: "Learn X in Y Minutes: Go", URL: "https://learnxinyminutes.com/go/", Description: "Quick whirlwind tour of the syntax"},
 			{ID: "go-web-examples", Name: "Go Web Examples", URL: "https://gowebexamples.com", Description: "Build web servers step by step"},
+			{ID: "go-awesome", Name: "Awesome Go", URL: "https://github.com/avelino/awesome-go", Description: "The big curated Go library list"},
+			{ID: "go-blog", Name: "The Go Blog", URL: "https://go.dev/blog/", Description: "News and deep dives from the Go team"},
+			{ID: "go-practical", Name: "Practical Go", URL: "https://dave.cheney.net/practical-go", Description: "Real-world advice on writing Go"},
+			{ID: "go-101", Name: "Go 101", URL: "https://go101.org", Description: "Deep reference on the language details"},
+			{ID: "go-koans", Name: "Go Koans", URL: "https://github.com/cdarwin/go-koans", Description: "Learn by fixing small broken tests"},
 		},
 	},
 	"css": {
@@ -60,6 +71,11 @@ var languages = map[string]Language{
 			{ID: "css-webdev-learn", Name: "web.dev Learn CSS", URL: "https://web.dev/learn/css", Description: "Google's free structured CSS course"},
 			{ID: "css-battle", Name: "CSS Battle", URL: "https://cssbattle.dev", Description: "Fun coding challenges to sharpen your CSS"},
 			{ID: "css-kevin-powell", Name: "Kevin Powell (YouTube)", URL: "https://www.youtube.com/@KevinPowell", Description: "Friendly video tutorials on modern CSS"},
+			{ID: "css-reference", Name: "CSS Reference", URL: "https://cssreference.io", Description: "Visual guide to every property"},
+			{ID: "css-every-layout", Name: "Every Layout", URL: "https://every-layout.dev", Description: "Layout patterns that actually hold up"},
+			{ID: "css-modern", Name: "Modern CSS Solutions", URL: "https://moderncss.dev", Description: "Modern answers to old CSS problems"},
+			{ID: "css-100days", Name: "100 Days CSS", URL: "https://100dayscss.com", Description: "Daily small challenges to build the habit"},
+			{ID: "css-frontend-mentor", Name: "Frontend Mentor", URL: "https://www.frontendmentor.io", Description: "Build real designs from professional files"},
 		},
 	},
 	"http": {
@@ -76,6 +92,11 @@ var languages = map[string]Language{
 			{ID: "http-cloudflare", Name: "Cloudflare: What is HTTP?", URL: "https://www.cloudflare.com/learning/ddos/glossary/hypertext-transfer-protocol-http/", Description: "Clear beginner explanation"},
 			{ID: "http-hpbn", Name: "High Performance Browser Networking", URL: "https://hpbn.co", Description: "Free book on how the web really works"},
 			{ID: "http-postman", Name: "Postman Learning Center", URL: "https://learning.postman.com", Description: "Practice sending real HTTP requests"},
+			{ID: "http-mdn-caching", Name: "MDN HTTP Caching", URL: "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching", Description: "How browsers and servers cache"},
+			{ID: "http-httpbin", Name: "httpbin", URL: "https://httpbin.org", Description: "A server that echoes back your requests"},
+			{ID: "http2-explained", Name: "HTTP/2 Explained", URL: "https://http2-explained.haxx.se", Description: "Free book on how HTTP/2 works"},
+			{ID: "http-everything-curl", Name: "Everything curl", URL: "https://everything.curl.dev", Description: "Free book on the tool you will actually use"},
+			{ID: "http-mdn-cors", Name: "MDN CORS", URL: "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS", Description: "The thing that blocks your fetch calls"},
 		},
 	},
 	"https": {
@@ -92,6 +113,11 @@ var languages = map[string]Language{
 			{ID: "https-cloudflare-ssl", Name: "Cloudflare: What is SSL?", URL: "https://www.cloudflare.com/learning/ssl/what-is-ssl/", Description: "How SSL/TLS protects connections"},
 			{ID: "https-certbot", Name: "Certbot by EFF", URL: "https://certbot.eff.org", Description: "Get a free certificate for your own site"},
 			{ID: "https-mozilla-ssl", Name: "Mozilla SSL Config Generator", URL: "https://ssl-config.mozilla.org", Description: "Learn secure server settings"},
+			{ID: "https-mdn-tls", Name: "MDN Transport Layer Security", URL: "https://developer.mozilla.org/en-US/docs/Web/Security/Transport_Layer_Security", Description: "How TLS protects a connection"},
+			{ID: "https-cloudflare-tls", Name: "Cloudflare: What is TLS?", URL: "https://www.cloudflare.com/learning/ssl/transport-layer-security-tls/", Description: "Clear explanation of TLS"},
+			{ID: "https-badssl", Name: "badssl.com", URL: "https://badssl.com", Description: "Test how browsers handle broken certificates"},
+			{ID: "https-illustrated", Name: "The Illustrated TLS Connection", URL: "https://tls12.xargs.org", Description: "Every byte of a TLS handshake, explained"},
+			{ID: "https-rfc8446", Name: "RFC 8446 (TLS 1.3)", URL: "https://www.rfc-editor.org/rfc/rfc8446", Description: "The spec behind modern HTTPS"},
 		},
 	},
 	"java": {
@@ -108,6 +134,11 @@ var languages = map[string]Language{
 			{ID: "java-codingbat", Name: "CodingBat Java", URL: "https://codingbat.com/java", Description: "Short practice problems with instant feedback"},
 			{ID: "java-programiz", Name: "Programiz Java", URL: "https://www.programiz.com/java-programming", Description: "Clear beginner tutorials with examples"},
 			{ID: "java-jenkov", Name: "Jenkov Java Tutorials", URL: "https://jenkov.com/tutorials/java/index.html", Description: "Detailed tutorials on many Java topics"},
+			{ID: "java-dev", Name: "dev.java", URL: "https://dev.java", Description: "Oracle's modern learning hub"},
+			{ID: "java-api", Name: "Java SE API Docs", URL: "https://docs.oracle.com/en/java/javase/21/docs/api/", Description: "The reference you will keep open"},
+			{ID: "java-hyperskill", Name: "Hyperskill Java", URL: "https://hyperskill.org/courses/8-java-backend-developer", Description: "Project-based Java track"},
+			{ID: "java-brains", Name: "Java Brains", URL: "https://www.youtube.com/@Java.Brains", Description: "Clear video series on Java and Spring"},
+			{ID: "java-refactoring", Name: "Refactoring Guru: Design Patterns", URL: "https://refactoring.guru/design-patterns/java", Description: "Patterns explained in Java"},
 		},
 	},
 	"cpp": {
@@ -124,6 +155,11 @@ var languages = map[string]Language{
 			{ID: "cpp-programiz", Name: "Programiz C++", URL: "https://www.programiz.com/cpp-programming", Description: "Clear beginner tutorials with examples"},
 			{ID: "cpp-microsoft", Name: "Microsoft Learn C++", URL: "https://learn.microsoft.com/en-us/cpp/", Description: "Official docs and guides from Microsoft"},
 			{ID: "cpp-core-guidelines", Name: "C++ Core Guidelines", URL: "https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines", Description: "Best practices from the C++ creators"},
+			{ID: "cpp-learncpp", Name: "Learn C++", URL: "https://www.learncpp.com", Description: "The best free C++ tutorial online"},
+			{ID: "cpp-guidelines", Name: "C++ Core Guidelines", URL: "https://isocpp.github.io/CppCoreGuidelines/", Description: "How to write modern C++ properly"},
+			{ID: "cpp-godbolt", Name: "Compiler Explorer", URL: "https://godbolt.org", Description: "See what your code compiles to"},
+			{ID: "cpp-faq", Name: "ISO C++ FAQ", URL: "https://isocpp.org/wiki/faq", Description: "Answers to the questions everyone asks"},
+			{ID: "cpp-hackerrank", Name: "HackerRank C++", URL: "https://www.hackerrank.com/domains/cpp", Description: "Practice problems with instant feedback"},
 		},
 	},
 	"php": {
@@ -140,6 +176,11 @@ var languages = map[string]Language{
 			{ID: "php-phptutorial", Name: "PHPTutorial.net", URL: "https://www.phptutorial.net", Description: "Step-by-step beginner tutorials"},
 			{ID: "php-laravel-bootcamp", Name: "Laravel Bootcamp", URL: "https://bootcamp.laravel.com", Description: "Build a real app with the Laravel framework"},
 			{ID: "php-delusions", Name: "PHP Delusions", URL: "https://phpdelusions.net", Description: "Learn PHP database work the right way"},
+			{ID: "php-symfony", Name: "Symfony Docs", URL: "https://symfony.com/doc/current/index.html", Description: "The framework a lot of PHP work runs on"},
+			{ID: "php-fig", Name: "PHP-FIG Standards", URL: "https://www.php-fig.org/psr/", Description: "The standards everyone follows"},
+			{ID: "php-awesome", Name: "Awesome PHP", URL: "https://github.com/ziadoz/awesome-php", Description: "Curated libraries and tools"},
+			{ID: "php-3v4l", Name: "3v4l", URL: "https://3v4l.org", Description: "Run the same code on many PHP versions"},
+			{ID: "php-best-practices", Name: "PHP Best Practices", URL: "https://phpbestpractices.org", Description: "Short, practical answers"},
 		},
 	},
 	"sql": {
@@ -156,6 +197,11 @@ var languages = map[string]Language{
 			{ID: "sql-murder-mystery", Name: "SQL Murder Mystery", URL: "https://mystery.knightlab.com", Description: "Solve a crime using SQL"},
 			{ID: "sql-select-star", Name: "Select Star SQL", URL: "https://selectstarsql.com", Description: "Interactive book on SQL"},
 			{ID: "sql-hackerrank", Name: "HackerRank SQL", URL: "https://www.hackerrank.com/domains/sql", Description: "Practice problems from easy to hard"},
+			{ID: "sql-pgexercises", Name: "PostgreSQL Exercises", URL: "https://pgexercises.com", Description: "Learn by querying a real database"},
+			{ID: "sql-useindex", Name: "Use The Index, Luke", URL: "https://use-the-index-luke.com", Description: "Why your queries are slow"},
+			{ID: "sql-sqlite-tutorial", Name: "SQLite Tutorial", URL: "https://www.sqlitetutorial.net", Description: "The database you can run anywhere"},
+			{ID: "sql-leetcode", Name: "LeetCode Database", URL: "https://leetcode.com/problemset/database/", Description: "Interview-style SQL problems"},
+			{ID: "sql-style-guide", Name: "SQL Style Guide", URL: "https://www.sqlstyle.guide", Description: "Write SQL other people can read"},
 		},
 	},
 	"javascript": {
@@ -172,6 +218,11 @@ var languages = map[string]Language{
 			{ID: "js-ydkjs", Name: "You Don't Know JS Yet", URL: "https://github.com/getify/You-Dont-Know-JS", Description: "Free deep-dive book series"},
 			{ID: "js-exercism", Name: "Exercism JavaScript Track", URL: "https://exercism.org/tracks/javascript", Description: "Practice exercises with free mentoring"},
 			{ID: "js-codecademy", Name: "Codecademy Intro to JavaScript", URL: "https://www.codecademy.com/learn/introduction-to-javascript", Description: "Interactive lessons in the browser"},
+			{ID: "js-node-docs", Name: "Node.js Docs", URL: "https://nodejs.org/en/docs", Description: "Run JavaScript outside the browser"},
+			{ID: "js-30-seconds", Name: "30 seconds of code", URL: "https://www.30secondsofcode.org", Description: "Short, useful snippets"},
+			{ID: "js-clean-code", Name: "Clean Code JavaScript", URL: "https://github.com/ryanmcdermott/clean-code-javascript", Description: "Clean-code principles applied to JS"},
+			{ID: "js-regex101", Name: "Regex101", URL: "https://regex101.com", Description: "Build and test regular expressions"},
+			{ID: "js-frontend-masters", Name: "Frontend Masters: JavaScript", URL: "https://frontendmasters.com/learn/javascript/", Description: "Structured path from beginner to advanced"},
 		},
 	},
 }

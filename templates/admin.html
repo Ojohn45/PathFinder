@@ -4,7 +4,7 @@
     <title>Admin - Redirect</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="wide">
+<body class="wide" data-theme="base">
     {{template "topbar" .}}
 
     {{if .HeadAdmin.FullName}}
@@ -35,6 +35,7 @@
         {{end}}
         <a href="/admin/invite-user" class="admin-btn">Invite a User</a>
         <a href="/admin/users" class="admin-btn">Check Users</a>
+        <a href="/admin/emails" class="admin-btn">Email Log</a>
     </div>
 </body>
 </html>

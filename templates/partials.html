@@ -1,9 +1,60 @@
+{{/*
+  THE REDIRECT LOGO  (one story, ~13 seconds, loops)
+
+   0.0s  Only the sword exists. A small anime boy runs in holding it.
+   2.6s  He swings. The air tears open (a glowing rift, no word yet).
+   4.2s  He gathers energy: techy rings, a magical blast.
+   5.4s  The blast flies through the tear and re-emerges on the other side.
+   6.4s  The blast turns into the word REDIRECT.
+   8.0s  The boy appears behind the word, sword resting on his shoulder.
+  12.0s  Everything fades out, then the story starts again.
+*/}}
+{{define "logo"}}
+<span class="rlogo" aria-label="Redirect">
+<svg class="rlogo-svg" viewBox="0 0 560 130" role="img" aria-hidden="true">
+    <defs>
+        <linearGradient id="rl2-face" x1="0" y1="0" x2="0.15" y2="1">
+            <stop offset="0" stop-color="#6ba3dc"/>
+            <stop offset="0.34" stop-color="#4179ba"/>
+            <stop offset="0.66" stop-color="#2b5887"/>
+            <stop offset="1" stop-color="#1a3a58"/>
+        </linearGradient>
+        <linearGradient id="rl2-sheen" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#7fd6ff" stop-opacity="0"/>
+            <stop offset="0.5" stop-color="#bff0ff" stop-opacity="0.85"/>
+            <stop offset="1" stop-color="#7fd6ff" stop-opacity="0"/>
+        </linearGradient>
+        <filter id="rl2-glow" x="-40%" y="-80%" width="180%" height="260%">
+            <feGaussianBlur stdDeviation="5" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <clipPath id="rl2-clip"><rect class="rl2-mask" x="20" y="10" width="520" height="110"/></clipPath>
+    </defs>
+
+    <g class="rl2">
+        <g clip-path="url(#rl2-clip)">
+            <text class="rl2-word rl2-ghost" x="280" y="88">REDIRECT</text>
+            <text class="rl2-word" x="280" y="88">REDIRECT</text>
+        </g>
+        <rect class="rl2-scan" x="20" y="16" width="3" height="98" fill="url(#rl2-sheen)"/>
+        <rect class="rl2-rule" x="150" y="104" width="260" height="2"/>
+        <g class="rl2-brackets" filter="url(#rl2-glow)">
+            <path d="M18 34 L18 18 L34 18"/>
+            <path d="M542 34 L542 18 L526 18"/>
+            <path d="M18 96 L18 112 L34 112"/>
+            <path d="M542 96 L542 112 L526 112"/>
+        </g>
+    </g>
+</svg>
+</span>
+{{end}}
 {{define "topbar"}}
 <nav class="topbar">
-    <a class="brand" href="/">Redirect</a>
+    <a class="topbar-brand" href="/" aria-label="Redirect home">{{template "logo" .}}</a>
     <div class="topbar-links">
         {{if .User}}
         <a href="/home">Home</a>
+        <a href="/browse">Browse</a>
         {{if .User.IsAdmin}}<a href="/admin">Admin</a>{{end}}
         <button type="button" class="pill pill-soft" id="logout-open">Log out</button>
         {{else}}
@@ -32,9 +83,9 @@
 <script>
     (function () {
         var modal = document.getElementById("logout-modal");
-        document.getElementById("logout-open").addEventListener("click", function () {
-            modal.classList.add("show");
-        });
+        var open = document.getElementById("logout-open");
+        if (!modal || !open) { return; }
+        open.addEventListener("click", function () { modal.classList.add("show"); });
         function close() { modal.classList.remove("show"); }
         document.getElementById("logout-no").addEventListener("click", close);
         modal.addEventListener("click", function (e) { if (e.target === modal) close(); });

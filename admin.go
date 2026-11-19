@@ -14,11 +14,13 @@ import (
 
 // ---------- The head admin ----------
 //
-// The head admin is created automatically when the server starts.
-// The PASSWORD is read from an environment variable so it never sits in
-// your code (and never ends up on GitHub):
+// The head admin is created automatically when the server starts, so you can
+// log in and use the admin page immediately.
 //
-//   ADMIN_PASSWORD='...'  go run .
+// The password has a built-in default below. Override it (recommended before
+// this goes online) with an environment variable:
+//
+//   ADMIN_PASSWORD='a-new-password'  go run .
 //
 // The other details have defaults below, and can be changed with
 // ADMIN_EMAIL, ADMIN_FULLNAME and ADMIN_USERNAME.
@@ -26,6 +28,10 @@ import (
 // If there is NO head admin yet, one is created. If an account with the admin
 // email already exists, it is upgraded to head admin. After that, ADMIN_PASSWORD
 // in .env is always the head admin's password.
+
+// defaultHeadAdminPassword is used only when there is no head admin yet and
+// ADMIN_PASSWORD is not set. Change it here, or set ADMIN_PASSWORD.
+const defaultHeadAdminPassword = "49321111@John"
 
 func seedHeadAdmin() {
 	if head, exists := headAdmin(); exists {
@@ -45,11 +51,7 @@ func seedHeadAdmin() {
 		return
 	}
 
-	password := os.Getenv("ADMIN_PASSWORD")
-	if password == "" {
-		log.Println("NOTE: no head admin yet. Start the server with ADMIN_PASSWORD set to create one.")
-		return
-	}
+	password := getenv("ADMIN_PASSWORD", defaultHeadAdminPassword)
 
 	email := strings.ToLower(getenv("ADMIN_EMAIL", "brucenic12@gmail.com"))
 	fullName := getenv("ADMIN_FULLNAME", "Odumu John")

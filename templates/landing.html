@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Redirect — Your Gateway to Great Learning</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="landing">
+<body class="landing" data-theme="{{.Theme}}">
     <nav class="navbar">
-        <div class="brand">Redirect</div>
+        <a class="topbar-brand" href="/" aria-label="Redirect">{{template "logo" .}}</a>
 
         <div class="dropdown">
             <button class="pill" type="button">
@@ -26,9 +28,9 @@
                         <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M19 8v6M16 11h6"/></svg>
                         <span><strong>Sign Up</strong><small>Create a free account</small></span>
                     </a>
-                    <a href="/languages" class="menu-item">
+                    <a href="/browse" class="menu-item">
                         <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                        <span><strong>Browse Languages</strong><small>Explore learning resources</small></span>
+                        <span><strong>Browse</strong><small>See the five fractions</small></span>
                     </a>
                 </div>
             </div>
@@ -36,22 +38,22 @@
     </nav>
 
     <section class="hero">
-        <h1>Redirect</h1>
+        <div class="hero-logo">{{template "logo" .}}</div>
         <p class="tagline">Your gateway to great learning.</p>
         <p class="hero-text">
             Redirect isn't another course platform trying to teach you everything
-            from scratch — it's a curated launchpad. Pick a programming language
-            you want to learn, and Redirect instantly points you to some of the
-            best free resources on the web for it: official docs, interactive
-            tutorials, full courses, and hands-on practice sites. No more
-            spending an hour searching "best way to learn Python" — just pick a
-            language, click, and start learning. Create a free account to keep
-            track of every resource you've visited, so you never lose your place.
+            from scratch. It's a curated launchpad. Pick a fraction — programming,
+            entertainment, learning, lifestyle, create and work — and Redirect points
+            you straight at the fifteen places worth your time inside it: official
+            docs, free courses, practice grounds, the good documentaries, the sites
+            people actually finish. No more spending an hour searching
+            "best way to learn Python". Create a free account and Redirect keeps
+            track of every place you visit, so you never lose your place.
         </p>
         <div class="hero-actions">
-            <a href="/languages" class="pill">
+            <a href="/browse" class="pill">
                 <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                Browse Languages
+                Browse
             </a>
             <a href="/signup" class="pill pill-soft">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M19 8v6M16 11h6"/></svg>

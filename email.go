@@ -1,10 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"encoding/json"
-	"io"
-	"net/http"
 	"bytes"
 	"crypto/rand"
 	"crypto/tls"
@@ -41,7 +37,8 @@ var bannerGIF []byte
 
 const bannerCID = "redirect-banner@redirect.local"
 
-var errEmailNotConfigured = errors.New("Resend is not configured (RESEND_API_KEY missing)")
+var errEmailNotConfigured = errors.New("email is not configured (SMTP_USER / SMTP_PASS missing)")
+
 func getenv(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
 		return v
@@ -91,12 +88,17 @@ func loadDotEnv() {
 
 // logEmailStatus tells you right at startup whether email is ready.
 func logEmailStatus() {
-    if os.Getenv("RESEND_API_KEY") == "" {
-        log.Println("EMAIL: Resend API key missing. Check your .env file.")
-        return
-    }
-
-    log.Println("EMAIL: Resend API configured successfully.")
+	user := os.Getenv("SMTP_USER")
+	pass := os.Getenv("SMTP_PASS")
+	switch {
+	case user == "" && pass == "":
+		log.Println("EMAIL: NOT set up - add SMTP_USER and SMTP_PASS to your .env file, then restart")
+	case user == "" || pass == "":
+		log.Println("EMAIL: only one of SMTP_USER / SMTP_PASS is set - you need both")
+	default:
+		log.Println("EMAIL: settings found, testing the login with the mail server...")
+		go checkEmailLogin() // runs in the background, result appears in a few seconds
+	}
 }
 
 // checkEmailLogin connects to the mail server and logs in, WITHOUT sending
@@ -148,111 +150,35 @@ func checkEmailLogin() {
 // If htmlBody is empty it is plain text; otherwise it is a "text + pretty HTML" email.
 // toEmail must already be validated.
 func sendEmail(toEmail, subject, textBody, htmlBody string) (err error) {
-    defer func() {
-        rec := EmailRecord{
-            Time:    time.Now(),
-            To:      toEmail,
-            Subject: subject,
-            Status:  "sent",
-        }
+	defer func() {
+		rec := EmailRecord{Time: time.Now(), To: toEmail, Subject: subject, Status: "sent"}
+		switch {
+		case errors.Is(err, errEmailNotConfigured):
+			rec.Status = "not_configured"
+		case err != nil:
+			rec.Status = "failed"
+			rec.Error = err.Error()
+		}
+		addEmailRecord(rec)
+	}()
 
-        if errors.Is(err, errEmailNotConfigured) {
-            rec.Status = "not_configured"
-        } else if err != nil {
-            rec.Status = "failed"
-            rec.Error = err.Error()
-        }
+	user := os.Getenv("SMTP_USER")
+	pass := strings.ReplaceAll(os.Getenv("SMTP_PASS"), " ", "") // Google shows App Passwords with spaces
+	if user == "" || pass == "" {
+		return errEmailNotConfigured
+	}
 
-        addEmailRecord(rec)
-    }()
+	host := getenv("SMTP_HOST", "smtp.gmail.com")
+	port := getenv("SMTP_PORT", "587")
+	from := getenv("SMTP_FROM", user)
 
-    apiKey := os.Getenv("RESEND_API_KEY")
+	msg, err := buildMessage(from, toEmail, subject, textBody, htmlBody)
+	if err != nil {
+		return err
+	}
 
-    if apiKey == "" {
-        return errEmailNotConfigured
-    }
-
-    from := getenv("RESEND_FROM", "onboarding@resend.dev")
-
-    type Attachment struct {
-        Filename  string `json:"filename"`
-        Content   string `json:"content"`
-        Type      string `json:"content_type"`
-        ContentID string `json:"content_id"`
-    }
-
-    type EmailRequest struct {
-        From        string       `json:"from"`
-        To          []string     `json:"to"`
-        Subject     string       `json:"subject"`
-        Text        string       `json:"text"`
-        HTML        string       `json:"html,omitempty"`
-        Attachments []Attachment `json:"attachments,omitempty"`
-    }
-
-    params := EmailRequest{
-        From:    from,
-        To:      []string{toEmail},
-        Subject: subject,
-        Text:    textBody,
-        HTML:    htmlBody,
-    }
-
-    // Attach the animated banner when the email uses it.
-    if strings.Contains(htmlBody, "cid:"+bannerCID) {
-        params.Attachments = append(params.Attachments, Attachment{
-            Filename:  "redirect-banner.gif",
-            Content:   base64.StdEncoding.EncodeToString(bannerGIF),
-            Type:      "image/gif",
-            ContentID: bannerCID,
-        })
-    }
-
-    body, err := json.Marshal(params)
-    if err != nil {
-        return err
-    }
-
-    req, err := http.NewRequest(
-        http.MethodPost,
-        "https://api.resend.com/emails",
-        bytes.NewReader(body),
-    )
-
-    if err != nil {
-        return err
-    }
-
-    req.Header.Set("Authorization", "Bearer "+apiKey)
-    req.Header.Set("Content-Type", "application/json")
-
-    client := &http.Client{
-        Timeout: 15 * time.Second,
-    }
-
-    resp, err := client.Do(req)
-    if err != nil {
-        return err
-    }
-
-    defer resp.Body.Close()
-
-    responseBody, err := io.ReadAll(resp.Body)
-    if err != nil {
-        return err
-    }
-
-    if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-        return fmt.Errorf(
-            "Resend API error (%d): %s",
-            resp.StatusCode,
-            string(responseBody),
-        )
-    }
-
-    log.Println("EMAIL: Resend accepted email for", toEmail)
-
-    return nil
+	auth := smtp.PlainAuth("", user, pass, host)
+	return smtp.SendMail(net.JoinHostPort(host, port), auth, from, []string{toEmail}, msg)
 }
 
 func writeQP(w interface{ Write([]byte) (int, error) }, s string) {

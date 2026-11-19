@@ -1,18 +1,26 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Languages - Redirect</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Browse - Redirect</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="wide">
+<body class="wide" data-theme="{{.Theme}}">
     {{template "topbar" .}}
 
-    <h1 class="center">Redirect</h1>
-    <p class="center">Your gate way to great learning:</p>
+    <section class="page-head">
+        <span class="crumb">Browse</span>
+        <h1>Pick a fraction</h1>
+        <p>Five rooms, each with its own colour. Open one and you get its topics, then fifteen places per topic.</p>
+    </section>
 
-    <div class="box-grid">
-        {{range .Languages}}
-        <a class="lang-box" href="/language/{{.Slug}}"{{if not $.User}} data-guest="1"{{end}}>{{.Name}}</a>
+    <div class="fraction-grid">
+        {{range .Fractions}}
+        <a class="frac-card theme-{{.Theme}}" href="/fraction/{{.Slug}}"{{if not $.User}} data-guest="1"{{end}}>
+            <b>{{.Name}}</b>
+            <span>{{.Tagline}}</span>
+        </a>
         {{end}}
     </div>
 
@@ -21,7 +29,7 @@
         <div class="popup-wrap">
             <a class="popup-box" href="/signup">
                 <strong>Oops! You need an account first 🔒</strong>
-                <span>Sign up for free to open a language and get 10 great places to learn it.</span>
+                <span>Sign up for free to open a fraction and get 15 great places for every topic inside it.</span>
                 <em>Click here to sign up →</em>
             </a>
             <p class="popup-extra">

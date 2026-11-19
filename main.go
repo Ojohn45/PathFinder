@@ -5,17 +5,29 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"sort"
 )
 
 var templates = template.Must(template.ParseGlob("templates/*.html"))
 
 // One struct that every page can use. Each page only fills what it needs.
 type PageData struct {
-	User      *User // nil = guest
-	Languages []Language
-	Lang      Language
-	Recent    []HistoryEntry
+	User   *User // nil = guest
+	Recent []HistoryEntry
+
+	// Browse / fraction / topic pages
+	Fractions []Fraction
+	Fraction  Fraction
+	Topic     Topic
+
+	// The Programming room: its three tabs
+	Tab          string     // "docs" or "documentaries" ("" = the topics tab)
+	Languages    []Topic    // the languages to choose from
+	Current      Topic      // the chosen language
+	Links        []Resource // docs or documentary links for it
+	Locked       bool       // topics not clickable yet
+	DocsUnlocked bool       // the visitor has read a language's docs
+	Theme        string     // css theme key for <body data-theme="...">
+	Count        int        // how many places a topic has
 
 	// Admin pages
 	Emails        []EmailRecord
@@ -54,63 +66,91 @@ func render(w http.ResponseWriter, name string, data PageData) {
 	buf.WriteTo(w)
 }
 
-// Languages in a stable order (Go maps have no order).
-func sortedLanguages() []Language {
-	list := make([]Language, 0, len(languages))
-	for _, l := range languages {
-		list = append(list, l)
-	}
-	sort.Slice(list, func(i, j int) bool { return list[i].Slug < list[j].Slug })
-	return list
-}
-
 // ---------- Public pages ----------
 
 func landingPageHandler(w http.ResponseWriter, r *http.Request) {
-	render(w, "landing.html", PageData{})
+	render(w, "landing.html", PageData{Theme: "base"})
 }
 
-// Anyone can SEE the list of languages. Guests get the popup when they click one.
-func languagesHandler(w http.ResponseWriter, r *http.Request) {
+// The Browse page: every fraction as a big box.
+// Anyone can SEE it. Guests get the popup when they click one.
+func browseHandler(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
-	render(w, "languages.html", PageData{
+	render(w, "browse.html", PageData{
 		User:      user,
-		Languages: sortedLanguages(),
+		Fractions: fractions,
+		Theme:     "base",
 		NeedLogin: user == nil && r.URL.Query().Get("login_required") == "1",
 	})
 }
 
 // ---------- Logged-in pages ----------
 
-// guestRedirect sends a guest back to the languages page with the popup turned on.
+// guestRedirect sends a guest back to the browse page with the popup turned on.
 func guestRedirect(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/languages?login_required=1", http.StatusSeeOther)
+	http.Redirect(w, r, "/browse?login_required=1", http.StatusSeeOther)
 }
 
-// The page people land on after logging in: a welcome + the Browse button.
+// The page people land on after logging in: the four explanation boxes,
+// the Browse button and the fractions.
 func homePageHandler(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	if user == nil {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	render(w, "home.html", PageData{User: user, Recent: recentHistory(user.ID, 5)})
+	render(w, "home.html", PageData{
+		User:      user,
+		Fractions: fractions,
+		Recent:    recentHistory(user.ID, 5),
+		Theme:     "base",
+	})
 }
 
-// Shows the 10 sites for one language.
-func languageHandler(w http.ResponseWriter, r *http.Request) {
+// One fraction: its own colour, its own topics (and the programming fork).
+func fractionHandler(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	if user == nil {
 		guestRedirect(w, r)
 		return
 	}
 
-	lang, ok := languages[r.PathValue("slug")]
+	f, ok := fractionBySlug[r.PathValue("slug")]
 	if !ok {
 		http.NotFound(w, r)
 		return
 	}
-	render(w, "language.html", PageData{User: user, Lang: lang})
+	data := PageData{User: user, Fraction: f, Theme: f.Theme}
+	if f.Slug == "programming" {
+		data.DocsUnlocked = docsRead(r)
+		data.Locked = !data.DocsUnlocked
+	}
+	render(w, "fraction.html", data)
+}
+
+// One topic: the 15 places you can be redirected to.
+func topicHandler(w http.ResponseWriter, r *http.Request) {
+	user := currentUser(r)
+	if user == nil {
+		guestRedirect(w, r)
+		return
+	}
+
+	slug := r.PathValue("slug")
+	t, ok := topicBySlug[slug]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	data := PageData{User: user, Topic: t, Count: len(t.Resources), Theme: "base"}
+	if fSlug, ok := fractionOfTopic[slug]; ok {
+		data.Theme = themeFor(fSlug)
+		if f, ok := fractionBySlug[fSlug]; ok {
+			data.Fraction = f
+		}
+	}
+	render(w, "topic.html", data)
 }
 
 // Saves the visit in the user's history, then sends them to the site.
@@ -124,19 +164,19 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 	slug := r.PathValue("slug")
 	resourceID := r.PathValue("resourceID")
 
-	lang, ok := languages[slug]
+	t, ok := topicBySlug[slug]
 	if !ok {
 		http.NotFound(w, r)
 		return
 	}
 
-	for _, res := range lang.Resources {
-		if res.ID == resourceID {
-			if err := addHistory(user.ID, slug, res.ID, res.Name); err != nil {
+	for _, resource := range t.Resources {
+		if resource.ID == resourceID {
+			if err := addHistory(user.ID, slug, resource.ID, resource.Name); err != nil {
 				log.Println("Could not save history:", err) // don't block the redirect
 			}
-			log.Printf("%s -> %s (%s)", user.Username, res.Name, res.URL)
-			http.Redirect(w, r, res.URL, http.StatusFound)
+			log.Printf("%s -> %s (%s)", user.Username, resource.Name, resource.URL)
+			http.Redirect(w, r, resource.URL, http.StatusFound)
 			return
 		}
 	}
@@ -152,10 +192,21 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /{$}", landingPageHandler) // exactly "/", anything else = 404
-	mux.HandleFunc("GET /languages", languagesHandler)
+	mux.HandleFunc("GET /browse", browseHandler)
 	mux.HandleFunc("GET /home", homePageHandler)
-	mux.HandleFunc("GET /language/{slug}", languageHandler)
+	mux.HandleFunc("GET /fraction/{slug}", fractionHandler)
+	mux.HandleFunc("GET /fraction/programming/{tab}", programmingTabHandler)
+	mux.HandleFunc("GET /fraction/programming/{tab}/{lang}", programmingTabHandler)
+	mux.HandleFunc("GET /topic/{slug}", topicHandler)
 	mux.HandleFunc("GET /go/{slug}/{resourceID}", redirectHandler)
+
+	// Old links keep working.
+	mux.HandleFunc("GET /languages", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/browse", http.StatusSeeOther)
+	})
+	mux.HandleFunc("GET /language/{slug}", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/topic/"+r.PathValue("slug"), http.StatusSeeOther)
+	})
 
 	mux.HandleFunc("GET /signup", signupPageHandler)
 	mux.HandleFunc("POST /signup", signupHandler)

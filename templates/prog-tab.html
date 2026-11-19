@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{if eq .Tab "docs"}}Documentation{{else}}Documentaries{{end}} - Programming - Redirect</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="wide" data-theme="{{.Theme}}">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb">
+            <a href="/browse">Browse</a> ·
+            <a href="/fraction/programming">Programming</a> ·
+            {{if eq .Tab "docs"}}Docs{{else}}Watch documentaries{{end}}
+        </span>
+        <h1>{{if .Current}}{{.Current.Name}}{{else}}{{if eq .Tab "docs"}}Documentation{{else}}Documentaries{{end}}{{end}}</h1>
+        <p>
+            {{if .Current}}
+                {{if eq .Tab "docs"}}Read it before you build with it. These are the pages that actually explain the language.
+                {{else}}Films, talks and channels about {{.Current.Name}} and the people who built it.
+                {{end}}
+            {{else}}
+                {{if eq .Tab "docs"}}Choose a language to read its documentation. Reading one unlocks the topics.
+                {{else}}Choose a language first, then we will show you where to watch.
+                {{end}}
+            {{end}}
+        </p>
+    </section>
+
+    {{template "progtabs" .}}
+
+    {{if .Current}}
+    <div class="site-grid">
+        {{range .Links}}
+        <a class="site-box" href="{{.URL}}" target="_blank" rel="noopener noreferrer">
+            <strong>{{.Name}}</strong>
+            <span>{{.Description}}</span>
+        </a>
+        {{end}}
+    </div>
+    <p class="center" style="margin-top:34px;font-size:.85rem;color:var(--muted)">
+        <a href="/fraction/programming/{{.Tab}}">Choose another language</a>
+        {{if eq .Tab "docs"}} · <a href="/fraction/programming">Topics are unlocked</a>{{end}}
+    </p>
+    {{else}}
+    <div class="lang-grid">
+        {{range .Languages}}
+        <a class="lang-card" href="/fraction/programming/{{$.Tab}}/{{.Slug}}">
+            <b>{{.Name}}</b>
+            <span>{{if eq $.Tab "docs"}}Read the docs{{else}}Where to watch{{end}}</span>
+        </a>
+        {{end}}
+    </div>
+    {{end}}
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{.Topic.Name}} - Redirect</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="wide" data-theme="{{.Theme}}">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb">
+            <a href="/browse">Browse</a>
+            {{if .Fraction.Name}} · <a href="/fraction/{{.Fraction.Slug}}">{{.Fraction.Name}}</a>{{end}}
+            · {{.Topic.Name}}
+        </span>
+        <h1>{{.Topic.Name}}</h1>
+        <p>{{if .Topic.Blurb}}{{.Topic.Blurb}}{{else}}The {{.Count}} places worth your time.{{end}}</p>
+    </section>
+
+    <div class="site-grid">
+        {{range .Topic.Resources}}
+        <a class="site-box" href="/go/{{$.Topic.Slug}}/{{.ID}}" target="_blank" rel="noopener noreferrer">
+            <strong>{{.Name}}</strong>
+            <span>{{.Description}}</span>
+        </a>
+        {{end}}
+    </div>
+
+    <p class="center" style="margin-top:34px;color:var(--muted);font-size:.85rem">
+        {{.Count}} places · clicking one opens it in a new tab and saves it to your history
+    </p>
+</body>
+</html>

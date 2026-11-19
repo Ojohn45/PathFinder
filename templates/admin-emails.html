@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Log - Redirect</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="wide" data-theme="base">
+    {{template "topbar" .}}
+
+    <p><a href="/admin">← Back to admin page</a></p>
+    <h1 class="center">Email Log</h1>
+
+    {{if .Info}}<p class="form-success">{{.Info}}</p>{{end}}
+    {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+
+    <div class="users-panel">
+        <div class="email-actions">
+            <form method="POST" action="/admin/emails/test">
+                <button type="submit" class="send-btn email-test-btn">Send a test email to myself ({{.User.Email}})</button>
+            </form>
+        </div>
+
+        <p class="invite-note center">
+            Every email this website sends is listed here. <strong>Handed to the mail server</strong> means Gmail took the
+            email and is delivering it. It does not promise which folder it lands in. If an address does not exist,
+            Gmail sends a "Mail Delivery Subsystem" message back to the sending inbox.
+        </p>
+
+        <div class="table-scroll">
+            <table class="users-table">
+                <thead>
+                    <tr><th>When</th><th>To</th><th>Subject</th><th>Result</th></tr>
+                </thead>
+                <tbody>
+                    {{range .Emails}}
+                    <tr>
+                        <td>{{.Time.Format "02 Jan 15:04"}}</td>
+                        <td>{{.To}}</td>
+                        <td>{{.Subject}}</td>
+                        <td>
+                            {{if eq .Status "sent"}}<span class="status-online">✅ Handed to the mail server</span>
+                            {{else if eq .Status "not_configured"}}<span class="status-offline">⚠️ Email not set up</span>
+                            {{else}}<span class="mail-failed">❌ Failed</span> <small>{{.Error}}</small>{{end}}
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr><td colspan="4" class="center">No emails sent yet.</td></tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{.Fraction.Name}} - Redirect</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="wide" data-theme="{{.Theme}}">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb"><a href="/browse">Browse</a> · {{.Fraction.Name}}</span>
+        <h1>{{.Fraction.Name}}</h1>
+        <p>{{.Fraction.Blurb}}</p>
+    </section>
+
+    {{if eq .Fraction.Slug "programming"}}{{template "progtabs" .}}{{end}}
+
+    {{if .Fraction.Forks}}
+    <div class="fork-grid">
+        {{range .Fraction.Forks}}
+        <a class="fork-card" href="{{if .Slug}}/topic/{{.Slug}}{{else}}#topics{{end}}">
+            <h3>{{.Title}}</h3>
+            <p>{{.Blurb}}</p>
+        </a>
+        {{end}}
+    </div>
+    {{end}}
+
+    <h2 class="section-title" id="topics" style="margin-top:40px">Topics</h2>
+
+    {{if .Locked}}
+    <div class="locked-note">
+        <b>The topics are locked for now.</b>
+        Open a language in <a href="/fraction/programming/docs">Docs</a> and read it first. Once you have,
+        every topic below opens and stays open.
+    </div>
+    {{end}}
+
+    <div class="topic-grid">
+        {{range .Fraction.Topics}}
+        {{if $.Locked}}
+        <div class="topic-box locked">
+            <span class="lock-icon" aria-hidden="true">&#128274;</span>
+            {{.Name}}
+            {{if .Blurb}}<small>{{.Blurb}}</small>{{end}}
+        </div>
+        {{else}}
+        <a class="topic-box" href="/topic/{{.Slug}}">
+            {{.Name}}
+            {{if .Blurb}}<small>{{.Blurb}}</small>{{end}}
+        </a>
+        {{end}}
+        {{end}}
+    </div>
+</body>
+</html>

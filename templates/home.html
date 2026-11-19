@@ -1,31 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home - Redirect</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="wide">
+<body class="wide" data-theme="{{.Theme}}">
     {{template "topbar" .}}
 
-    <section class="dashboard">
-        <h1>Welcome, {{.User.FullName}}! 👋</h1>
-        <p>Ready to learn something new today?</p>
-
-        <a href="/languages" class="pill browse-btn">
-            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            Browse
-        </a>
-
-        {{if .Recent}}
-        <h2 class="section-title center">Recently visited</h2>
-        <div class="box-grid">
-            {{range .Recent}}
-            <a class="site-box" href="/go/{{.LanguageSlug}}/{{.ResourceID}}">
-                <strong>{{.ResourceName}}</strong>
-            </a>
-            {{end}}
-        </div>
-        {{end}}
+    <section class="page-head">
+        <span class="crumb">Welcome back</span>
+        <h1>Hi {{.User.FullName}} 👋</h1>
+        <p>Everything below is one click from the good part of the internet. Pick a fraction and go.</p>
     </section>
+
+    <div class="explain-grid">
+        <div class="xbox">
+            <b>One place for everything you want to learn</b>
+            <p>Redirect is a single door to the good stuff on the internet. No more opening twenty tabs and guessing which site is actually worth your time.</p>
+        </div>
+        <div class="xbox">
+            <b>Pick a fraction, not a search engine</b>
+            <p>Programming, entertainment, learning, lifestyle, create and work. Each fraction is a room with its own colour, so you always know where you are.</p>
+        </div>
+        <div class="xbox">
+            <b>Fifteen hand-picked places per topic</b>
+            <p>Every topic opens fifteen places worth your hours: the official docs, the free courses, the practice grounds, the ones people actually finish.</p>
+        </div>
+        <div class="xbox">
+            <b>It remembers where you have been</b>
+            <p>Redirect keeps your history, so you can pick up where you stopped instead of starting over. Your account keeps your data everywhere you log in.</p>
+        </div>
+    </div>
+
+    <div class="browse-cta">
+        <a href="/browse" class="pill browse-btn">
+            <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Browse everything
+        </a>
+    </div>
+
+    <div class="fraction-grid">
+        {{range .Fractions}}
+        <a class="frac-card theme-{{.Theme}}" href="/fraction/{{.Slug}}">
+            <b>{{.Name}}</b>
+            <span>{{.Tagline}}</span>
+        </a>
+        {{end}}
+    </div>
+
+    {{if .Recent}}
+    <h2 class="section-title center" style="margin-top:44px">Recently visited</h2>
+    <div class="site-grid">
+        {{range .Recent}}
+        <a class="site-box" href="/go/{{.LanguageSlug}}/{{.ResourceID}}" target="_blank" rel="noopener noreferrer">
+            <strong>{{.ResourceName}}</strong>
+            <span>Open again</span>
+        </a>
+        {{end}}
+    </div>
+    {{end}}
 </body>
 </html>
