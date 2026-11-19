@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="{{.Theme}}">
 <head>
     <title>Goodbye - Redirect</title>
     <meta http-equiv="refresh" content="8;url=/">
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body data-theme="base">
+    <div class="back-float">{{template "backbtn" .}}</div>
     <section class="goodbye">
         <h1>Thank you for using Redirect 💙</h1>
         <p class="goodbye-text">Have a lovely day!</p>

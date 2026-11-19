@@ -1,14 +1,7 @@
-{{/*
-  THE REDIRECT LOGO  (one story, ~13 seconds, loops)
+{{define "backbtn"}}
+<a class="back-btn" href="/" onclick="if (history.length &gt; 1) { history.back(); return false; }" aria-label="Go back to the previous page"><span class="back-arrow" aria-hidden="true">&#8592;</span><span class="back-text">Back</span></a>
+{{end}}
 
-   0.0s  Only the sword exists. A small anime boy runs in holding it.
-   2.6s  He swings. The air tears open (a glowing rift, no word yet).
-   4.2s  He gathers energy: techy rings, a magical blast.
-   5.4s  The blast flies through the tear and re-emerges on the other side.
-   6.4s  The blast turns into the word REDIRECT.
-   8.0s  The boy appears behind the word, sword resting on his shoulder.
-  12.0s  Everything fades out, then the story starts again.
-*/}}
 {{define "logo"}}
 <span class="rlogo" aria-label="Redirect">
 <svg class="rlogo-svg" viewBox="0 0 560 130" role="img" aria-hidden="true">
@@ -50,7 +43,10 @@
 {{end}}
 {{define "topbar"}}
 <nav class="topbar">
-    <a class="topbar-brand" href="/" aria-label="Redirect home">{{template "logo" .}}</a>
+    <div class="topbar-left">
+        {{template "backbtn" .}}
+        <a class="topbar-brand" href="/" aria-label="Redirect home">{{template "logo" .}}</a>
+    </div>
     <div class="topbar-links">
         {{if .User}}
         <a href="/home">Home</a>
