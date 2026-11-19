@@ -3,23 +3,23 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{.Fraction.Name}} - PathFinder</title>
+    <title>{{.Section.Name}} - PathFinder</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="wide" data-theme="{{.Theme}}">
     {{template "topbar" .}}
 
     <section class="page-head">
-        <span class="crumb"><a href="/browse">Browse</a> · {{.Fraction.Name}}</span>
-        <h1>{{.Fraction.Name}}</h1>
-        <p>{{.Fraction.Blurb}}</p>
+        <span class="crumb"><a href="/browse">Browse</a> · {{.Section.Name}}</span>
+        <h1>{{.Section.Name}}</h1>
+        <p>{{.Section.Blurb}}</p>
     </section>
 
-    {{if eq .Fraction.Slug "programming"}}{{template "progtabs" .}}{{end}}
+    {{if eq .Section.Slug "programming"}}{{template "progtabs" .}}{{end}}
 
-    {{if .Fraction.Forks}}
+    {{if .Section.Forks}}
     <div class="fork-grid">
-        {{range .Fraction.Forks}}
+        {{range .Section.Forks}}
         <a class="fork-card" href="{{if .Href}}{{.Href}}{{else if .Slug}}/topic/{{.Slug}}{{else}}#topics{{end}}">
             <h3>{{.Title}}</h3>
             <p>{{.Blurb}}</p>
@@ -42,9 +42,9 @@
     <h2 class="section-title" id="topics" style="margin-top:40px">Topics</h2>
 
     <div class="topic-grid">
-        {{range .Fraction.Topics}}
-        {{if eq $.Fraction.Slug "programming"}}
-        <a class="topic-box" data-guard="1" href="/fraction/programming/notice">
+        {{range .Section.Topics}}
+        {{if eq $.Section.Slug "programming"}}
+        <a class="topic-box" data-guard="1" href="/section/programming/notice">
             {{.Name}}
             {{if .Blurb}}<small>{{.Blurb}}</small>{{end}}
         </a>
@@ -58,7 +58,7 @@
     </div>
     {{end}}
 
-    {{if eq .Fraction.Slug "programming"}}
+    {{if eq .Section.Slug "programming"}}
     <div class="notice-modal" id="notice" role="dialog" aria-modal="true" aria-labelledby="notice-title">
         <div class="notice-card">
             <button class="notice-close" type="button" aria-label="Close">&times;</button>

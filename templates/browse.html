@@ -11,13 +11,13 @@
 
     <section class="page-head">
         <span class="crumb">Browse</span>
-        <h1>Pick a fraction</h1>
-        <p>Five rooms, each with its own colour. Open one and you get its topics, then fifteen places per topic.</p>
+        <h1>Pick a section</h1>
+        <p>Eight sections, each with its own colour. Open one and you get its topics, then fifteen places per topic. The reading sections skip the topics and show all fifteen places at once.</p>
     </section>
 
-    <div class="fraction-grid">
-        {{range .Fractions}}
-        <a class="frac-card theme-{{.Theme}}" href="/fraction/{{.Slug}}"{{if not $.User}} data-guest="1"{{end}}>
+    <div class="section-grid">
+        {{range .Sections}}
+        <a class="sect-card theme-{{.Theme}}" href="/section/{{.Slug}}"{{if not $.User}} data-guest="1"{{end}}>
             <b>{{.Name}}</b>
             <span>{{.Tagline}}</span>
         </a>
@@ -29,7 +29,7 @@
         <div class="popup-wrap">
             <a class="popup-box" href="/signup">
                 <strong>Oops! You need an account first 🔒</strong>
-                <span>Sign up for free to open a fraction and get 15 great places for every topic inside it.</span>
+                <span>Sign up for free to open a section and get 15 great places for every topic inside it.</span>
                 <em>Click here to sign up →</em>
             </a>
             <p class="popup-extra">

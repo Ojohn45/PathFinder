@@ -9,13 +9,13 @@ import (
 
 // ---------- The Programming room ----------
 //
-// Programming is the one fraction with three tabs:
+// Programming is the one section with three tabs:
 //
-//	/fraction/programming                      the topics (locked until you read a doc)
-//	/fraction/programming/docs                 pick a language, read its documentation
-//	/fraction/programming/docs/{lang}          that language's docs
-//	/fraction/programming/documentaries        pick a language first...
-//	/fraction/programming/documentaries/{lang} ...then see where to watch
+//	/section/programming                      the topics (locked until you read a doc)
+//	/section/programming/docs                 pick a language, read its documentation
+//	/section/programming/docs/{lang}          that language's docs
+//	/section/programming/documentaries        pick a language first...
+//	/section/programming/documentaries/{lang} ...then see where to watch
 //
 // The topics stay unclickable until the visitor has opened a language's docs,
 // which is the point: read first, then go out to the sites.
@@ -106,7 +106,7 @@ func programmingTabHandler(w http.ResponseWriter, r *http.Request) {
 	if tab == "notice" {
 		render(w, "prog-notice.html", PageData{
 			User: user, Theme: "prog",
-			Fraction: fractionBySlug["programming"],
+			Section: sectionBySlug["programming"],
 		})
 		return
 	}
@@ -119,7 +119,7 @@ func programmingTabHandler(w http.ResponseWriter, r *http.Request) {
 	data := PageData{
 		User:      user,
 		Theme:     "prog",
-		Fraction:  fractionBySlug["programming"],
+		Section:   sectionBySlug["programming"],
 		Tab:       tab,
 		Languages: programmingTopicList(),
 	}

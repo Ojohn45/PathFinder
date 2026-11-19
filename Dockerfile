@@ -11,14 +11,16 @@ COPY . .
 RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o /out/pathfinder .
 
 FROM alpine:3.20
-RUN adduser -D -u 10001 app
+# su-exec lets the entrypoint fix ownership of the mounted data disk, then drop
+# from root to the app user. A host-mounted volume arrives owned by root, so a
+# plain USER app image could not write users.json on Render or Docker.
+RUN apk add --no-cache su-exec && adduser -D -u 10001 app
 WORKDIR /app
 COPY --from=build /out/pathfinder ./pathfinder
 COPY templates ./templates
 COPY static ./static
 RUN mkdir -p /app/storage && chown -R app:app /app
-USER app
 ENV PORT=8080
 EXPOSE 8080
 VOLUME ["/app/storage"]
-CMD ["./pathfinder"]
+CMD ["sh", "-c", "chown -R app:app /app/storage 2>/dev/null || true; exec su-exec app ./pathfinder"]

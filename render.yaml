@@ -1,0 +1,27 @@
+# Render Blueprint for PathFinder.
+# Push this repo to GitHub, then in Render: New > Blueprint > pick the repo.
+# Render reads this file and creates the service, the disk and the variables.
+services:
+  - type: web
+    name: pathfinder
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter          # Free has no disk, so data would vanish. Starter is the cheapest plan that keeps it.
+    region: frankfurt      # closest Render region to Nigeria
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: BASE_URL
+        value: https://pathfinder.app
+      - key: ADMIN_PASSWORD
+        sync: false        # Render asks you for this when you create the service
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+    disk:
+      name: pathfinder-data
+      mountPath: /app/storage   # must match where the app keeps users.json, history.json, invites.json
+      sizeGB: 1

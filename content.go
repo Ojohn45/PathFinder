@@ -3,14 +3,14 @@ package main
 import "sort"
 
 // ---------------------------------------------------------------------------
-// FRACTIONS
+// SECTIONS
 //
-// A fraction is one of the big rooms of PathFinder (Programming, Entertainment,
+// A section is one of the big rooms of PathFinder (Programming, Entertainment,
 // Learning, Lifestyle, Create & Work). Each one has its own dark colour, its
 // own topics, and the topics hold the 15 places you can be redirected to.
 // ---------------------------------------------------------------------------
 
-// Fork is the big choice card that sits at the top of a fraction page.
+// Fork is the big choice card that sits at the top of a section page.
 // Programming uses it: watch documentaries first, or go straight to learning.
 type Fork struct {
 	Title string
@@ -19,7 +19,7 @@ type Fork struct {
 	Href  string // where the card goes, when it is not a topic
 }
 
-type Fraction struct {
+type Section struct {
 	Slug    string
 	Name    string
 	Tagline string
@@ -27,7 +27,7 @@ type Fraction struct {
 	Theme   string // css theme key: prog, ent, learn, life, work
 	Forks   []Fork
 	Topics  []Topic
-	// Direct shows the places themselves on the fraction page, with no
+	// Direct shows the places themselves on the section page, with no
 	// topic step in between (Read Manga, Read Manhwa).
 	Direct bool
 }
@@ -398,11 +398,33 @@ var otherTopics = map[string]Topic{
 			res("manhwa-mangaupdates", "MangaUpdates", "https://www.mangaupdates.com", "Track what you are reading"),
 		},
 	},
+	"read-comix": {
+		Slug:  "read-comix",
+		Name:  "Read Comix",
+		Blurb: "15 places to read comics, official publishers and free libraries first",
+		Resources: []Resource{
+			res("comix-marvel", "Marvel Unlimited", "https://www.marvel.com/unlimited", "Every Marvel comic, one subscription"),
+			res("comix-dc", "DC Universe Infinite", "https://www.dcuniverseinfinite.com", "DC's own library, thousands of issues"),
+			res("comix-globalcomix", "GlobalComix", "https://globalcomix.com", "Huge indie and publisher catalogue, free to start"),
+			res("comix-hoopla", "Hoopla", "https://www.hoopladigital.com", "Free comics with a library card"),
+			res("comix-libby", "Libby", "https://libbyapp.com", "Borrow graphic novels free from your library"),
+			res("comix-image", "Image Comics", "https://imagecomics.com", "The Walking Dead, Saga, and free first issues"),
+			res("comix-darkhorse", "Dark Horse Digital", "https://digital.darkhorse.com", "Official store for Hellboy and sci-fi"),
+			res("comix-boom", "BOOM! Studios", "https://www.boom-studios.com", "Official publisher, strong original series"),
+			res("comix-idw", "IDW Publishing", "https://www.idwpublishing.com", "Official publisher for licensed and indie titles"),
+			res("comix-archie", "Archie Comics", "https://www.archiecomics.com", "The classics, plus the modern reboots"),
+			res("comix-gocomics", "GoComics", "https://www.gocomics.com", "Daily newspaper strips, free"),
+			res("comix-xkcd", "xkcd", "https://xkcd.com", "Science, sarcasm and stick figures"),
+			res("comix-ksbd", "Kill Six Billion Demons", "https://killsixbilliondemons.com", "A free webcomic with astonishing art"),
+			res("comix-girlgenius", "Girl Genius", "https://www.girlgeniusonline.com", "Long-running free steampunk adventure"),
+			res("comix-league", "League of Comic Geeks", "https://leagueofcomicgeeks.com", "Track what you read and what drops next"),
+		},
+	},
 }
 
-// fractions is the whole site in order. Add a topic here and it appears
-// everywhere: the fraction page, the browse page, and the redirect handler.
-var fractions = []Fraction{
+// sections is the whole site in order. Add a topic here and it appears
+// everywhere: the section page, the browse page, and the redirect handler.
+var sections = []Section{
 	{
 		Slug:    "programming",
 		Name:    "Programming",
@@ -410,9 +432,9 @@ var fractions = []Fraction{
 		Blurb:   "Learn a language, or watch the story of the people who built them first.",
 		Theme:   "prog",
 		Forks: []Fork{
-			{Title: "Watch documentaries", Blurb: "Pick a language, then see where to watch the films and talks about it.", Slug: "documentaries", Href: "/fraction/programming/documentaries"},
-			{Title: "Straight to learning", Blurb: "Pick a language, then get its fifteen places: courses, practice grounds and project ideas.", Slug: "learning", Href: "/fraction/programming/learning"},
-			{Title: "Docs", Blurb: "Pick a language, then read its documentation and references.", Slug: "docs", Href: "/fraction/programming/docs"},
+			{Title: "Watch documentaries", Blurb: "Pick a language, then see where to watch the films and talks about it.", Slug: "documentaries", Href: "/section/programming/documentaries"},
+			{Title: "Straight to learning", Blurb: "Pick a language, then get its fifteen places: courses, practice grounds and project ideas.", Slug: "learning", Href: "/section/programming/learning"},
+			{Title: "Docs", Blurb: "Pick a language, then read its documentation and references.", Slug: "docs", Href: "/section/programming/docs"},
 		},
 		Topics: programmingTopicList(),
 	},
@@ -483,6 +505,15 @@ var fractions = []Fraction{
 		Topics:  []Topic{otherTopics["read-manhwa"]},
 		Direct:  true,
 	},
+	{
+		Slug:    "comix",
+		Name:    "Read Comix",
+		Tagline: "Comics",
+		Blurb:   "Fifteen places to read comics, official publishers and free libraries first.",
+		Theme:   "comix",
+		Topics:  []Topic{otherTopics["read-comix"]},
+		Direct:  true,
+	},
 }
 
 // programmingTopicList returns the programming languages in a stable order.
@@ -497,28 +528,28 @@ func programmingTopicList() []Topic {
 
 // Lookup tables, built once at start-up.
 var (
-	topicBySlug     = map[string]Topic{}
-	fractionBySlug  = map[string]Fraction{}
-	fractionOfTopic = map[string]string{}
+	topicBySlug    = map[string]Topic{}
+	sectionBySlug  = map[string]Section{}
+	sectionOfTopic = map[string]string{}
 )
 
 func init() {
-	for _, f := range fractions {
-		fractionBySlug[f.Slug] = f
+	for _, f := range sections {
+		sectionBySlug[f.Slug] = f
 		for _, t := range f.Topics {
 			topicBySlug[t.Slug] = t
-			fractionOfTopic[t.Slug] = f.Slug
+			sectionOfTopic[t.Slug] = f.Slug
 		}
 	}
 	// The documentary fork is reachable but not listed as a box.
-	for _, f := range fractions {
+	for _, f := range sections {
 		for _, fk := range f.Forks {
 			if fk.Slug == "" {
 				continue
 			}
 			if t, ok := otherTopics[fk.Slug]; ok {
 				topicBySlug[t.Slug] = t
-				fractionOfTopic[t.Slug] = f.Slug
+				sectionOfTopic[t.Slug] = f.Slug
 			}
 		}
 	}
@@ -526,7 +557,7 @@ func init() {
 
 // themeFor returns the css theme key for a page.
 func themeFor(slug string) string {
-	if f, ok := fractionBySlug[slug]; ok {
+	if f, ok := sectionBySlug[slug]; ok {
 		return f.Theme
 	}
 	return "base"

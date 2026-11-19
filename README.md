@@ -1,7 +1,8 @@
 # PathFinder
 
 Find your way to the right resource. A Go web app that sends people to hand-picked places worth their time: programming,
-entertainment, learning, lifestyle, creating and working, plus reading manga and manhwa.
+entertainment, learning, lifestyle, creating and working, plus reading manga, manhwa
+and comix. Eight sections, each with its own colour.
 No database, no framework. Plain `net/http` and JSON files.
 
 ## The name and the logo
@@ -76,7 +77,8 @@ fraction page at once.
 
 ## Going live
 
-See **DEPLOY.md**. Short version: buy a domain, rent the smallest Ubuntu box you can
+For Render and `pathfinder.app`, see **RENDER.md**. For your own server, see
+**DEPLOY.md**. Short version: buy a domain, rent the smallest Ubuntu box you can
 find, point the DNS at it, fill in `.env`, then `docker compose up -d --build`. Caddy
 in the compose file fetches the HTTPS certificate for you. The `pathfinder-data`
 volume keeps `storage/` alive across rebuilds, which matters because the JSON files
@@ -96,6 +98,8 @@ prog.go        the programming room: learning, docs, documentaries
 templates/     one file per page, partials.html holds the shared bits
 static/        style.css, one theme block per fraction
 storage/       the JSON files (created on first run if missing)
+render.yaml    Render Blueprint (service, disk, variables)
+RENDER.md      Render walkthrough, step by step
 Dockerfile     builds a small image
 docker-compose.yml   app + Caddy, HTTPS included
 Caddyfile      put your domain in here

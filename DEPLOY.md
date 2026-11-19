@@ -1,6 +1,12 @@
 # Putting PathFinder online
 
-Two ways. Pick one, both end with `https://your-domain` serving the app.
+Three ways. Pick one, all end with `https://your-domain` serving the app.
+
+- **Way 1: your own VPS** with Docker and Caddy. Cheapest long term, full control.
+- **Way 2: Render** if you would rather not touch a server. See **RENDER.md** for the
+  full walkthrough with `pathfinder.app`. Note that keeping your data needs the paid
+  Starter plan, because a free Render service wipes its disk on every restart.
+- **Way 3: other platforms.** Fly.io, Railway, and the same persistent-disk caveat.
 
 ---
 

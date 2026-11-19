@@ -12,7 +12,7 @@
     <section class="page-head">
         <span class="crumb">
             <a href="/browse">Browse</a> ·
-            <a href="/fraction/programming">Programming</a> ·
+            <a href="/section/programming">Programming</a> ·
             {{if eq .Tab "docs"}}Docs{{else if eq .Tab "learning"}}Straight to learning{{else}}Watch documentaries{{end}}
         </span>
         <h1>{{if .Current.Slug}}{{.Current.Name}}{{else}}{{if eq .Tab "docs"}}Documentation{{else if eq .Tab "learning"}}Straight to learning{{else}}Watch documentaries{{end}}{{end}}</h1>
@@ -43,13 +43,13 @@
         {{end}}
     </div>
     <p class="center" style="margin-top:34px;font-size:.85rem;color:var(--muted)">
-        <a href="/fraction/programming/{{.Tab}}">Choose another language</a> ·
-        <a href="/fraction/programming">Back to topics</a>
+        <a href="/section/programming/{{.Tab}}">Choose another language</a> ·
+        <a href="/section/programming">Back to topics</a>
     </p>
     {{else}}
     <div class="lang-grid">
         {{range .Languages}}
-        <a class="lang-card" href="/fraction/programming/{{$.Tab}}/{{.Slug}}">
+        <a class="lang-card" href="/section/programming/{{$.Tab}}/{{.Slug}}">
             <b>{{.Name}}</b>
             <span>{{if eq $.Tab "docs"}}Read the docs{{else if eq $.Tab "learning"}}Where to learn it{{else}}Where to watch{{end}}</span>
         </a>

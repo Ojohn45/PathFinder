@@ -1,5 +1,18 @@
 # What changed, latest first
 
+## v15
+- "Fractions" are now "sections", everywhere: the word, the URLs (`/section/programming`
+  instead of `/fraction/programming`), the code and the colours' class names.
+- New section: **Read Comix**, fifteen places to read comics, in burnt orange. Like
+  Manga and Manhwa it skips the topic step and shows all fifteen at once.
+- Back button removed from the landing page, the Log In page and the Sign Up page.
+  It stays on every other page except the home page and the admin dashboard.
+- Copy updated: the site now says eight sections, and the home and landing text
+  mentions manga, manhwa and comix.
+- Added `render.yaml` and `RENDER.md` for deploying to Render at pathfinder.app.
+- The Docker image now fixes ownership of the mounted data disk before starting, so
+  the app can still write `users.json` when a host mounts a volume at `/app/storage`.
+
 ## v14
 - Renamed from Redirect to PathFinder everywhere a person can see it: page titles,
   headings, emails, the invitation text, the admin screens and the README.

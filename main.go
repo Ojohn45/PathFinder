@@ -14,10 +14,10 @@ type PageData struct {
 	User   *User // nil = guest
 	Recent []HistoryEntry
 
-	// Browse / fraction / topic pages
-	Fractions []Fraction
-	Fraction  Fraction
-	Topic     Topic
+	// Browse / section / topic pages
+	Sections []Section
+	Section  Section
+	Topic    Topic
 
 	// The Programming room: its three doors
 	Tab       string     // "learning", "docs" or "documentaries" ("" = the topics tab)
@@ -27,7 +27,7 @@ type PageData struct {
 	Theme     string     // css theme key for <html data-theme="...">
 	Count     int        // how many places a topic has
 
-	// Places shown straight on a fraction page (Read Manga, Read Manhwa)
+	// Places shown straight on a section page (Read Manga, Read Manhwa)
 	Sites []Resource
 
 	// Set on a home base (the home page, the admin dashboard): no back button
@@ -76,13 +76,13 @@ func landingPageHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, "landing.html", PageData{Theme: "base"})
 }
 
-// The Browse page: every fraction as a big box.
+// The Browse page: every section as a big box.
 // Anyone can SEE it. Guests get the popup when they click one.
 func browseHandler(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	render(w, "browse.html", PageData{
 		User:      user,
-		Fractions: fractions,
+		Sections:  sections,
 		Theme:     "base",
 		NeedLogin: user == nil && r.URL.Query().Get("login_required") == "1",
 	})
@@ -96,7 +96,7 @@ func guestRedirect(w http.ResponseWriter, r *http.Request) {
 }
 
 // The page people land on after logging in: the four explanation boxes,
-// the Browse button and the fractions.
+// the Browse button and the sections.
 func homePageHandler(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	if user == nil {
@@ -104,32 +104,32 @@ func homePageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render(w, "home.html", PageData{
-		User:      user,
-		Fractions: fractions,
-		Recent:    recentHistory(user.ID, 5),
-		Theme:     "base",
-		NoBack:    true,
+		User:     user,
+		Sections: sections,
+		Recent:   recentHistory(user.ID, 5),
+		Theme:    "base",
+		NoBack:   true,
 	})
 }
 
-// One fraction: its own colour, its own topics (and the programming fork).
-func fractionHandler(w http.ResponseWriter, r *http.Request) {
+// One section: its own colour, its own topics (and the programming fork).
+func sectionHandler(w http.ResponseWriter, r *http.Request) {
 	user := currentUser(r)
 	if user == nil {
 		guestRedirect(w, r)
 		return
 	}
 
-	f, ok := fractionBySlug[r.PathValue("slug")]
+	f, ok := sectionBySlug[r.PathValue("slug")]
 	if !ok {
 		http.NotFound(w, r)
 		return
 	}
-	data := PageData{User: user, Fraction: f, Theme: f.Theme}
+	data := PageData{User: user, Section: f, Theme: f.Theme}
 	if f.Direct && len(f.Topics) > 0 {
 		data.Sites = learningFor(f.Topics[0])
 	}
-	render(w, "fraction.html", data)
+	render(w, "section.html", data)
 }
 
 // One topic: the 15 places you can be redirected to.
@@ -148,10 +148,10 @@ func topicHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := PageData{User: user, Topic: t, Count: len(t.Resources), Theme: "base"}
-	if fSlug, ok := fractionOfTopic[slug]; ok {
+	if fSlug, ok := sectionOfTopic[slug]; ok {
 		data.Theme = themeFor(fSlug)
-		if f, ok := fractionBySlug[fSlug]; ok {
-			data.Fraction = f
+		if f, ok := sectionBySlug[fSlug]; ok {
+			data.Section = f
 		}
 	}
 	render(w, "topic.html", data)
@@ -198,9 +198,9 @@ func main() {
 	mux.HandleFunc("GET /{$}", landingPageHandler) // exactly "/", anything else = 404
 	mux.HandleFunc("GET /browse", browseHandler)
 	mux.HandleFunc("GET /home", homePageHandler)
-	mux.HandleFunc("GET /fraction/{slug}", fractionHandler)
-	mux.HandleFunc("GET /fraction/programming/{tab}", programmingTabHandler)
-	mux.HandleFunc("GET /fraction/programming/{tab}/{lang}", programmingTabHandler)
+	mux.HandleFunc("GET /section/{slug}", sectionHandler)
+	mux.HandleFunc("GET /section/programming/{tab}", programmingTabHandler)
+	mux.HandleFunc("GET /section/programming/{tab}/{lang}", programmingTabHandler)
 	mux.HandleFunc("GET /topic/{slug}", topicHandler)
 	mux.HandleFunc("GET /go/{slug}/{resourceID}", redirectHandler)
 

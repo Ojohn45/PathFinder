@@ -12,7 +12,7 @@
     <section class="page-head">
         <span class="crumb">Welcome back</span>
         <h1>Hi {{.User.FullName}} 👋</h1>
-        <p>Everything below is one click from the good part of the internet. Pick a fraction and go.</p>
+        <p>Everything below is one click from the good part of the internet. Pick a section and go.</p>
     </section>
 
     <div class="explain-grid">
@@ -21,8 +21,8 @@
             <p>PathFinder is a single door to the good stuff on the internet. No more opening twenty tabs and guessing which site is actually worth your time.</p>
         </div>
         <div class="xbox">
-            <b>Pick a fraction, not a search engine</b>
-            <p>Programming, entertainment, learning, lifestyle, create and work. Each fraction is a room with its own colour, so you always know where you are.</p>
+            <b>Pick a section, not a search engine</b>
+            <p>Programming, entertainment, learning, lifestyle, create and work, plus manga, manhwa and comix when you just want to read. Each section is a room with its own colour, so you always know where you are.</p>
         </div>
         <div class="xbox">
             <b>Fifteen hand-picked places per topic</b>
@@ -41,9 +41,9 @@
         </a>
     </div>
 
-    <div class="fraction-grid">
-        {{range .Fractions}}
-        <a class="frac-card theme-{{.Theme}}" href="/fraction/{{.Slug}}">
+    <div class="section-grid">
+        {{range .Sections}}
+        <a class="sect-card theme-{{.Theme}}" href="/section/{{.Slug}}">
             <b>{{.Name}}</b>
             <span>{{.Tagline}}</span>
         </a>

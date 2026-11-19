@@ -1082,7 +1082,7 @@ body.wide {
 }
 
 /* =====================================================================
-   THEME LAYER  ·  added for the fractions upgrade
+   THEME LAYER  ·  added for the sections upgrade
    Every colour above now comes from these variables, so one theme swap
    recolours a whole page.
    ===================================================================== */
@@ -1208,7 +1208,7 @@ a { color: var(--accent-3); }
 a:hover { color: var(--ink); }
 
 /* =====================================================================
-   NEW PAGES: browse / fraction / topic
+   NEW PAGES: browse / section / topic
    ===================================================================== */
 .page-head {
     text-align: center;
@@ -1286,15 +1286,15 @@ a:hover { color: var(--ink); }
     color: var(--muted);
 }
 
-/* fractions */
-.fraction-grid {
+/* sections */
+.section-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 18px;
     margin-top: 30px;
 }
 
-.frac-card {
+.sect-card {
     position: relative;
     overflow: hidden;
     aspect-ratio: 1 / 1;
@@ -1313,7 +1313,7 @@ a:hover { color: var(--ink); }
     transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s;
 }
 
-.frac-card::after {
+.sect-card::after {
     content: "";
     position: absolute;
     inset: -40% -10% auto -10%;
@@ -1324,13 +1324,13 @@ a:hover { color: var(--ink); }
     animation: breathe 9s ease-in-out infinite alternate;
 }
 
-.frac-card b {
+.sect-card b {
     position: relative;
     font-size: clamp(1rem, 1.4vw, 1.15rem);
     line-height: 1.25;
 }
 
-.frac-card span {
+.sect-card span {
     position: relative;
     font-size: 0.72rem;
     letter-spacing: 0.14em;
@@ -1338,7 +1338,7 @@ a:hover { color: var(--ink); }
     color: var(--muted);
 }
 
-.frac-card:hover {
+.sect-card:hover {
     transform: translateY(-5px) scale(1.015);
     box-shadow: 0 22px 50px -22px var(--fc-accent, var(--accent));
     text-decoration: none;
@@ -1515,7 +1515,7 @@ a:hover { color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) {
     body::before, body::after,
-    .browse-btn::after, .frac-card::after {
+    .browse-btn::after, .sect-card::after {
         animation: none;
     }
 }
@@ -1535,12 +1535,12 @@ a:hover { color: var(--ink); }
     color: var(--ink);
 }
 
-/* ---------- per-fraction card colours ---------- */
-.frac-card.theme-prog  { --fc-bg: #0a2f22; --fc-line: #1b5440; --fc-accent: #34d399; --fc-glow: rgba(52, 211, 153, 0.34); }
-.frac-card.theme-ent   { --fc-bg: #251340; --fc-line: #4a2a78; --fc-accent: #a855f7; --fc-glow: rgba(168, 85, 247, 0.34); }
-.frac-card.theme-learn { --fc-bg: #063038; --fc-line: #12555f; --fc-accent: #22d3ee; --fc-glow: rgba(34, 211, 238, 0.34); }
-.frac-card.theme-life  { --fc-bg: #332006; --fc-line: #5c3c0e; --fc-accent: #f5a524; --fc-glow: rgba(245, 165, 36, 0.34); }
-.frac-card.theme-work  { --fc-bg: #350c18; --fc-line: #5f162a; --fc-accent: #ff5d8f; --fc-glow: rgba(255, 93, 143, 0.34); }
+/* ---------- per-section card colours ---------- */
+.sect-card.theme-prog  { --fc-bg: #0a2f22; --fc-line: #1b5440; --fc-accent: #34d399; --fc-glow: rgba(52, 211, 153, 0.34); }
+.sect-card.theme-ent   { --fc-bg: #251340; --fc-line: #4a2a78; --fc-accent: #a855f7; --fc-glow: rgba(168, 85, 247, 0.34); }
+.sect-card.theme-learn { --fc-bg: #063038; --fc-line: #12555f; --fc-accent: #22d3ee; --fc-glow: rgba(34, 211, 238, 0.34); }
+.sect-card.theme-life  { --fc-bg: #332006; --fc-line: #5c3c0e; --fc-accent: #f5a524; --fc-glow: rgba(245, 165, 36, 0.34); }
+.sect-card.theme-work  { --fc-bg: #350c18; --fc-line: #5f162a; --fc-accent: #ff5d8f; --fc-glow: rgba(255, 93, 143, 0.34); }
 
 /* the landing page keeps its own hero spacing now that the logo is the title */
 .hero .hero-logo {
@@ -1684,7 +1684,7 @@ a:hover { color: var(--ink); }
 }
 
 /* =====================================================================
-   NEW FRACTIONS: Read Manga, Read Manhwa
+   NEW SECTIONS: Read Manga, Read Manhwa
    ===================================================================== */
 [data-theme="manga"] {
     --bg: #24081a; --bg-2: #3a0d29; --bg-deep: #1a0612;
@@ -1704,8 +1704,19 @@ a:hover { color: var(--ink); }
     --on-accent: #03130f; --glow: 45, 212, 191;
 }
 
-.frac-card.theme-manga  { --fc-bg: #2e0b21; --fc-line: #5a1c3c; --fc-accent: #f472b6; --fc-glow: rgba(244, 114, 182, 0.34); }
-.frac-card.theme-manhwa { --fc-bg: #082a28; --fc-line: #12544c; --fc-accent: #2dd4bf; --fc-glow: rgba(45, 212, 191, 0.34); }
+.sect-card.theme-manga  { --fc-bg: #2e0b21; --fc-line: #5a1c3c; --fc-accent: #f472b6; --fc-glow: rgba(244, 114, 182, 0.34); }
+.sect-card.theme-manhwa { --fc-bg: #082a28; --fc-line: #12544c; --fc-accent: #2dd4bf; --fc-glow: rgba(45, 212, 191, 0.34); }
+
+/* Read Comix: burnt orange, comic-book ink */
+[data-theme="comix"] {
+    --bg: #26100a; --bg-2: #3a1710; --bg-deep: #1c0b07;
+    --panel: #33140d; --panel-2: #3f1a11; --panel-deep: #1c0b07;
+    --line: #5e2415; --line-2: #7a301c;
+    --ink: #ffeee6; --muted: #c9a08f;
+    --accent: #ff7a45; --accent-2: #ff9a6b; --accent-3: #ffbe9c;
+    --on-accent: #1a0703; --glow: 255, 122, 69;
+}
+.sect-card.theme-comix  { --fc-bg: #33140d; --fc-line: #5e2415; --fc-accent: #ff7a45; --fc-glow: rgba(255, 122, 69, 0.34); }
 
 /* =====================================================================
    THE PROGRAMMING ROOM: three tabs, locked topics, language pickers
