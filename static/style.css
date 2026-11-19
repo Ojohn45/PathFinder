@@ -1741,3 +1741,50 @@ body[data-theme="manhwa"] {
 }
 .lang-card b { display: block; font-size: 1.05rem; letter-spacing: .02em; }
 .lang-card span { display: block; margin-top: 4px; color: var(--muted); font-size: .82rem; }
+
+/* =====================================================================
+   THE THREE DOORS  ·  what a topic click shows in Programming
+   ===================================================================== */
+.notice-modal {
+    position: fixed; inset: 0; z-index: 90; padding: 20px;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(3, 7, 15, 0.78);
+    backdrop-filter: blur(4px);
+}
+.notice-modal.open { display: flex; }
+.notice-card {
+    position: relative; width: 100%; max-width: 560px;
+    padding: 26px 26px 22px;
+    background: var(--panel); border: 1px solid var(--line-2);
+    border-radius: 18px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+    animation: noticeIn 0.18s ease-out;
+}
+@keyframes noticeIn { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: none; } }
+.notice-card h3 {
+    margin: 0 0 8px; font-size: 1.2rem; letter-spacing: 0.01em;
+    color: var(--ink);
+}
+.notice-card p { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.5; }
+.notice-close {
+    position: absolute; top: 10px; right: 12px;
+    width: 34px; height: 34px; border-radius: 9px;
+    background: transparent; border: 1px solid transparent;
+    color: var(--muted); font-size: 1.35rem; line-height: 1; cursor: pointer;
+}
+.notice-close:hover { color: var(--ink); background: var(--panel-2); border-color: var(--line); }
+
+.notice-options { display: grid; gap: 10px; margin-top: 18px; }
+.notice-options.page-options { margin-top: 26px; max-width: 640px; }
+.notice-option {
+    display: block; padding: 14px 16px; border-radius: 12px;
+    background: var(--panel-2); border: 1px solid var(--line);
+    text-decoration: none; color: var(--ink);
+    transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.notice-option:hover, .notice-option:focus-visible {
+    border-color: var(--accent); transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(var(--glow), 0.2); outline: none;
+}
+.notice-option b { display: block; font-size: 0.98rem; }
+.notice-option span { display: block; margin-top: 3px; color: var(--muted); font-size: 0.84rem; }

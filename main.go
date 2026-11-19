@@ -120,12 +120,7 @@ func fractionHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	data := PageData{User: user, Fraction: f, Theme: f.Theme}
-	if f.Slug == "programming" {
-		data.DocsUnlocked = docsRead(r)
-		data.Locked = !data.DocsUnlocked
-	}
-	render(w, "fraction.html", data)
+	render(w, "fraction.html", PageData{User: user, Fraction: f, Theme: f.Theme})
 }
 
 // One topic: the 15 places you can be redirected to.

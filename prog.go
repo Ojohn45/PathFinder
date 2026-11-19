@@ -20,12 +20,15 @@ import (
 // The topics stay unclickable until the visitor has opened a language's docs,
 // which is the point: read first, then go out to the sites.
 
-const docsCookie = "redirect_docs"
-
-// docsRead reports whether this visitor has already opened a docs page.
-func docsRead(r *http.Request) bool {
-	c, err := r.Cookie(docsCookie)
-	return err == nil && c.Value == "1"
+// learningFor is the straight-to-learning route: the same fifteen curated
+// places a topic holds, but linked through /go so the visit is saved.
+func learningFor(t Topic) []Resource {
+	out := make([]Resource, 0, len(t.Resources))
+	for _, r := range t.Resources {
+		r.URL = "/go/" + t.Slug + "/" + r.ID
+		out = append(out, r)
+	}
+	return out
 }
 
 // docsFor returns the reading material for one language: its documentation,
@@ -98,7 +101,17 @@ func programmingTabHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tab := r.PathValue("tab")
-	if tab != "docs" && tab != "documentaries" {
+
+	// The page a topic click lands on when JavaScript is off.
+	if tab == "notice" {
+		render(w, "prog-notice.html", PageData{
+			User: user, Theme: "prog",
+			Fraction: fractionBySlug["programming"],
+		})
+		return
+	}
+
+	if tab != "docs" && tab != "documentaries" && tab != "learning" {
 		http.NotFound(w, r)
 		return
 	}
@@ -124,20 +137,13 @@ func programmingTabHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	data.Current = t
 
-	if tab == "docs" {
+	switch tab {
+	case "docs":
 		data.Links = docsFor(t)
-		// Reading the docs is what unlocks the topic boxes.
-		http.SetCookie(w, &http.Cookie{
-			Name:     docsCookie,
-			Value:    "1",
-			Path:     "/",
-			MaxAge:   60 * 60 * 24 * 365,
-			HttpOnly: true,
-			SameSite: http.SameSiteLaxMode,
-		})
-		data.DocsUnlocked = true
-	} else {
+	case "documentaries":
 		data.Links = documentariesFor(t)
+	case "learning":
+		data.Links = learningFor(t)
 	}
 	render(w, "prog-tab.html", data)
 }

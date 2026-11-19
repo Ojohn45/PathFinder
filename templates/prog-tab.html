@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{if eq .Tab "docs"}}Documentation{{else}}Documentaries{{end}} - Programming - Redirect</title>
+    <title>{{if eq .Tab "docs"}}Documentation{{else if eq .Tab "learning"}}Learn{{else}}Documentaries{{end}} - Programming - Redirect</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body class="wide" data-theme="{{.Theme}}">
@@ -13,16 +13,18 @@
         <span class="crumb">
             <a href="/browse">Browse</a> ·
             <a href="/fraction/programming">Programming</a> ·
-            {{if eq .Tab "docs"}}Docs{{else}}Watch documentaries{{end}}
+            {{if eq .Tab "docs"}}Docs{{else if eq .Tab "learning"}}Straight to learning{{else}}Watch documentaries{{end}}
         </span>
-        <h1>{{if .Current}}{{.Current.Name}}{{else}}{{if eq .Tab "docs"}}Documentation{{else}}Documentaries{{end}}{{end}}</h1>
+        <h1>{{if .Current.Slug}}{{.Current.Name}}{{else}}{{if eq .Tab "docs"}}Documentation{{else if eq .Tab "learning"}}Straight to learning{{else}}Watch documentaries{{end}}{{end}}</h1>
         <p>
-            {{if .Current}}
+            {{if .Current.Slug}}
                 {{if eq .Tab "docs"}}Read it before you build with it. These are the pages that actually explain the language.
+                {{else if eq .Tab "learning"}}The fifteen places worth your hours for {{.Current.Name}}: courses, practice grounds and project ideas.
                 {{else}}Films, talks and channels about {{.Current.Name}} and the people who built it.
                 {{end}}
             {{else}}
-                {{if eq .Tab "docs"}}Choose a language to read its documentation. Reading one unlocks the topics.
+                {{if eq .Tab "docs"}}Choose a language to read its documentation.
+                {{else if eq .Tab "learning"}}Choose a language and we will take you straight to where you learn it.
                 {{else}}Choose a language first, then we will show you where to watch.
                 {{end}}
             {{end}}
@@ -31,7 +33,7 @@
 
     {{template "progtabs" .}}
 
-    {{if .Current}}
+    {{if .Current.Slug}}
     <div class="site-grid">
         {{range .Links}}
         <a class="site-box" href="{{.URL}}" target="_blank" rel="noopener noreferrer">
@@ -41,15 +43,15 @@
         {{end}}
     </div>
     <p class="center" style="margin-top:34px;font-size:.85rem;color:var(--muted)">
-        <a href="/fraction/programming/{{.Tab}}">Choose another language</a>
-        {{if eq .Tab "docs"}} · <a href="/fraction/programming">Topics are unlocked</a>{{end}}
+        <a href="/fraction/programming/{{.Tab}}">Choose another language</a> ·
+        <a href="/fraction/programming">Back to topics</a>
     </p>
     {{else}}
     <div class="lang-grid">
         {{range .Languages}}
         <a class="lang-card" href="/fraction/programming/{{$.Tab}}/{{.Slug}}">
             <b>{{.Name}}</b>
-            <span>{{if eq $.Tab "docs"}}Read the docs{{else}}Where to watch{{end}}</span>
+            <span>{{if eq $.Tab "docs"}}Read the docs{{else if eq $.Tab "learning"}}Where to learn it{{else}}Where to watch{{end}}</span>
         </a>
         {{end}}
     </div>

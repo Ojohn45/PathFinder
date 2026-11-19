@@ -20,7 +20,7 @@
     {{if .Fraction.Forks}}
     <div class="fork-grid">
         {{range .Fraction.Forks}}
-        <a class="fork-card" href="{{if .Slug}}/topic/{{.Slug}}{{else}}#topics{{end}}">
+        <a class="fork-card" href="{{if .Href}}{{.Href}}{{else if .Slug}}/topic/{{.Slug}}{{else}}#topics{{end}}">
             <h3>{{.Title}}</h3>
             <p>{{.Blurb}}</p>
         </a>
@@ -30,22 +30,13 @@
 
     <h2 class="section-title" id="topics" style="margin-top:40px">Topics</h2>
 
-    {{if .Locked}}
-    <div class="locked-note">
-        <b>The topics are locked for now.</b>
-        Open a language in <a href="/fraction/programming/docs">Docs</a> and read it first. Once you have,
-        every topic below opens and stays open.
-    </div>
-    {{end}}
-
     <div class="topic-grid">
         {{range .Fraction.Topics}}
-        {{if $.Locked}}
-        <div class="topic-box locked">
-            <span class="lock-icon" aria-hidden="true">&#128274;</span>
+        {{if eq $.Fraction.Slug "programming"}}
+        <a class="topic-box" data-guard="1" href="/fraction/programming/notice">
             {{.Name}}
             {{if .Blurb}}<small>{{.Blurb}}</small>{{end}}
-        </div>
+        </a>
         {{else}}
         <a class="topic-box" href="/topic/{{.Slug}}">
             {{.Name}}
@@ -54,5 +45,40 @@
         {{end}}
         {{end}}
     </div>
+
+    {{if eq .Fraction.Slug "programming"}}
+    <div class="notice-modal" id="notice" role="dialog" aria-modal="true" aria-labelledby="notice-title">
+        <div class="notice-card">
+            <button class="notice-close" type="button" aria-label="Close">&times;</button>
+            <h3 id="notice-title">Hold on, pick a way in first</h3>
+            <p>The topics are not a shortcut. Enter through one of these three doors, choose your language
+               there, and it will take you straight to the right places.</p>
+            {{template "noticecard" .}}
+        </div>
+    </div>
+    <script>
+    (function () {
+        var modal = document.getElementById('notice');
+        if (!modal) return;
+        var boxes = document.querySelectorAll('.topic-box[data-guard]');
+        for (var i = 0; i < boxes.length; i++) {
+            boxes[i].addEventListener('click', function (e) {
+                e.preventDefault();
+                modal.classList.add('open');
+                var first = modal.querySelector('.notice-option');
+                if (first) first.focus();
+            });
+        }
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal || e.target.classList.contains('notice-close')) {
+                modal.classList.remove('open');
+            }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') modal.classList.remove('open');
+        });
+    })();
+    </script>
+    {{end}}
 </body>
 </html>

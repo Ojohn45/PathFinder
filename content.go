@@ -16,6 +16,7 @@ type Fork struct {
 	Title string
 	Blurb string
 	Slug  string // the topic it opens
+	Href  string // where the card goes, when it is not a topic
 }
 
 type Fraction struct {
@@ -406,8 +407,9 @@ var fractions = []Fraction{
 		Blurb:   "Learn a language, or watch the story of the people who built them first.",
 		Theme:   "prog",
 		Forks: []Fork{
-			{Title: "Watch documentaries", Blurb: "Films and series about the people who built this world. Start here if you want the story before the syntax.", Slug: "documentaries"},
-			{Title: "Straight to learning", Blurb: "Pick a language below. Fifteen places each: docs, free courses, practice grounds and project ideas.", Slug: ""},
+			{Title: "Watch documentaries", Blurb: "Pick a language, then see where to watch the films and talks about it.", Slug: "documentaries", Href: "/fraction/programming/documentaries"},
+			{Title: "Straight to learning", Blurb: "Pick a language, then get its fifteen places: courses, practice grounds and project ideas.", Slug: "learning", Href: "/fraction/programming/learning"},
+			{Title: "Docs", Blurb: "Pick a language, then read its documentation and references.", Slug: "docs", Href: "/fraction/programming/docs"},
 		},
 		Topics: programmingTopicList(),
 	},
