@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html data-theme="{{.Theme}}">
 <head>
-    <title>Join Redirect</title>
+    <title>Join PathFinder</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body data-theme="base">
     <div class="back-float">{{template "backbtn" .}}</div>
     <section class="accept-box">
-        <h1 class="center">Join Redirect 🎉</h1>
+        <h1 class="center">Join PathFinder 🎉</h1>
 
         {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
 
         {{if .Token}}
-            <p class="center">You've been invited to join Redirect as <strong>{{.InviteEmail}}</strong>. 🎉</p>
+            <p class="center">You've been invited to join PathFinder as <strong>{{.InviteEmail}}</strong>. 🎉</p>
 
             {{if .Existing}}
                 <p class="center">An account with this email already exists. Please

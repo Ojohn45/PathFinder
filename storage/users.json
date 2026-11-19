@@ -1,11 +1,1 @@
-[
-  {
-    "id": 1,
-    "full_name": "Odumu John",
-    "username": "Ken",
-    "email": "brucenic12@gmail.com",
-    "password_hash": "$2a$10$sJsjvId0TqNbt2jfCavEQ.YuzjOJlTehVfunmdjR2B.uSb56YJNgq",
-    "role": "head_admin",
-    "created_at": "2026-11-19T16:55:28.352708283+01:00"
-  }
-]
+[]

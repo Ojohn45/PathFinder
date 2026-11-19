@@ -237,6 +237,9 @@ func main() {
 	fileServer := http.FileServer(http.Dir("static"))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fileServer))
 
-	log.Println("Server starting on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", mux))
+	// Hosts like Render, Railway and Fly hand you a port in $PORT; locally we
+	// default to 8080 so `go run .` keeps working the way you expect.
+	addr := ":" + getenv("PORT", "8080")
+	log.Println("Server starting on http://localhost" + addr)
+	log.Fatal(http.ListenAndServe(addr, mux))
 }

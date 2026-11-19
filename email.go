@@ -35,7 +35,7 @@ import (
 //go:embed static/email-banner.gif
 var bannerGIF []byte
 
-const bannerCID = "redirect-banner@redirect.local"
+const bannerCID = "pathfinder-banner@pathfinder.local"
 
 var errEmailNotConfigured = errors.New("email is not configured (SMTP_USER / SMTP_PASS missing)")
 
@@ -195,7 +195,7 @@ func buildMessage(from, to, subject, textBody, htmlBody string) ([]byte, error) 
 
 	var buf bytes.Buffer
 	header := func(k, v string) { buf.WriteString(k + ": " + v + "\r\n") }
-	header("From", "Redirect <"+from+">")
+	header("From", "PathFinder <"+from+">")
 	header("To", to)
 	header("Subject", mime.QEncoding.Encode("utf-8", subject))
 	header("Date", time.Now().Format(time.RFC1123Z))
@@ -273,10 +273,10 @@ func buildMessage(from, to, subject, textBody, htmlBody string) ([]byte, error) 
 
 	// the animated picture
 	iw, err := outer.CreatePart(textproto.MIMEHeader{
-		"Content-Type":              {"image/gif; name=\"redirect-banner.gif\""},
+		"Content-Type":              {"image/gif; name=\"pathfinder-banner.gif\""},
 		"Content-Transfer-Encoding": {"base64"},
 		"Content-ID":                {"<" + bannerCID + ">"},
-		"Content-Disposition":       {"inline; filename=\"redirect-banner.gif\""},
+		"Content-Disposition":       {"inline; filename=\"pathfinder-banner.gif\""},
 	})
 	if err != nil {
 		return nil, err
@@ -306,7 +306,7 @@ func inviteEmail(heading, message, buttonText, link string) (text, htmlBody stri
 		message + "\n\n" +
 		strings.ToUpper(buttonText) + ":\n" + link + "\n\n" +
 		"If you weren't expecting this email, you can safely ignore it.\n\n" +
-		"The Redirect Team\n"
+		"The PathFinder Team\n"
 
 	e := html.EscapeString
 	var h strings.Builder
@@ -317,7 +317,7 @@ func inviteEmail(heading, message, buttonText, link string) (text, htmlBody stri
 	h.WriteString(`<table role="presentation" width="600" cellpadding="0" cellspacing="0" bgcolor="#0a1a3a" style="max-width:600px;width:100%;background:#0a1a3a;border:1px solid #1e3a5c;border-radius:14px;">`)
 	// animated banner
 	h.WriteString(`<tr><td style="padding:0;line-height:0;font-size:0;border-radius:14px 14px 0 0;">` +
-		`<img src="cid:` + bannerCID + `" width="600" alt="Redirect - Your gateway to great learning" ` +
+		`<img src="cid:` + bannerCID + `" width="600" alt="PathFinder - find your way to the right resource" ` +
 		`style="display:block;width:100%;max-width:600px;height:auto;border:0;border-radius:14px 14px 0 0;color:#6cb2ff;font-size:22px;"></td></tr>`)
 	h.WriteString(`<tr><td style="padding:32px 36px 12px;">`)
 	h.WriteString(`<h1 style="margin:0 0 16px;color:#eef6ff;font-family:'Segoe UI',Arial,sans-serif;font-size:26px;line-height:1.3;">` + e(heading) + `</h1>`)
@@ -345,16 +345,16 @@ func sendWelcomeEmail(toEmail, fullName string) {
 	}
 
 	body := "Hi " + name + ",\n\n" +
-		"Welcome to Redirect! 🎉 Your account has been created successfully.\n\n" +
-		"Here's how Redirect makes learning to code so much easier:\n\n" +
+		"Welcome to PathFinder! 🎉 Your account has been created successfully.\n\n" +
+		"Here's how PathFinder makes learning to code so much easier:\n\n" +
 		"  • No more endless searching - pick a programming language and we point you straight to 10 of the best places to learn it.\n" +
 		"  • Hand-picked resources: official docs, interactive tutorials, full courses and hands-on practice sites.\n" +
 		"  • Your visits are saved, so you never lose your place.\n\n" +
 		"Log in, tap Browse, choose a language, and start learning today.\n\n" +
 		"Happy coding!\n" +
-		"The Redirect Team\n"
+		"The PathFinder Team\n"
 
-	err := sendEmail(toEmail, "Welcome to Redirect 🎉", body, "")
+	err := sendEmail(toEmail, "Welcome to PathFinder 🎉", body, "")
 	switch {
 	case errors.Is(err, errEmailNotConfigured):
 		log.Println("Email not configured - skipping welcome email to", toEmail)

@@ -1560,18 +1560,19 @@ a:hover { color: var(--ink); }
 .auth-brand .rlogo { --rl-w: min(80%, 340px); }
 .hero-logo .rlogo { --rl-w: min(88vw, 600px); }
 
-.rl2-word {
+.pf-word {
     font-family: "Arial Black", "Segoe UI Black", "Helvetica Neue", system-ui, sans-serif;
-    font-weight: 900; font-size: 76px; letter-spacing: 6px; text-anchor: middle;
-    fill: url(#rl2-face);
-    stroke: rgba(126, 214, 255, 0.38);
+    font-weight: 900; font-size: 62px; letter-spacing: 4.5px; text-anchor: middle;
+    fill: url(#pf-face);
+    stroke: rgba(126, 214, 255, 0.34);
     stroke-width: 0.9;
     paint-order: stroke fill;
 }
-.rl2-ghost { fill: #6fd2ff; opacity: 0; stroke: none; }
+.pf-ghost { fill: #6fd2ff; opacity: 0; stroke: none; }
 
-.rl2-mask { transform-box: view-box; transform-origin: 20px 0; animation: rl2Wipe 7s ease-in-out infinite; }
-@keyframes rl2Wipe {
+/* the word wipes in from the left, holds, then dissolves */
+.pf-mask { transform-box: view-box; transform-origin: 20px 0; animation: pfWipe 7s ease-in-out infinite; }
+@keyframes pfWipe {
     0%      { transform: scaleX(0); }
     8%      { transform: scaleX(0); }
     21%     { transform: scaleX(1); }
@@ -1581,8 +1582,8 @@ a:hover { color: var(--ink); }
     100%    { transform: scaleX(0); }
 }
 
-.rl2 { animation: rl2Life 7s ease-in-out infinite; }
-@keyframes rl2Life {
+.pf { animation: pfLife 7s ease-in-out infinite; }
+@keyframes pfLife {
     0%, 6%  { opacity: 0; }
     12%     { opacity: 1; }
     64%     { opacity: 1; }
@@ -1590,29 +1591,57 @@ a:hover { color: var(--ink); }
     100%    { opacity: 0; }
 }
 
-.rl2-scan { animation: rl2Scan 7s ease-in-out infinite; opacity: 0; }
-@keyframes rl2Scan {
+.pf-scan { animation: pfScan 7s ease-in-out infinite; opacity: 0; }
+@keyframes pfScan {
     0%, 6%   { transform: translateX(0); opacity: 0; }
     9%       { opacity: 0.9; }
-    22%      { transform: translateX(500px); opacity: 0; }
+    22%      { transform: translateX(560px); opacity: 0; }
     64%      { opacity: 0; }
     66%      { transform: translateX(0); opacity: 0.9; }
-    74%      { transform: translateX(500px); opacity: 0; }
+    74%      { transform: translateX(560px); opacity: 0; }
     100%     { opacity: 0; }
 }
 
-.rl2-rule { fill: #5ec8ff; opacity: 0; animation: rl2Rule 7s ease-in-out infinite; }
-@keyframes rl2Rule {
-    0%, 14%   { opacity: 0; transform: scaleX(0); transform-origin: 280px 0; }
-    24%       { opacity: 0.55; transform: scaleX(1); transform-origin: 280px 0; }
-    64%       { opacity: 0.55; transform: scaleX(1); transform-origin: 280px 0; }
-    70%       { opacity: 0; transform: scaleX(0); transform-origin: 280px 0; }
-    100%      { opacity: 0; }
+/* the route draws itself under the word, then the arrow points the way */
+.pf-route {
+    fill: none; stroke: url(#pf-path); stroke-width: 2; stroke-linecap: round;
+    stroke-dasharray: 240;
+    animation: pfRoute 7s ease-in-out infinite;
+}
+@keyframes pfRoute {
+    0%, 6%   { stroke-dashoffset: 240; opacity: 0; }
+    10%      { opacity: 1; }
+    27%      { stroke-dashoffset: 0; }
+    64%      { stroke-dashoffset: 0; opacity: 1; }
+    72%      { opacity: 0; }
+    100%     { stroke-dashoffset: 240; opacity: 0; }
 }
 
-.rl2-brackets { opacity: 0; animation: rl2Brackets 7s ease-in-out infinite; }
-.rl2-brackets path { fill: none; stroke: #4aa8e0; stroke-width: 1.4; stroke-linecap: square; }
-@keyframes rl2Brackets {
+.pf-arrow {
+    fill: none; stroke: #b6f0ff; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+    opacity: 0; animation: pfArrow 7s ease-in-out infinite;
+}
+@keyframes pfArrow {
+    0%, 25%  { opacity: 0; }
+    31%      { opacity: 1; }
+    64%      { opacity: 1; }
+    72%      { opacity: 0; }
+    100%     { opacity: 0; }
+}
+
+.pf-dot { fill: #7fd6ff; opacity: 0; animation: pfDot 7s ease-in-out infinite; }
+@keyframes pfDot {
+    0%, 8%   { opacity: 0; }
+    12%      { opacity: 1; }
+    26%      { opacity: 1; }
+    34%      { opacity: 0; }
+    100%     { opacity: 0; }
+}
+
+.pf-brackets { opacity: 0; animation: pfBrackets 7s ease-in-out infinite; }
+.pf-brackets path { fill: none; stroke: #4aa8e0; stroke-width: 1.4; stroke-linecap: square; }
+@keyframes pfBrackets {
     0%, 12%  { opacity: 0; }
     22%      { opacity: 0.75; }
     62%      { opacity: 0.75; }
@@ -1621,8 +1650,8 @@ a:hover { color: var(--ink); }
 }
 
 /* a brief digital hiccup as the word lands and as it leaves */
-.rl2-ghost { animation: rl2Glitch 7s steps(1, end) infinite; }
-@keyframes rl2Glitch {
+.pf-ghost { animation: pfGlitch 7s steps(1, end) infinite; }
+@keyframes pfGlitch {
     0%, 15%   { opacity: 0; transform: translate(0, 0); }
     15.5%     { opacity: 0.55; transform: translate(-3px, 1px); }
     16.2%     { opacity: 0; transform: translate(0, 0); }
@@ -1636,11 +1665,11 @@ a:hover { color: var(--ink); }
 @media (max-width: 640px) { .topbar .rlogo { --rl-w: 116px; } }
 
 @media (prefers-reduced-motion: reduce) {
-    .rl2-mask, .rl2, .rl2-scan, .rl2-rule, .rl2-brackets, .rl2-ghost { animation: none !important; }
-    .rl2, .rl2-brackets { opacity: 1; }
-    .rl2-mask { transform: scaleX(1); }
-    .rl2-rule { opacity: 0.55; transform: scaleX(1); }
-    .rl2-scan, .rl2-ghost { opacity: 0; }
+    .pf-mask, .pf, .pf-scan, .pf-route, .pf-arrow, .pf-dot, .pf-brackets, .pf-ghost { animation: none !important; }
+    .pf, .pf-brackets, .pf-route, .pf-arrow { opacity: 1; }
+    .pf-route { stroke-dashoffset: 0; }
+    .pf-mask { transform: scaleX(1); }
+    .pf-scan, .pf-ghost, .pf-dot { opacity: 0; }
 }
 
 /* ---------- login / signup messages ---------- */

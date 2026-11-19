@@ -1,0 +1,6 @@
+# Replace pathfinder.example.com with your own domain.
+# Caddy fetches and renews the HTTPS certificate for you, no extra setup.
+pathfinder.example.com {
+    encode zstd gzip
+    reverse_proxy pathfinder:8080
+}

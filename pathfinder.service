@@ -1,0 +1,19 @@
+# systemd unit for running PathFinder straight on a VPS, without Docker.
+#   sudo cp pathfinder.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now pathfinder
+[Unit]
+Description=PathFinder
+After=network.target
+
+[Service]
+Type=simple
+User=pathfinder
+WorkingDirectory=/opt/pathfinder
+EnvironmentFile=/opt/pathfinder/.env
+ExecStart=/opt/pathfinder/pathfinder
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -1,4 +1,4 @@
-module Redirect
+module pathfinder
 
 go 1.26.0
 

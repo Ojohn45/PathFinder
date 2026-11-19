@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html data-theme="{{.Theme}}">
 <head>
-    <title>Become an Admin - Redirect</title>
+    <title>Become an Admin - PathFinder</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body data-theme="base">
@@ -12,7 +12,7 @@
         {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
 
         {{if .Token}}
-            <p class="center">You've been invited to join the Redirect admin team as <strong>{{.InviteEmail}}</strong>. 🎉</p>
+            <p class="center">You've been invited to join the PathFinder admin team as <strong>{{.InviteEmail}}</strong>. 🎉</p>
 
             {{if .AlreadyMember}}
                 <p class="center">You're already on the admin team! 🎉 <a href="/admin/login">Log in as admin</a>.</p>

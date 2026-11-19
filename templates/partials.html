@@ -3,39 +3,51 @@
 {{end}}
 
 {{define "logo"}}
-<span class="rlogo" aria-label="Redirect">
-<svg class="rlogo-svg" viewBox="0 0 560 130" role="img" aria-hidden="true">
+<span class="rlogo" aria-label="PathFinder">
+<svg class="rlogo-svg" viewBox="0 0 620 132" role="img" aria-hidden="true">
     <defs>
-        <linearGradient id="rl2-face" x1="0" y1="0" x2="0.15" y2="1">
-            <stop offset="0" stop-color="#6ba3dc"/>
-            <stop offset="0.34" stop-color="#4179ba"/>
-            <stop offset="0.66" stop-color="#2b5887"/>
-            <stop offset="1" stop-color="#1a3a58"/>
+        <linearGradient id="pf-face" x1="0" y1="0" x2="0.18" y2="1">
+            <stop offset="0" stop-color="#7db4e8"/>
+            <stop offset="0.32" stop-color="#4a80bd"/>
+            <stop offset="0.64" stop-color="#2a5687"/>
+            <stop offset="1" stop-color="#12314e"/>
         </linearGradient>
-        <linearGradient id="rl2-sheen" x1="0" y1="0" x2="1" y2="0">
+        <linearGradient id="pf-sheen" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="#7fd6ff" stop-opacity="0"/>
-            <stop offset="0.5" stop-color="#bff0ff" stop-opacity="0.85"/>
+            <stop offset="0.5" stop-color="#c8f2ff" stop-opacity="0.9"/>
             <stop offset="1" stop-color="#7fd6ff" stop-opacity="0"/>
         </linearGradient>
-        <filter id="rl2-glow" x="-40%" y="-80%" width="180%" height="260%">
+        <linearGradient id="pf-path" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#3f8ec4" stop-opacity="0.15"/>
+            <stop offset="0.45" stop-color="#6fd2ff" stop-opacity="0.9"/>
+            <stop offset="1" stop-color="#b6f0ff" stop-opacity="1"/>
+        </linearGradient>
+        <filter id="pf-glow" x="-40%" y="-80%" width="180%" height="260%">
             <feGaussianBlur stdDeviation="5" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
-        <clipPath id="rl2-clip"><rect class="rl2-mask" x="20" y="10" width="520" height="110"/></clipPath>
+        <clipPath id="pf-clip"><rect class="pf-mask" x="20" y="10" width="580" height="112"/></clipPath>
     </defs>
 
-    <g class="rl2">
-        <g clip-path="url(#rl2-clip)">
-            <text class="rl2-word rl2-ghost" x="280" y="88">REDIRECT</text>
-            <text class="rl2-word" x="280" y="88">REDIRECT</text>
+    <g class="pf">
+        <g clip-path="url(#pf-clip)">
+            <text class="pf-word pf-ghost" x="310" y="88">PATHFINDER</text>
+            <text class="pf-word" x="310" y="88">PATHFINDER</text>
         </g>
-        <rect class="rl2-scan" x="20" y="16" width="3" height="98" fill="url(#rl2-sheen)"/>
-        <rect class="rl2-rule" x="150" y="104" width="260" height="2"/>
-        <g class="rl2-brackets" filter="url(#rl2-glow)">
+        <rect class="pf-scan" x="20" y="16" width="3" height="100" fill="url(#pf-sheen)"/>
+
+        <!-- the path: a route line that draws itself, then points the way -->
+        <g class="pf-way">
+            <path class="pf-route" d="M180 108 H418"/>
+            <path class="pf-arrow" d="M418 102 L432 108 L418 114"/>
+            <circle class="pf-dot" cx="180" cy="108" r="2.8"/>
+        </g>
+
+        <g class="pf-brackets" filter="url(#pf-glow)">
             <path d="M18 34 L18 18 L34 18"/>
-            <path d="M542 34 L542 18 L526 18"/>
+            <path d="M602 34 L602 18 L586 18"/>
             <path d="M18 96 L18 112 L34 112"/>
-            <path d="M542 96 L542 112 L526 112"/>
+            <path d="M602 96 L602 112 L586 112"/>
         </g>
     </g>
 </svg>
@@ -45,7 +57,7 @@
 <nav class="topbar">
     <div class="topbar-left">
         {{if not .NoBack}}{{template "backbtn" .}}{{end}}
-        <a class="topbar-brand" href="/" aria-label="Redirect home">{{template "logo" .}}</a>
+        <a class="topbar-brand" href="/" aria-label="PathFinder home">{{template "logo" .}}</a>
     </div>
     <div class="topbar-links">
         {{if .User}}

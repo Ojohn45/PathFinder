@@ -183,7 +183,7 @@ func processInvite(w http.ResponseWriter, r *http.Request, u *User, forUser bool
 	}
 	if existing, ok := findUserByEmail(email); ok {
 		if forUser {
-			fail("That person already has an account on Redirect")
+			fail("That person already has an account on PathFinder")
 			return
 		}
 		if existing.IsAdmin() {
@@ -202,19 +202,19 @@ func processInvite(w http.ResponseWriter, r *http.Request, u *User, forUser bool
 
 	var subject, heading, message string
 	if forUser {
-		subject = "You're invited to join Redirect 🎉"
-		heading = "You're invited to join Redirect"
-		message = "Redirect would like you to join as a user and start studying programming. " +
+		subject = "You're invited to join PathFinder 🎉"
+		heading = "You're invited to join PathFinder"
+		message = "PathFinder would like you to join as a user and start studying programming. " +
 			"Why join? It's free, it saves you hours of searching, and it points you straight to 10 of the best places " +
 			"to learn any programming language: official docs, interactive tutorials, full courses and practice sites. " +
 			"Your account also remembers every resource you've visited, so you never lose your place. " +
 			"Would you like to join us?"
 	} else {
-		subject = "You're invited to be an admin on Redirect"
-		heading = "Join the Redirect team as an admin"
-		message = "Redirect would like you to join the team as an admin. " +
+		subject = "You're invited to be an admin on PathFinder"
+		heading = "Join the PathFinder team as an admin"
+		message = "PathFinder would like you to join the team as an admin. " +
 			"As an admin, you'll help look after our community of learners and help the site grow. " +
-			"Redirect is free and saves learners hours of searching by pointing them straight to 10 of the best places " +
+			"PathFinder is free and saves learners hours of searching by pointing them straight to 15 of the best places " +
 			"to learn any programming language. " +
 			"Would you like to join the team?"
 	}
@@ -279,11 +279,11 @@ func emailTestHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	heading := "Test email ✅"
-	message := "Hi " + u.FullName + "! If you can read this, Redirect can send emails. " +
+	message := "Hi " + u.FullName + "! If you can read this, PathFinder can send emails. " +
 		"This is how the invitation emails will look to the people you invite."
 	text, htmlBody := inviteEmail(heading, message, "Open the admin page", baseURL()+"/admin")
 
-	err := sendEmail(u.Email, "Redirect test email ✅", text, htmlBody)
+	err := sendEmail(u.Email, "PathFinder test email ✅", text, htmlBody)
 	result := "sent"
 	switch {
 	case errors.Is(err, errEmailNotConfigured):

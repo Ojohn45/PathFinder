@@ -5,7 +5,7 @@ import "sort"
 // ---------------------------------------------------------------------------
 // FRACTIONS
 //
-// A fraction is one of the big rooms of Redirect (Programming, Entertainment,
+// A fraction is one of the big rooms of PathFinder (Programming, Entertainment,
 // Learning, Lifestyle, Create & Work). Each one has its own dark colour, its
 // own topics, and the topics hold the 15 places you can be redirected to.
 // ---------------------------------------------------------------------------
