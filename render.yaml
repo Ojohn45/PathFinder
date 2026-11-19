@@ -13,8 +13,11 @@ services:
     envVars:
       - key: PORT
         value: 8080
-      - key: BASE_URL
-        value: https://pathfinder.app
+      # BASE_URL is optional. Leave it out and PathFinder uses Render's own
+      # https://<service>.onrender.com address for invite links. Set it once your
+      # custom domain is live, then redeploy:
+      # - key: BASE_URL
+      #   value: https://pathfinder.app
       - key: ADMIN_PASSWORD
         sync: false        # Render asks you for this when you create the service
       - key: SMTP_USER

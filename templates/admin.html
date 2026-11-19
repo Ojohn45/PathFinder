@@ -36,6 +36,9 @@
         <a href="/admin/invite-user" class="admin-btn">Invite a User</a>
         <a href="/admin/users" class="admin-btn">Check Users</a>
         <a href="/admin/emails" class="admin-btn">Email Log</a>
+        {{if .User.IsHeadAdmin}}
+        <a href="/admin/email-settings" class="admin-btn">Email Settings</a>
+        {{end}}
     </div>
 </body>
 </html>

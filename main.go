@@ -47,6 +47,12 @@ type PageData struct {
 	CanAccept     bool // ...and the visitor is logged into it
 	AlreadyMember bool // ...and that account is already an admin
 
+	// Email Settings page (head admin)
+	Mail        MailSettings
+	MailSaved   bool // something was typed on the page and saved
+	MailFromEnv bool // the server sets SMTP_USER in its environment
+	MailReady   bool // enough to attempt a send
+
 	Error     string
 	Created   bool // "account created" message on the login page
 	NeedLogin bool // show the "please sign up" popup on page load
@@ -189,7 +195,8 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	loadDotEnv() // read settings from the .env file first
+	loadDotEnv()       // optional: settings from a .env file
+	loadMailSettings() // the mail account saved on Admin > Email Settings
 	logEmailStatus()
 	initDB()
 
@@ -228,6 +235,8 @@ func main() {
 	mux.HandleFunc("POST /admin/invite-user", inviteUserHandler)
 	mux.HandleFunc("GET /admin/users", usersPageHandler)
 	mux.HandleFunc("GET /admin/emails", emailsPageHandler)
+	mux.HandleFunc("GET /admin/email-settings", emailSettingsPageHandler)
+	mux.HandleFunc("POST /admin/email-settings", emailSettingsSaveHandler)
 	mux.HandleFunc("POST /admin/emails/test", emailTestHandler)
 	mux.HandleFunc("GET /join", joinPageHandler)
 	mux.HandleFunc("POST /join", joinHandler)

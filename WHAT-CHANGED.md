@@ -1,5 +1,21 @@
 # What changed, latest first
 
+## v16
+- **No .env file needed any more.** The head admin gets a new **Admin > Email
+  Settings** page: type the mail server, the sending address and the app password,
+  press Save, and invitations and welcome emails start sending. The details live in
+  `storage/settings.json` (mode 600, inside the folder git already ignores), so they
+  never reach GitHub. A "Save and send a test email" button proves it works.
+- Environment variables still win when they exist, so Render, Docker and a VPS can
+  keep controlling their own secrets. The page says so when that is the case.
+- Invite links no longer hardcode `localhost`. If `BASE_URL` and Render's own URL are
+  both absent, the link borrows the address the admin is browsing from, so an invite
+  made from a phone on the same Wi-Fi produces a link that phone can actually open.
+- The app still binds `:PORT` on all interfaces, so `http://<your-computer-ip>:8080`
+  works from a phone on the same network.
+- All the "add SMTP_USER and SMTP_PASS to .env" messages now point at the Email
+  Settings page instead.
+
 ## v15
 - "Fractions" are now "sections", everywhere: the word, the URLs (`/section/programming`
   instead of `/fraction/programming`), the code and the colours' class names.

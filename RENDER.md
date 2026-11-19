@@ -62,11 +62,24 @@ Buy the domain first (Cloudflare, Porkbun, Namecheap). Then:
 4. Back in Render, click **Verify**. It issues the TLS certificate, usually within a
    few minutes. Then `https://pathfinder.app` serves the app.
 
-## 4. Set BASE_URL
+## 4. BASE_URL (optional)
 
-`BASE_URL` must be the real domain, because invitation emails build their links from it.
-`render.yaml` sets it to `https://pathfinder.app` already. If you deploy on a different
-domain, change that line in `render.yaml` and push.
+Invitation emails build their links from `BASE_URL`. You do **not** need a domain for
+this: if `BASE_URL` is empty, PathFinder falls back to Render's own
+`RENDER_EXTERNAL_URL`, which is the service's `https://<service>.onrender.com` address.
+So invites work on day one, before any domain exists.
+
+Once `pathfinder.app` is live and verified, set `BASE_URL=https://pathfinder.app` in the
+service's Environment tab and redeploy, so new invite links use the pretty domain.
+Old links keep working either way.
+
+## 4b. Email without touching variables
+
+You can skip the SMTP variables entirely. Once the site is up, log in as Ken, open
+**Admin > Email Settings**, type the Gmail address and its 16 letter App Password, and
+press **Save and send a test email**. PathFinder keeps the details in
+`storage/settings.json` on the disk, so they survive restarts. Environment variables,
+if you do set them, take priority over the page.
 
 ## 5. After it is live
 

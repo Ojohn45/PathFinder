@@ -75,6 +75,16 @@ The topic boxes always show, but clicking one explains the three ways in:
 Read Manga and Read Manhwa skip the topic step: their places are all on the
 fraction page at once.
 
+## Sending email
+
+No `.env` file is required. Start the app, log in as the head admin, open
+**Admin > Email Settings**, and type the sending address plus an app password
+(Gmail: a 16 letter App Password; Brevo: its SMTP key). Press **Save and send a test
+email**. The details are stored in `storage/settings.json`, which git ignores.
+
+If you prefer environment variables (`SMTP_USER`, `SMTP_PASS`, `SMTP_HOST`,
+`SMTP_PORT`, `SMTP_FROM`), they take priority over the page. See `.env.example`.
+
 ## Going live
 
 For Render and `pathfinder.app`, see **RENDER.md**. For your own server, see

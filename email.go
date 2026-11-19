@@ -37,7 +37,7 @@ var bannerGIF []byte
 
 const bannerCID = "pathfinder-banner@pathfinder.local"
 
-var errEmailNotConfigured = errors.New("email is not configured (SMTP_USER / SMTP_PASS missing)")
+var errEmailNotConfigured = errors.New("email is not set up yet (no mail account saved)")
 
 func getenv(key, fallback string) string {
 	if v := os.Getenv(key); v != "" {
@@ -88,15 +88,14 @@ func loadDotEnv() {
 
 // logEmailStatus tells you right at startup whether email is ready.
 func logEmailStatus() {
-	user := os.Getenv("SMTP_USER")
-	pass := os.Getenv("SMTP_PASS")
+	m := effectiveMail()
 	switch {
-	case user == "" && pass == "":
-		log.Println("EMAIL: NOT set up - add SMTP_USER and SMTP_PASS to your .env file, then restart")
-	case user == "" || pass == "":
-		log.Println("EMAIL: only one of SMTP_USER / SMTP_PASS is set - you need both")
+	case m.User == "" && m.Pass == "":
+		log.Println("EMAIL: not set up yet - log in as the head admin and open Admin > Email Settings")
+	case m.User == "" || m.Pass == "":
+		log.Println("EMAIL: half set up - it needs both a sending address and an app password (Admin > Email Settings)")
 	default:
-		log.Println("EMAIL: settings found, testing the login with the mail server...")
+		log.Println("EMAIL: sending as", m.User, "- testing the login with the mail server...")
 		go checkEmailLogin() // runs in the background, result appears in a few seconds
 	}
 }
@@ -104,10 +103,8 @@ func logEmailStatus() {
 // checkEmailLogin connects to the mail server and logs in, WITHOUT sending
 // anything, so you find out at startup if the Gmail details are right.
 func checkEmailLogin() {
-	user := os.Getenv("SMTP_USER")
-	pass := strings.ReplaceAll(os.Getenv("SMTP_PASS"), " ", "")
-	host := getenv("SMTP_HOST", "smtp.gmail.com")
-	port := getenv("SMTP_PORT", "587")
+	m := effectiveMail()
+	user, pass, host, port := m.User, m.Pass, m.Host, m.Port
 
 	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), 10*time.Second)
 	if err != nil {
@@ -135,7 +132,7 @@ func checkEmailLogin() {
 	if err := c.Auth(smtp.PlainAuth("", user, pass, host)); err != nil {
 		log.Println("EMAIL CHECK: FAILED - the mail server refused the login for", user)
 		log.Println("   reason:", err)
-		log.Println("   FIX: use the login details from your email provider in .env:")
+		log.Println("   FIX: check the details on Admin > Email Settings:")
 		log.Println("        Gmail -> SMTP_USER = the Gmail that created the App Password, SMTP_PASS = that 16-letter App Password")
 		log.Println("        Brevo -> SMTP_USER = the Login on Brevo's SMTP page, SMTP_PASS = the SMTP key (not your Brevo password)")
 		return
@@ -162,15 +159,11 @@ func sendEmail(toEmail, subject, textBody, htmlBody string) (err error) {
 		addEmailRecord(rec)
 	}()
 
-	user := os.Getenv("SMTP_USER")
-	pass := strings.ReplaceAll(os.Getenv("SMTP_PASS"), " ", "") // Google shows App Passwords with spaces
+	m := effectiveMail()
+	user, pass, host, port, from := m.User, m.Pass, m.Host, m.Port, m.From
 	if user == "" || pass == "" {
 		return errEmailNotConfigured
 	}
-
-	host := getenv("SMTP_HOST", "smtp.gmail.com")
-	port := getenv("SMTP_PORT", "587")
-	from := getenv("SMTP_FROM", user)
 
 	msg, err := buildMessage(from, toEmail, subject, textBody, htmlBody)
 	if err != nil {

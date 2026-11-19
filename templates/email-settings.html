@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{.Theme}}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Email Settings - PathFinder</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="wide" data-theme="base">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb"><a href="/admin">Admin</a> · Email Settings</span>
+        <h1>Email Settings</h1>
+        <p>This is the account PathFinder uses to send invitations and welcome emails. Type it here once and it is
+            saved on the server, so you never need a .env file and it works from your phone too.</p>
+    </section>
+
+    {{if .Info}}<p class="form-success">{{.Info}}</p>{{end}}
+    {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+
+    {{if .MailFromEnv}}
+    <p class="form-success">This server sets the mail account in its own environment, which takes priority over anything
+        typed here. Changing these boxes will not affect sending until those variables are removed.</div>
+    {{end}}
+
+    <form method="post" action="/admin/email-settings" class="mail-form">
+        <label>
+            <span>Mail server (SMTP host)</span>
+            <input type="text" name="host" value="{{.Mail.Host}}" placeholder="smtp.gmail.com" autocomplete="off">
+            <small>Gmail: smtp.gmail.com · Brevo: smtp-relay.brevo.com</small>
+        </label>
+
+        <label>
+            <span>Port</span>
+            <input type="text" name="port" value="{{.Mail.Port}}" placeholder="587" inputmode="numeric">
+            <small>587 is right for almost every provider.</small>
+        </label>
+
+        <label>
+            <span>Email address that sends</span>
+            <input type="email" name="user" value="{{.Mail.User}}" placeholder="you@gmail.com" autocomplete="username">
+        </label>
+
+        <label>
+            <span>App password</span>
+            <input type="password" name="pass" value="" placeholder="{{if .MailSaved}}•••••••• (saved - leave empty to keep it){{else}}the 16 letter app password{{end}}" autocomplete="new-password">
+            <small>Gmail: create one at Google Account → Security → 2-Step Verification → App passwords.
+                Brevo: use the SMTP key from its SMTP &amp; API page, never your normal password.</small>
+        </label>
+
+        <label>
+            <span>Sender address (optional)</span>
+            <input type="email" name="from" value="{{.Mail.From}}" placeholder="leave empty to use the address above">
+        </label>
+
+        <div class="mail-actions">
+            <button type="submit" class="admin-btn primary">Save</button>
+            <button type="submit" name="send_test" value="1" class="admin-btn">Save and send a test email</button>
+        </div>
+    </form>
+
+    <p class="mail-note">
+        {{if .MailReady}}
+        Right now PathFinder sends from <b>{{.Mail.User}}</b> through {{.Mail.Host}}:{{.Mail.Port}}.
+        {{else}}
+        No mail account saved yet, so invitations can only be shared as a copyable link.
+        {{end}}
+        The password is stored in <code>storage/settings.json</code> on the server, which is never uploaded to GitHub.
+    </p>
+</body>
+</html>

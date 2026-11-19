@@ -137,8 +137,38 @@ func inviteUserPageHandler(w http.ResponseWriter, r *http.Request) {
 	render(w, "user-invite.html", PageData{User: u})
 }
 
+// baseURL is the address used inside emails. It does not need a real domain:
+// BASE_URL wins, then Render's own RENDER_EXTERNAL_URL (set automatically for
+// every Render service), then localhost for development.
 func baseURL() string {
-	return strings.TrimRight(getenv("BASE_URL", "http://localhost:8080"), "/")
+	if v := strings.TrimRight(getenv("BASE_URL", ""), "/"); v != "" {
+		return v
+	}
+	if v := strings.TrimRight(os.Getenv("RENDER_EXTERNAL_URL"), "/"); v != "" {
+		return v
+	}
+	return "http://localhost:8080"
+}
+
+// baseURLFor does the same, but when nothing is configured it borrows the
+// address the admin is actually using. So an invite made from a phone on the
+// same Wi-Fi gets a link that works on that phone, not "localhost".
+func baseURLFor(r *http.Request) string {
+	if v := strings.TrimRight(getenv("BASE_URL", ""), "/"); v != "" {
+		return v
+	}
+	if v := strings.TrimRight(os.Getenv("RENDER_EXTERNAL_URL"), "/"); v != "" {
+		return v
+	}
+	host := r.Host
+	if host == "" {
+		return "http://localhost:8080"
+	}
+	scheme := "http"
+	if r.TLS != nil || strings.EqualFold(r.Header.Get("X-Forwarded-Proto"), "https") {
+		scheme = "https"
+	}
+	return scheme + "://" + host
 }
 
 // Only the head admin may invite new ADMINS.
@@ -198,7 +228,7 @@ func processInvite(w http.ResponseWriter, r *http.Request, u *User, forUser bool
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
-	link := baseURL() + path + "?token=" + token
+	link := baseURLFor(r) + path + "?token=" + token
 
 	var subject, heading, message string
 	if forUser {
@@ -239,13 +269,13 @@ func processInvite(w http.ResponseWriter, r *http.Request, u *User, forUser bool
 		data.InviteLink = link
 	case errors.Is(sendErr, errEmailNotConfigured):
 		log.Println("Invite link for", email, ":", link)
-		data.Info = "Email isn't set up yet, so nothing was emailed. Add SMTP_USER and SMTP_PASS to your .env file and restart the server. For now, send this link to " + email + " yourself:"
+		data.Info = "Email isn't set up yet, so nothing was emailed. Open Admin > Email Settings, add your mail account, and every invite will send by itself. For now, send this link to " + email + " yourself:"
 		data.InviteLink = link
 	default:
 		log.Println("Could not email invite to", email, ":", sendErr)
 		hint := ""
 		if msg := sendErr.Error(); strings.Contains(msg, "535") || strings.Contains(msg, "Username and Password not accepted") {
-			hint = " The mail server refused the login: check SMTP_USER and SMTP_PASS in your .env. Gmail needs an App Password, and Brevo needs its SMTP key (never your normal password)."
+			hint = " The mail server refused the login: check the address and app password on Admin > Email Settings. Gmail needs an App Password, and Brevo needs its SMTP key (never your normal password)."
 		}
 		data.Error = "The invitation was saved, but the email could not be sent (" + sendErr.Error() + ")." + hint + " You can send this link yourself:"
 		data.InviteLink = link
@@ -267,7 +297,7 @@ func emailsPageHandler(w http.ResponseWriter, r *http.Request) {
 	case "failed":
 		data.Error = "The test email could not be sent. Look at the newest line in the table below to see why."
 	case "off":
-		data.Error = "Email is not set up yet. Add SMTP_USER and SMTP_PASS to your .env file and restart the server."
+		data.Error = "Email is not set up yet. Open Admin > Email Settings and add your mail account first."
 	}
 	render(w, "admin-emails.html", data)
 }
@@ -281,7 +311,7 @@ func emailTestHandler(w http.ResponseWriter, r *http.Request) {
 	heading := "Test email ✅"
 	message := "Hi " + u.FullName + "! If you can read this, PathFinder can send emails. " +
 		"This is how the invitation emails will look to the people you invite."
-	text, htmlBody := inviteEmail(heading, message, "Open the admin page", baseURL()+"/admin")
+	text, htmlBody := inviteEmail(heading, message, "Open the admin page", baseURLFor(r)+"/admin")
 
 	err := sendEmail(u.Email, "PathFinder test email ✅", text, htmlBody)
 	result := "sent"
