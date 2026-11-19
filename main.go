@@ -19,15 +19,19 @@ type PageData struct {
 	Fraction  Fraction
 	Topic     Topic
 
-	// The Programming room: its three tabs
-	Tab          string     // "docs" or "documentaries" ("" = the topics tab)
-	Languages    []Topic    // the languages to choose from
-	Current      Topic      // the chosen language
-	Links        []Resource // docs or documentary links for it
-	Locked       bool       // topics not clickable yet
-	DocsUnlocked bool       // the visitor has read a language's docs
-	Theme        string     // css theme key for <body data-theme="...">
-	Count        int        // how many places a topic has
+	// The Programming room: its three doors
+	Tab       string     // "learning", "docs" or "documentaries" ("" = the topics tab)
+	Languages []Topic    // the languages to choose from
+	Current   Topic      // the chosen language
+	Links     []Resource // the places for it
+	Theme     string     // css theme key for <html data-theme="...">
+	Count     int        // how many places a topic has
+
+	// Places shown straight on a fraction page (Read Manga, Read Manhwa)
+	Sites []Resource
+
+	// Set on a home base (the home page, the admin dashboard): no back button
+	NoBack bool
 
 	// Admin pages
 	Emails        []EmailRecord
@@ -104,6 +108,7 @@ func homePageHandler(w http.ResponseWriter, r *http.Request) {
 		Fractions: fractions,
 		Recent:    recentHistory(user.ID, 5),
 		Theme:     "base",
+		NoBack:    true,
 	})
 }
 
@@ -120,7 +125,11 @@ func fractionHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	render(w, "fraction.html", PageData{User: user, Fraction: f, Theme: f.Theme})
+	data := PageData{User: user, Fraction: f, Theme: f.Theme}
+	if f.Direct && len(f.Topics) > 0 {
+		data.Sites = learningFor(f.Topics[0])
+	}
+	render(w, "fraction.html", data)
 }
 
 // One topic: the 15 places you can be redirected to.

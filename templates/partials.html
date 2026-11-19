@@ -44,7 +44,7 @@
 {{define "topbar"}}
 <nav class="topbar">
     <div class="topbar-left">
-        {{template "backbtn" .}}
+        {{if not .NoBack}}{{template "backbtn" .}}{{end}}
         <a class="topbar-brand" href="/" aria-label="Redirect home">{{template "logo" .}}</a>
     </div>
     <div class="topbar-links">

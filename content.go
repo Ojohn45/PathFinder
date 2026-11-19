@@ -27,6 +27,9 @@ type Fraction struct {
 	Theme   string // css theme key: prog, ent, learn, life, work
 	Forks   []Fork
 	Topics  []Topic
+	// Direct shows the places themselves on the fraction page, with no
+	// topic step in between (Read Manga, Read Manhwa).
+	Direct bool
 }
 
 // res is just a short way to write a Resource in the lists below.
@@ -469,6 +472,7 @@ var fractions = []Fraction{
 		Blurb:   "Fifteen places to actually read manga, official publishers first.",
 		Theme:   "manga",
 		Topics:  []Topic{otherTopics["read-manga"]},
+		Direct:  true,
 	},
 	{
 		Slug:    "manhwa",
@@ -477,6 +481,7 @@ var fractions = []Fraction{
 		Blurb:   "Fifteen places to read Korean manhwa, official platforms first.",
 		Theme:   "manhwa",
 		Topics:  []Topic{otherTopics["read-manhwa"]},
+		Direct:  true,
 	},
 }
 
