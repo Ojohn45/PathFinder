@@ -5,9 +5,32 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 )
 
-var templates = template.Must(template.ParseGlob("templates/*.html"))
+// faviconHost is a template helper: it turns a link into the domain whose logo
+// should sit next to it. A blank result simply hides the picture.
+func faviconHost(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+	return u.Hostname()
+}
+
+var templates = template.Must(template.New("").Funcs(template.FuncMap{
+	"favicon": faviconHost,
+	"faviconOf": func(slug, id string) string {
+		if t, ok := topicBySlug[slug]; ok {
+			for _, r := range t.Resources {
+				if r.ID == id {
+					return faviconHost(r.URL)
+				}
+			}
+		}
+		return ""
+	},
+}).ParseGlob("templates/*.html"))
 
 // One struct that every page can use. Each page only fills what it needs.
 type PageData struct {
@@ -32,6 +55,13 @@ type PageData struct {
 
 	// Set on a home base (the home page, the admin dashboard): no back button
 	NoBack bool
+
+	// Set on the three home bases (landing, home, admin): the logo sits in the
+	// middle of the sidebar instead of on the left.
+	CenterLogo bool
+
+	// Nav marks which sidebar link is the current page.
+	Nav string
 
 	// Admin pages
 	Emails        []EmailRecord
@@ -67,6 +97,7 @@ type PageData struct {
 	FullName string
 	Username string
 	Email    string
+	Phone    string
 }
 
 // render builds the page in memory first, so a template error
@@ -85,7 +116,7 @@ func render(w http.ResponseWriter, name string, data PageData) {
 // ---------- Public pages ----------
 
 func landingPageHandler(w http.ResponseWriter, r *http.Request) {
-	render(w, "landing.html", PageData{Theme: "base"})
+	render(w, "landing.html", PageData{Theme: "base", CenterLogo: true})
 }
 
 // The Browse page: every section as a big box.
@@ -116,11 +147,13 @@ func homePageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	render(w, "home.html", PageData{
-		User:     user,
-		Sections: sections,
-		Recent:   recentHistory(user.ID, 5),
-		Theme:    "base",
-		NoBack:   true,
+		User:       user,
+		Sections:   sections,
+		Recent:     recentHistory(user.ID, 5),
+		Theme:      "base",
+		NoBack:     true,
+		CenterLogo: true,
+		Nav:        "home",
 	})
 }
 
@@ -216,6 +249,10 @@ func main() {
 		mux.HandleFunc("GET /section/"+slug+"/search", searchHandlerFor(slug))
 	}
 	mux.HandleFunc("GET /history", historyPageHandler)
+	mux.HandleFunc("GET /out", outHandler)
+	mux.HandleFunc("GET /settings", settingsPageHandler)
+	mux.HandleFunc("POST /settings/name", settingsNameHandler)
+	mux.HandleFunc("POST /settings/password", settingsPasswordHandler)
 	mux.HandleFunc("GET /section/programming/{tab}", programmingTabHandler)
 	mux.HandleFunc("GET /section/programming/{tab}/{lang}", programmingTabHandler)
 	mux.HandleFunc("GET /topic/{slug}", topicHandler)

@@ -1,5 +1,29 @@
 # What changed, latest first
 
+## v21
+- **The sidebar folds away and comes back**, like the one in your recording. A button
+  at the top of the sidebar folds it; a button in the corner brings it back; Ctrl+Shift+B
+  does the same from the keyboard. On a computer it remembers your choice between pages.
+  On a phone it starts closed and slides over the page.
+- The name at the top of the sidebar is plain text, **PathFinder**, with no animation.
+  The animated wordmark stays on the landing page.
+- **The strip down the right edge is gone.** It was the page background painted twice:
+  once full width and once only as wide as the 1000px content column, so a darker band
+  showed beside it. The colour is now painted once, edge to edge.
+- Scrollbars are hidden so no extra track is drawn at the right.
+
+## v20
+- **The whole menu now lives in a left sidebar**, the way a working app does it:
+  the PathFinder wordmark at the top, then Home, Browse, History and Admin (admins
+  only), and pinned to the bottom left, **Settings** and **Log out**. The current page
+  is highlighted.
+- The Back button is the only thing that stayed out of the sidebar: it sits at the top
+  left of the page content, so it always means "go back from here".
+- On a phone the sidebar slides in from the left behind a small menu button, with a
+  dark scrim, and closes on Escape or a tap outside. Settings stays at the bottom.
+- Content is offset so nothing hides behind the sidebar, and the wordmark is centred in
+  the sidebar on Home and Admin.
+
 ## v19
 - **No public admin door.** The "Log In as Admin" button is gone from the landing
   page and the Log In page, and `/admin/login` now just sends you to the normal login

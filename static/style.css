@@ -1158,9 +1158,9 @@ html {
 }
 
 body {
-    background:
-        radial-gradient(120% 85% at 50% -15%, var(--bg-2) 0%, transparent 62%),
-        linear-gradient(170deg, var(--bg) 0%, var(--bg) 45%, var(--bg-deep) 100%) fixed;
+    /* the colour is painted once, on <html>, edge to edge. A second copy here
+       stopped at the page's max-width and showed up as a dark strip on the right. */
+    background: transparent;
     color: var(--ink);
     min-height: 100vh;
     overflow-x: hidden;
@@ -2108,4 +2108,366 @@ a:hover { color: var(--ink); }
     text-align: center;
     padding: 40px 0;
     color: var(--muted);
+}
+
+/* ---------- Favicons next to destination links ---------- */
+.favicon {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    object-fit: contain;
+    background: #fff;
+    padding: 2px;
+    margin-bottom: 6px;
+    flex: 0 0 auto;
+}
+
+.search-link .favicon { margin-bottom: 4px; }
+
+.search-glyph {
+    font-size: 1rem;
+    margin-right: 2px;
+}
+
+.history-name { display: inline-flex; align-items: center; gap: 8px; }
+.history-name .favicon { width: 18px; height: 18px; margin: 0; }
+
+/* ---------- Logo in the middle of the top bar (landing, home, admin) ---------- */
+.topbar.center-logo {
+    position: relative;
+    justify-content: flex-end;
+}
+
+.topbar.center-logo .topbar-left {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+}
+
+.topbar.center-logo .topbar-links { margin-left: auto; }
+
+/* ---------- Account settings ---------- */
+.settings-wrap {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    align-items: start;
+}
+
+.settings-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 22px;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.settings-card h2 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+    color: var(--accent-2);
+}
+
+.settings-card label { display: flex; flex-direction: column; gap: 6px; font-size: 0.92rem; }
+.settings-card label > span { font-weight: 600; }
+.settings-card input {
+    background-color: var(--panel-2);
+    border: 1px solid var(--line-2);
+    border-radius: 8px;
+    padding: 11px 13px;
+    color: var(--ink);
+    font-size: 1rem;
+}
+.settings-card input:focus { outline: none; border-color: var(--accent); }
+.settings-card small { color: var(--muted); font-size: 0.8rem; }
+.settings-card .admin-btn { width: auto; align-self: flex-start; padding: 11px 20px; }
+
+.settings-card.locked { background-color: var(--panel-2); }
+.settings-card.locked dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; }
+.settings-card.locked dt { color: var(--muted); font-size: 0.85rem; }
+.settings-card.locked dd { margin: 0; font-size: 0.92rem; }
+.settings-hint { color: var(--muted); font-size: 0.82rem; margin: 4px 0 0; }
+
+.optional { color: var(--muted); font-weight: 400; font-size: 0.82rem; }
+
+/* ---------- Phones and small tablets ---------- */
+@media (max-width: 820px) {
+    body { padding: 10px 12px 40px; }
+
+    .topbar {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 12px;
+        margin-bottom: 18px;
+    }
+
+    .topbar.center-logo { justify-content: space-between; }
+    .topbar.center-logo .topbar-left {
+        position: static;
+        transform: none;
+        order: -1;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 4px;
+    }
+    .topbar.center-logo .topbar-links { width: 100%; justify-content: center; }
+
+    .topbar-links {
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 0.9rem;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    .topbar-links a { padding: 6px 8px; }
+
+    .rlogo-svg { width: 150px; height: auto; }
+
+    .page-head h1 { font-size: 1.6rem; }
+    .page-head p { font-size: 0.95rem; }
+
+    .section-search { flex-direction: column; }
+    .section-search input { max-width: 100%; }
+    .search-btn { width: 100%; }
+
+    .lang-filter { flex-direction: column; align-items: stretch; }
+    .lang-filter input { max-width: 100%; }
+
+    .search-links,
+    .site-grid,
+    .topic-grid,
+    .fork-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .history-row { flex-direction: column; align-items: flex-start; }
+    .history-meta { font-size: 0.8rem; }
+
+    .settings-wrap { grid-template-columns: 1fr; }
+    .settings-card .admin-btn { width: 100%; text-align: center; }
+
+    .admin-actions { flex-direction: column; }
+    .admin-actions .admin-btn { width: 100%; }
+
+    .auth-box, .invite-box, .accept-box { max-width: 100%; }
+
+    table { display: block; overflow-x: auto; white-space: nowrap; }
+
+    .mail-form { max-width: 100%; }
+    .mail-actions { flex-direction: column; }
+    .mail-actions .admin-btn { width: 100%; }
+}
+
+@media (max-width: 480px) {
+    body { padding: 8px 10px 32px; }
+    .rlogo-svg { width: 128px; }
+    .page-head h1 { font-size: 1.35rem; }
+    .topic-box { font-size: 0.95rem; }
+    .site-box strong { font-size: 0.95rem; }
+    .topbar-links { font-size: 0.85rem; }
+    .section-search input, .search-btn { font-size: 16px; } /* stops iOS zooming on focus */
+}
+
+/* ---------- Landing page: the wordmark sits in the middle of the top bar ---------- */
+.navbar.center-brand {
+    position: relative;
+    justify-content: flex-end;
+}
+
+.navbar.center-brand .topbar-brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+}
+
+@media (max-width: 820px) {
+    .navbar { padding: 14px 16px; }
+    .navbar.center-brand {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    .navbar.center-brand .topbar-brand {
+        position: static;
+        transform: none;
+        order: -1;
+    }
+}
+
+/* =====================================================================
+   THE SIDEBAR  ·  every bar on the left, Settings at the bottom.
+   It can be folded away with the button at its top and brought back
+   with the button that then appears in the corner.
+   ===================================================================== */
+:root { --sidebar-w: 248px; }
+
+/* no extra strip down the right edge: the page scrolls, the track stays invisible */
+html { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 14px 12px 14px;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border-right: 1px solid var(--line);
+    z-index: 60;
+    overflow-y: auto;
+    scrollbar-width: none;
+    transition: transform 0.22s ease;
+}
+.sidebar::-webkit-scrollbar { width: 0; display: none; }
+
+body.has-sidebar { padding-left: calc(var(--sidebar-w) + 18px); transition: padding-left 0.22s ease; }
+
+/* folded away */
+body.sidebar-hidden .sidebar { transform: translateX(-104%); box-shadow: none; }
+body.sidebar-hidden.has-sidebar { padding-left: 18px; }
+
+/* the top row: fold button + the plain name, no animation */
+.sidebar-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 4px 14px;
+}
+
+.sidebar-collapse,
+.sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.sidebar-collapse:hover,
+.sidebar-toggle:hover {
+    color: var(--ink);
+    background-color: rgba(255, 255, 255, 0.06);
+    border-color: var(--line);
+}
+
+.sidebar-name {
+    font-size: 1.28rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent-2);
+    text-decoration: none;
+}
+.sidebar-name:hover { text-decoration: none; color: var(--ink); }
+
+/* the button that brings the menu back; only shown while it is folded */
+.sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 80;
+    background-color: var(--panel);
+    border-color: var(--line);
+}
+body.sidebar-hidden .sidebar-toggle { display: inline-flex; }
+
+.sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
+
+.sidebar-nav a,
+.sidebar-bottom a,
+.sidebar-logout {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 12px;
+    border-radius: 9px;
+    color: var(--ink);
+    font-size: 0.95rem;
+    text-decoration: none;
+    background: none;
+    border: 1px solid transparent;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+}
+
+.sidebar-nav a:hover,
+.sidebar-bottom a:hover,
+.sidebar-logout:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--line);
+    text-decoration: none;
+}
+
+.sidebar-nav a.current,
+.sidebar-bottom a.current {
+    background-color: rgba(var(--glow), 0.16);
+    border-color: var(--accent);
+    color: var(--accent-2);
+    font-weight: 600;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+}
+
+.sidebar-logout { color: var(--muted); }
+
+.sidebar-scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 55;
+}
+
+/* the back button sits at the top of the content; leave room for the reopen button */
+.back-btn { margin-bottom: 12px; }
+body.sidebar-hidden .back-btn { margin-left: 50px; }
+
+@media (max-width: 900px) {
+    body.has-sidebar,
+    body.sidebar-hidden.has-sidebar { padding-left: 12px; }
+
+    .sidebar {
+        width: min(82vw, 300px);
+        box-shadow: 18px 0 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* on a phone the menu is closed until asked for, so the button is always there */
+    .sidebar-toggle { display: inline-flex; }
+    body:not(.sidebar-hidden) .sidebar-toggle { display: none; }
+
+    body.menu-open { overflow: hidden; }
+    .back-btn,
+    body.sidebar-hidden .back-btn { margin-left: 50px; }
+}
+
+/* ---------- One background, painted edge to edge ---------- */
+html { min-height: 100%; background-attachment: fixed; }
+body.wide { margin-left: auto; margin-right: auto; }
+body.has-sidebar.wide { max-width: none; margin: 0; padding-right: 28px; }
+body.has-sidebar.wide > *:not(.sidebar):not(.sidebar-toggle):not(.sidebar-scrim):not(script) {
+    max-width: 1040px;
+    margin-left: auto;
+    margin-right: auto;
 }

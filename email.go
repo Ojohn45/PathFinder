@@ -331,23 +331,28 @@ func inviteEmail(heading, message, buttonText, link string) (text, htmlBody stri
 	return text, h.String()
 }
 
+// sendWelcomeEmail sends the branded welcome: the animated PathFinder banner at
+// the top, one short paragraph, and a button into Browse.
 func sendWelcomeEmail(toEmail, fullName string) {
 	name := fullName
 	if parts := strings.Fields(fullName); len(parts) > 0 {
 		name = parts[0]
 	}
 
-	body := "Hi " + name + ",\n\n" +
-		"Welcome to PathFinder! 🎉 Your account has been created successfully.\n\n" +
-		"Here's how PathFinder makes learning to code so much easier:\n\n" +
-		"  • No more endless searching - pick a programming language and we point you straight to 10 of the best places to learn it.\n" +
-		"  • Hand-picked resources: official docs, interactive tutorials, full courses and hands-on practice sites.\n" +
-		"  • Your visits are saved, so you never lose your place.\n\n" +
-		"Log in, tap Browse, choose a language, and start learning today.\n\n" +
-		"Happy coding!\n" +
-		"The PathFinder Team\n"
+	subject := "Welcome to PathFinder 🎉"
+	heading := "Welcome, " + name + "!"
+	message := "PathFinder exists to take the searching out of learning. Tell it what you want, whether that is a " +
+		"programming language, a film, a manga or a game, and it points you straight to the best places to read, " +
+		"watch, listen or play it, then keeps every visit in your history so you never lose your place. " +
+		"Press the button, choose a section, and start with one thing today."
+	link := baseURL() + "/browse"
 
-	err := sendEmail(toEmail, "Welcome to PathFinder 🎉", body, "")
+	text := "Hi " + name + ",\n\nWelcome to PathFinder! Your account is ready.\n\n" +
+		"Pick a section and PathFinder points you straight to the best places to learn, watch, read or play, " +
+		"and remembers where you have been.\n\nStart here: " + link + "\n\nThe PathFinder Team\n"
+	_, htmlBody := inviteEmail(heading, message, "Start with Browse", link)
+
+	err := sendEmail(toEmail, subject, text, htmlBody)
 	switch {
 	case errors.Is(err, errEmailNotConfigured):
 		log.Println("Email not configured - skipping welcome email to", toEmail)

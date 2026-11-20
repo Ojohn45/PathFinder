@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"net/url"
 	"sort"
@@ -21,10 +22,13 @@ import (
 // Learning, Lifestyle and Create & Work deliberately have none.
 
 // SearchLink is one place you can go for a searched title.
+// Out is the link the page actually uses: it goes through /out, which writes the
+// click into history and then sends the visitor on to URL.
 type SearchLink struct {
 	Name        string
 	URL         string
 	Description string
+	Out         string
 }
 
 // SearchGroup is a row of places, e.g. "Watch it" or "Listen to it".
@@ -152,8 +156,35 @@ func comixReadLinks(q string) []SearchLink {
 	}
 }
 
+// withOut fills in the /out links for every group, so a click can be recorded
+// before the visitor leaves.
+func withOut(groups []SearchGroup, sectionSlug, query string) []SearchGroup {
+	out := make([]SearchGroup, 0, len(groups))
+	for _, g := range groups {
+		links := make([]SearchLink, 0, len(g.Links))
+		for _, l := range g.Links {
+			l.Out = "/out?s=" + url.QueryEscape(sectionSlug) +
+				"&q=" + url.QueryEscape(query) +
+				"&n=" + url.QueryEscape(l.Name) +
+				"&d=" + url.QueryEscape(l.URL)
+			links = append(links, l)
+		}
+		g.Links = links
+		out = append(out, g)
+	}
+	return out
+}
+
 // searchFor builds the whole answer for one section and one query.
 func searchFor(slug, q string) (SectionSearch, bool) {
+	res, ok := searchForRaw(slug, q)
+	if ok && q != "" {
+		res.Groups = withOut(res.Groups, slug, q)
+	}
+	return res, ok
+}
+
+func searchForRaw(slug, q string) (SectionSearch, bool) {
 	switch slug {
 	case "entertainment":
 		return SectionSearch{
@@ -246,6 +277,11 @@ func sectionSearch(w http.ResponseWriter, r *http.Request, slug string) {
 
 	if slug == "programming" && query != "" {
 		data.Languages = searchLanguages(query)
+	}
+	if query != "" {
+		if err := addSearchEvent(u.ID, slug, query); err != nil {
+			log.Println("Could not record the search:", err)
+		}
 	}
 
 	render(w, "search.html", data)

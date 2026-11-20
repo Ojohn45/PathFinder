@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -13,12 +14,26 @@ import (
 
 // HistoryRow is one line on the page: the visit plus the names it belongs to.
 type HistoryRow struct {
+	Kind         string // "", "search" or "result"
 	ResourceName string
+	Query        string
+	DestName     string
+	DestURL      string
 	LanguageName string // the topic: a language, "Anime", "Read Manga"...
 	SectionName  string
 	SectionSlug  string
-	Link         string // /go/<topic>/<resource>
+	Link         string // /go/<topic>/<resource> for a visit, the outside URL for a result
+	Icon         string // the domain whose favicon is shown next to the row
 	When         time.Time
+}
+
+// hostOf pulls the domain out of a URL, for the favicon service.
+func hostOf(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil || u.Host == "" {
+		return ""
+	}
+	return u.Hostname()
 }
 
 // HistoryDay groups the visits of one calendar day.
@@ -45,14 +60,39 @@ func historyRows(entries []HistoryEntry) []HistoryRow {
 	rows := make([]HistoryRow, 0, len(entries))
 	for _, e := range entries {
 		row := HistoryRow{
+			Kind:         e.Kind,
 			ResourceName: e.ResourceName,
+			Query:        e.Query,
+			DestName:     e.DestName,
+			DestURL:      e.DestURL,
 			When:         e.ClickedAt,
 			Link:         "/go/" + e.LanguageSlug + "/" + e.ResourceID,
 			LanguageName: e.LanguageSlug,
 			SectionName:  "PathFinder",
+			SectionSlug:  e.SectionSlug,
 		}
+
+		// A search or a search result belongs to a section, not to a topic.
+		if e.Kind == "search" || e.Kind == "result" {
+			if sec, ok := sectionBySlug[e.SectionSlug]; ok {
+				row.SectionName = sec.Name
+			}
+			if e.Kind == "result" {
+				row.Link = e.DestURL
+				row.Icon = hostOf(e.DestURL)
+			}
+			rows = append(rows, row)
+			continue
+		}
+
 		if t, ok := topicBySlug[e.LanguageSlug]; ok {
 			row.LanguageName = t.Name
+			for _, res := range t.Resources {
+				if res.ID == e.ResourceID {
+					row.Icon = hostOf(res.URL)
+					break
+				}
+			}
 		}
 		if slug, ok := sectionOfTopic[e.LanguageSlug]; ok {
 			if sec, ok := sectionBySlug[slug]; ok {
@@ -106,6 +146,7 @@ func historyPageHandler(w http.ResponseWriter, r *http.Request) {
 		Theme:     "base",
 		TotalSeen: len(entries),
 		History:   groupByDay(rows),
+		Nav:       "history",
 	}
 	render(w, "history.html", data)
 }

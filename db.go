@@ -70,6 +70,14 @@ type HistoryEntry struct {
 	ResourceID   string    `json:"resource_id"`
 	ResourceName string    `json:"resource_name"`
 	ClickedAt    time.Time `json:"clicked_at"`
+
+	// What kind of step this was: "" (a place opened), "search" (a query typed)
+	// or "result" (a search result that was clicked).
+	Kind        string `json:"kind,omitempty"`
+	Query       string `json:"query,omitempty"`
+	SectionSlug string `json:"section_slug,omitempty"`
+	DestURL     string `json:"dest_url,omitempty"`
+	DestName    string `json:"dest_name,omitempty"`
 }
 
 // ---------- Where we store it ----------
@@ -259,21 +267,51 @@ func findUserByID(id int) (User, bool) {
 
 // ---------- History ----------
 
-func addHistory(userID int, slug, resourceID, resourceName string) error {
+// addEvent records anything worth remembering: a place opened, a search typed,
+// or a search result followed.
+func addEvent(e HistoryEntry) error {
 	mu.Lock()
 	defer mu.Unlock()
-	history = append(history, HistoryEntry{
-		UserID:       userID,
-		LanguageSlug: slug,
-		ResourceID:   resourceID,
-		ResourceName: resourceName,
-		ClickedAt:    time.Now(),
-	})
+	if e.ClickedAt.IsZero() {
+		e.ClickedAt = time.Now()
+	}
+	history = append(history, e)
 	if err := saveJSON(historyFile, history); err != nil {
 		history = history[:len(history)-1]
 		return err
 	}
 	return nil
+}
+
+func addHistory(userID int, slug, resourceID, resourceName string) error {
+	return addEvent(HistoryEntry{
+		UserID:       userID,
+		LanguageSlug: slug,
+		ResourceID:   resourceID,
+		ResourceName: resourceName,
+	})
+}
+
+func addSearchEvent(userID int, sectionSlug, query string) error {
+	return addEvent(HistoryEntry{
+		UserID:       userID,
+		Kind:         "search",
+		SectionSlug:  sectionSlug,
+		Query:        query,
+		ResourceName: query,
+	})
+}
+
+func addResultEvent(userID int, sectionSlug, query, destName, destURL string) error {
+	return addEvent(HistoryEntry{
+		UserID:       userID,
+		Kind:         "result",
+		SectionSlug:  sectionSlug,
+		Query:        query,
+		DestName:     destName,
+		DestURL:      destURL,
+		ResourceName: destName,
+	})
 }
 
 // recentHistory returns the user's last n visits, newest first.

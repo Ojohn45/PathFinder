@@ -22,6 +22,7 @@
     <div class="site-grid">
         {{range .Topic.Resources}}
         <a class="site-box" href="/go/{{$.Topic.Slug}}/{{.ID}}" target="_blank" rel="noopener noreferrer">
+            <img class="favicon" src="https://www.google.com/s2/favicons?domain={{favicon .URL}}&sz=64" alt="" loading="lazy" onerror="this.style.display='none'">
             <strong>{{.Name}}</strong>
             <span>{{.Description}}</span>
         </a>

@@ -55,6 +55,7 @@
     <div class="site-grid">
         {{range .Recent}}
         <a class="site-box" href="/go/{{.LanguageSlug}}/{{.ResourceID}}" target="_blank" rel="noopener noreferrer">
+            <img class="favicon" src="https://www.google.com/s2/favicons?domain={{faviconOf .LanguageSlug .ResourceID}}&sz=64" alt="" loading="lazy" onerror="this.style.display='none'">
             <strong>{{.ResourceName}}</strong>
             <span>Open again</span>
         </a>

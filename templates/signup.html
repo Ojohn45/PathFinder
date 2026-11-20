@@ -24,6 +24,10 @@
                     <input type="email" name="email" value="{{.Email}}" autocomplete="email" required>
                     <p class="field-hint">We'll send you a welcome message</p>
 
+                    <label>Phone number <span class="optional">(optional)</span></label>
+                    <input type="tel" name="phone" value="{{.Phone}}" autocomplete="tel" placeholder="0812 775 8529">
+                    <p class="field-hint">Add it and we can text your welcome message too, and you can log in with it</p>
+
                     <label>Password</label>
                     <input type="password" name="password" autocomplete="new-password" required>
                     <p class="field-hint">Must contain both letters and numbers</p>

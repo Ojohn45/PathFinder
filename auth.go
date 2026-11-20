@@ -153,6 +153,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	fullName := strings.TrimSpace(r.FormValue("full_name"))
 	username := strings.TrimSpace(r.FormValue("username"))
 	email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
+	phone := normalisePhone(r.FormValue("phone"))
 	password := r.FormValue("password")
 	confirm := r.FormValue("confirm_password")
 
@@ -160,7 +161,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	// and keep what the person already typed (except the password).
 	fail := func(msg string) {
 		w.WriteHeader(http.StatusBadRequest)
-		render(w, "signup.html", PageData{Error: msg, FullName: fullName, Username: username, Email: email})
+		render(w, "signup.html", PageData{Error: msg, FullName: fullName, Username: username, Email: email, Phone: phone})
 	}
 
 	if fullName == "" || username == "" || email == "" || password == "" {
@@ -172,6 +173,17 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil || addr.Address != email {
 		fail("Please enter a valid email address")
 		return
+	}
+
+	if phone != "" && (len(phone) < 10 || len(phone) > 14) {
+		fail("Please enter a valid phone number, for example 08127758529")
+		return
+	}
+	if phone != "" {
+		if _, taken := findUserByPhone(phone); taken {
+			fail("That phone number already has an account")
+			return
+		}
 	}
 
 	if password != confirm {
@@ -194,7 +206,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = createUser(fullName, username, email, string(hashedPassword), "")
+	newUser, err := createUser(fullName, username, email, string(hashedPassword), "")
 	switch {
 	case errors.Is(err, ErrUsernameTaken):
 		fail("That username is already taken")
@@ -208,8 +220,14 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// "go" = run in the background, so the user doesn't wait for the email.
-	go sendWelcomeEmail(email, fullName)
+	if phone != "" && err == nil {
+		if phoneErr := setUserPhone(newUser.ID, phone); phoneErr != nil {
+			log.Println("Could not save the phone number:", phoneErr)
+		}
+	}
+
+	// "go" = run in the background, so the user doesn't wait for the messages.
+	go welcomeMessages(fullName, email, phone)
 
 	http.Redirect(w, r, "/login?created=1", http.StatusSeeOther)
 }

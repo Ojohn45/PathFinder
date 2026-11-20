@@ -136,7 +136,7 @@ func adminPageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	head, _ := headAdmin()
-	render(w, "admin.html", PageData{User: u, HeadAdmin: &head, NoBack: true})
+	render(w, "admin.html", PageData{User: u, HeadAdmin: &head, NoBack: true, CenterLogo: true, Nav: "admin"})
 }
 
 func inviteAdminPageHandler(w http.ResponseWriter, r *http.Request) {

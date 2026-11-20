@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{.Theme}}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Account settings - PathFinder</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="wide" data-theme="base">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb"><a href="/home">Home</a> · Settings</span>
+        <h1>Your account</h1>
+        <p>Change your name, your username or your password here.</p>
+    </section>
+
+    {{if .Info}}<p class="form-success">{{.Info}}</p>{{end}}
+    {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+
+    <div class="settings-wrap">
+        <form class="settings-card" method="post" action="/settings/name">
+            <h2>Name and username</h2>
+            <label>
+                <span>Full name</span>
+                <input type="text" name="full_name" value="{{.FullName}}" required autocomplete="name">
+            </label>
+            <label>
+                <span>Username</span>
+                <input type="text" name="username" value="{{.Username}}" required autocomplete="username">
+                <small>This is what you type to log in, along with your password.</small>
+            </label>
+            <button type="submit" class="admin-btn primary">Save changes</button>
+        </form>
+
+        <form class="settings-card" method="post" action="/settings/password">
+            <h2>Password</h2>
+            <label>
+                <span>Current password</span>
+                <input type="password" name="current_password" required autocomplete="current-password">
+            </label>
+            <label>
+                <span>New password</span>
+                <input type="password" name="new_password" required autocomplete="new-password">
+                <small>Letters and numbers, up to 72 characters.</small>
+            </label>
+            <label>
+                <span>New password again</span>
+                <input type="password" name="confirm_password" required autocomplete="new-password">
+            </label>
+            <button type="submit" class="admin-btn primary">Change password</button>
+        </form>
+
+        <div class="settings-card locked">
+            <h2>Locked details</h2>
+            <p>These identify your account and how we reach you, so they cannot be edited here.</p>
+            <dl>
+                <dt>Email</dt>
+                <dd>{{.Email}}</dd>
+                <dt>Phone number</dt>
+                <dd>{{if .User.Phone}}{{.User.Phone}}{{else}}Not added{{end}}</dd>
+            </dl>
+            <p class="settings-hint">Need one of these changed? Ask the head admin, who can update it for you.</p>
+        </div>
+    </div>
+</body>
+</html>

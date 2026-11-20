@@ -43,7 +43,8 @@
                 <p class="search-group-blurb">{{.Blurb}}</p>
                 <div class="search-links">
                     {{range .Links}}
-                    <a class="search-link" href="{{.URL}}" target="_blank" rel="noopener noreferrer">
+                    <a class="search-link" href="{{if .Out}}{{.Out}}{{else}}{{.URL}}{{end}}"{{if not .Out}} target="_blank" rel="noopener noreferrer"{{end}}>
+                        <img class="favicon" src="https://www.google.com/s2/favicons?domain={{favicon .URL}}&sz=64" alt="" loading="lazy" onerror="this.style.display='none'">
                         <strong>{{.Name}}</strong>
                         <span>{{.Description}}</span>
                     </a>

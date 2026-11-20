@@ -54,24 +54,86 @@
 </span>
 {{end}}
 {{define "topbar"}}
-<nav class="topbar">
-    <div class="topbar-left">
-        {{if not .NoBack}}{{template "backbtn" .}}{{end}}
-        <a class="topbar-brand" href="/" aria-label="PathFinder home">{{template "logo" .}}</a>
+{{if not .NoBack}}{{template "backbtn" .}}{{end}}
+
+<button class="sidebar-toggle" type="button" id="sidebar-toggle" aria-label="Open the menu" aria-expanded="true">
+    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.8"/></svg>
+</button>
+<div class="sidebar-scrim" id="sidebar-scrim" hidden></div>
+
+<aside class="sidebar" id="sidebar" aria-label="Main menu">
+    <div class="sidebar-top">
+        <button class="sidebar-collapse" type="button" id="sidebar-collapse" aria-label="Close the menu">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 4.5v15" stroke="currentColor" stroke-width="1.8"/></svg>
+        </button>
+        <a class="sidebar-name" href="/" aria-label="PathFinder home">PathFinder</a>
     </div>
-    <div class="topbar-links">
+
+    <nav class="sidebar-nav">
         {{if .User}}
-        <a href="/home">Home</a>
-        <a href="/browse">Browse</a>
-        <a href="/history">History</a>
-        {{if .User.IsAdmin}}<a href="/admin">Admin</a>{{end}}
-        <button type="button" class="pill pill-soft" id="logout-open">Log out</button>
+        <a href="/home"{{if eq .Nav "home"}} class="current"{{end}}>Home</a>
+        <a href="/browse"{{if eq .Nav "browse"}} class="current"{{end}}>Browse</a>
+        <a href="/history"{{if eq .Nav "history"}} class="current"{{end}}>History</a>
+        {{if .User.IsAdmin}}<a href="/admin"{{if eq .Nav "admin"}} class="current"{{end}}>Admin</a>{{end}}
         {{else}}
         <a href="/login">Log in</a>
-        <a href="/signup" class="pill">Sign up</a>
+        <a href="/signup">Sign up</a>
+        {{end}}
+    </nav>
+
+    <div class="sidebar-bottom">
+        {{if .User}}
+        <a href="/settings"{{if eq .Nav "settings"}} class="current"{{end}}>Settings</a>
+        <button type="button" class="sidebar-logout" id="logout-open">Log out</button>
+        {{else}}
+        <a href="/browse">Browse</a>
         {{end}}
     </div>
-</nav>
+</aside>
+
+<script>
+(function () {
+    var side = document.getElementById('sidebar');
+    var open = document.getElementById('sidebar-toggle');
+    var shut = document.getElementById('sidebar-collapse');
+    var scrim = document.getElementById('sidebar-scrim');
+    if (!side || !open) return;
+    document.body.classList.add('has-sidebar');
+
+    var KEY = 'pf-sidebar';
+    var narrow = window.matchMedia('(max-width: 900px)');
+
+    function setShown(show, remember) {
+        document.body.classList.toggle('sidebar-hidden', !show);
+        open.setAttribute('aria-expanded', show ? 'true' : 'false');
+        if (scrim) scrim.hidden = !(show && narrow.matches);
+        document.body.classList.toggle('menu-open', show && narrow.matches);
+        if (remember && !narrow.matches) {
+            try { localStorage.setItem(KEY, show ? 'open' : 'closed'); } catch (e) {}
+        }
+    }
+
+    // desktop: remember what the visitor chose; phone: always start closed
+    var saved = null;
+    try { saved = localStorage.getItem(KEY); } catch (e) {}
+    setShown(narrow.matches ? false : saved !== 'closed', false);
+
+    open.addEventListener('click', function () { setShown(true, true); });
+    if (shut) shut.addEventListener('click', function () { setShown(false, true); });
+    if (scrim) scrim.addEventListener('click', function () { setShown(false, false); });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && narrow.matches) setShown(false, false);
+        // Ctrl+Shift+B toggles the menu, like the shortcut in your recording
+        if (e.ctrlKey && e.shiftKey && (e.key === 'B' || e.key === 'b')) {
+            e.preventDefault();
+            setShown(document.body.classList.contains('sidebar-hidden'), true);
+        }
+    });
+    narrow.addEventListener('change', function () {
+        setShown(narrow.matches ? false : saved !== 'closed', false);
+    });
+})();
+</script>
 
 {{if .User}}
 <!-- "Are you sure?" box shown when the user presses Log out -->
