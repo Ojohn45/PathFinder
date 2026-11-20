@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{.Theme}}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Your history - PathFinder</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="wide" data-theme="base">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb"><a href="/home">Home</a> · History</span>
+        <h1>Where you have been</h1>
+        <p>Every place you opened is kept here, newest first, so you can always find your way back.</p>
+    </section>
+
+    {{if .TotalSeen}}
+    <p class="history-count">{{.TotalSeen}} place{{if ne .TotalSeen 1}}s{{end}} visited.</p>
+
+    {{range .History}}
+    <section class="history-day">
+        <h2 class="section-title">{{.Heading}}</h2>
+        <ul class="history-list">
+            {{range .Rows}}
+            <li class="history-row">
+                <a class="history-name" href="{{.Link}}" target="_blank" rel="noopener noreferrer">{{.ResourceName}}</a>
+                <span class="history-meta">
+                    {{if .SectionSlug}}<a href="/section/{{.SectionSlug}}">{{.SectionName}}</a> · {{end}}{{.LanguageName}} ·
+                    <time datetime="{{.When.Format "2006-01-02T15:04:05Z07:00"}}">{{.When.Format "15:04"}}</time>
+                </span>
+            </li>
+            {{end}}
+        </ul>
+    </section>
+    {{end}}
+    {{else}}
+    <div class="history-empty">
+        <p>Nothing here yet. Open any place and it will appear on this page.</p>
+        <a class="admin-btn" href="/browse">Browse the sections</a>
+    </div>
+    {{end}}
+</body>
+</html>

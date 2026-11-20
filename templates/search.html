@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{.Theme}}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search · {{.Section.Name}} · PathFinder</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="wide" data-theme="{{.Theme}}">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb"><a href="/browse">Browse</a> · <a href="/section/{{.Section.Slug}}">{{.Section.Name}}</a> · Search</span>
+        <h1>Search {{.Section.Name}}</h1>
+        <p>{{.Search.Blurb}}</p>
+    </section>
+
+    <form class="section-search" method="get" action="/section/{{.Section.Slug}}/search" role="search">
+        <input type="search" name="q" value="{{.Query}}" placeholder="{{.Search.Placeholder}}" autocomplete="off" aria-label="Search {{.Section.Name}}" autofocus>
+        <button type="submit" class="search-btn">Search</button>
+    </form>
+
+    {{if .Query}}
+        {{if eq .Section.Slug "programming"}}
+            {{if .Languages}}
+            <p class="search-note">{{len .Languages}} language{{if ne (len .Languages) 1}}s{{end}} match “{{.Query}}”. Pick one to open its doors.</p>
+            <div class="topic-grid">
+                {{range .Languages}}
+                <a class="topic-box" href="/section/programming/learning/{{.Slug}}">
+                    {{.Name}}
+                    <small>Docs · Learning · Documentaries</small>
+                </a>
+                {{end}}
+            </div>
+            {{else}}
+            <p class="search-empty">No language here is called “{{.Query}}”. Try another spelling, or <a href="/section/programming">browse all 71</a>.</p>
+            {{end}}
+        {{else}}
+            <p class="search-note">Results for “{{.Query}}”. Every link opens in a new tab, so PathFinder stays open behind it.</p>
+            {{range .Search.Groups}}
+            <section class="search-group">
+                <h2 class="section-title">{{.Title}}</h2>
+                <p class="search-group-blurb">{{.Blurb}}</p>
+                <div class="search-links">
+                    {{range .Links}}
+                    <a class="search-link" href="{{.URL}}" target="_blank" rel="noopener noreferrer">
+                        <strong>{{.Name}}</strong>
+                        <span>{{.Description}}</span>
+                    </a>
+                    {{end}}
+                </div>
+            </section>
+            {{end}}
+        {{end}}
+    {{else}}
+        <p class="search-empty">Type a name above and press Search.</p>
+    {{end}}
+</body>
+</html>

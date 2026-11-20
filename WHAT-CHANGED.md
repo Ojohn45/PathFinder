@@ -1,5 +1,42 @@
 # What changed, latest first
 
+## v18
+- **History page** at `/history`, linked from the top bar and from "Recently visited"
+  on the home page. Every place a visitor opens is listed newest first, grouped into
+  Today / Yesterday / the date, with the section, the topic and the time, and the
+  name is a link straight back to that place.
+- **Search inside a section, and nowhere else.** The landing page, the home page and
+  Browse have no search bar. Only these five sections carry one:
+  - Programming searches the languages themselves (nicknames work: js, ts, golang, py, c++, c#).
+  - Entertainment searches a film, anime, cartoon, song or game title and answers in
+    three rows: **Watch it**, **Listen to it**, **Play it**, each with the real
+    platforms (JustWatch, Netflix, Prime Video, Crunchyroll, Spotify, Audiomack,
+    Steam, PlayStation, Xbox, Nintendo and more).
+  - Read Manga, Read Manhwa and Read Comix search a title and answer with where to
+    read it, official publishers first.
+- Learning, Lifestyle and Create & Work deliberately have no search bar.
+- Search results open in a new tab, so PathFinder stays behind them.
+
+## v17
+- **Programming went from 10 languages to 71.** The ten hand-curated ones stay
+  (Python, Go, CSS, HTTP, HTTPS, Java, C++, PHP, SQL, JavaScript); 61 more were added:
+  C, C#, Rust, Ruby, Kotlin, Swift, Scala, Dart, Elixir, Erlang, Haskell, Clojure, F#,
+  OCaml, Lua, R, Julia, MATLAB, Perl, Bash, PowerShell, Assembly, Objective-C, Groovy,
+  Visual Basic, Fortran, COBOL, Ada, Prolog, Scheme, Racket, Common Lisp, Crystal, Nim,
+  Zig, D, Elm, Solidity, HTML, TypeScript, Sass, GraphQL, Verilog, VHDL, Tcl,
+  Smalltalk, Forth, APL, Processing, Wolfram Language, SAS, ABAP, Apex, Delphi,
+  Scratch, Vyper, Move, Gleam, Cairo, Odin and V.
+- Every language still carries exactly fifteen places, and all three doors work for
+  all of them: docs, straight to learning, and documentaries.
+- Each new language leads with its real documentation, then dependable destinations:
+  Wikipedia, Stack Overflow, Rosetta Code, DevDocs, Exercism where a track exists,
+  Learn X in Y Minutes, freeCodeCamp, Coursera, Udemy, YouTube, GitHub, Codecademy
+  and Reddit.
+- All 911 links in the new list were checked by machine; the twelve that did not
+  answer were replaced.
+- Added a search box above the language grid, so 71 boxes stay usable: type "rust"
+  and the rest step aside.
+
 ## v16
 - **No .env file needed any more.** The head admin gets a new **Admin > Email
   Settings** page: type the mail server, the sending address and the app password,

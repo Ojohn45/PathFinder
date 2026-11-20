@@ -47,6 +47,12 @@ type PageData struct {
 	CanAccept     bool // ...and the visitor is logged into it
 	AlreadyMember bool // ...and that account is already an admin
 
+	// Searching inside a section, and the visit history
+	Search    SectionSearch
+	Query     string
+	History   []HistoryDay
+	TotalSeen int
+
 	// Email Settings page (head admin)
 	Mail        MailSettings
 	MailSaved   bool // something was typed on the page and saved
@@ -206,6 +212,10 @@ func main() {
 	mux.HandleFunc("GET /browse", browseHandler)
 	mux.HandleFunc("GET /home", homePageHandler)
 	mux.HandleFunc("GET /section/{slug}", sectionHandler)
+	for _, slug := range []string{"programming", "entertainment", "manga", "manhwa", "comix"} {
+		mux.HandleFunc("GET /section/"+slug+"/search", searchHandlerFor(slug))
+	}
+	mux.HandleFunc("GET /history", historyPageHandler)
 	mux.HandleFunc("GET /section/programming/{tab}", programmingTabHandler)
 	mux.HandleFunc("GET /section/programming/{tab}/{lang}", programmingTabHandler)
 	mux.HandleFunc("GET /topic/{slug}", topicHandler)

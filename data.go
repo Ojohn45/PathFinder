@@ -14,7 +14,7 @@ type Topic struct {
 	Resources []Resource
 }
 
-var programmingTopics = map[string]Topic{
+var curatedTopics = map[string]Topic{
 	"python": {
 		Slug: "python",
 		Name: "Python",

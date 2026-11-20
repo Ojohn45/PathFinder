@@ -2,7 +2,8 @@
 
 Find your way to the right resource. A Go web app that sends people to hand-picked places worth their time: programming,
 entertainment, learning, lifestyle, creating and working, plus reading manga, manhwa
-and comix. Eight sections, each with its own colour.
+and comix. Eight sections, each with its own colour, and 71 programming languages
+with fifteen places each.
 No database, no framework. Plain `net/http` and JSON files.
 
 ## The name and the logo
@@ -74,6 +75,14 @@ The topic boxes always show, but clicking one explains the three ways in:
 
 Read Manga and Read Manhwa skip the topic step: their places are all on the
 fraction page at once.
+
+## History and search
+
+`/history` shows every place a visitor opened, newest first, grouped by day.
+
+Search lives inside five sections only (Programming, Entertainment, Read Manga,
+Read Manhwa, Read Comix) and never on the landing, home or Browse pages. The landing,
+home and Browse pages have none by design.
 
 ## Sending email
 
