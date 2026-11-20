@@ -230,8 +230,24 @@ func loginPageHandler(w http.ResponseWriter, r *http.Request) {
 // authenticate checks a username + password. One check, used by both login doors.
 // It returns the user and an empty reason on success, or the reason it failed
 // (the reason is only written in the server terminal, never shown on the page).
+// findAccount accepts a username, an email address or a phone number.
+func findAccount(id string) (User, bool) {
+	if u, ok := findUserByUsername(id); ok {
+		return u, true
+	}
+	if strings.Contains(id, "@") {
+		if u, ok := findUserByEmail(id); ok {
+			return u, true
+		}
+	}
+	if u, ok := findUserByPhone(id); ok {
+		return u, true
+	}
+	return User{}, false
+}
+
 func authenticate(username, password string) (User, string) {
-	user, found := findUserByUsername(username)
+	user, found := findAccount(username)
 	hash := dummyHash
 	if found {
 		hash = []byte(user.PasswordHash)
@@ -239,7 +255,7 @@ func authenticate(username, password string) (User, string) {
 	err := bcrypt.CompareHashAndPassword(hash, []byte(password))
 	switch {
 	case !found:
-		return User{}, "no account with that username"
+		return User{}, "no account with that username, email or number"
 	case err != nil:
 		return User{}, "wrong password"
 	}

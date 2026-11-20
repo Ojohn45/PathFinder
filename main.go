@@ -235,7 +235,11 @@ func main() {
 	mux.HandleFunc("POST /login", loginHandler)
 	mux.HandleFunc("POST /logout", logoutHandler)
 	mux.HandleFunc("GET /goodbye", goodbyePageHandler)
-	mux.HandleFunc("GET /admin/login", adminLoginPageHandler)
+	// There is no separate admin door any more: the head admin signs in on the
+	// normal login page with their registered number. Old links still land there.
+	mux.HandleFunc("GET /admin/login", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+	})
 	mux.HandleFunc("POST /admin/login", adminLoginHandler)
 
 	mux.HandleFunc("GET /admin", adminPageHandler)

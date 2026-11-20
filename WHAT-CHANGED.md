@@ -1,5 +1,24 @@
 # What changed, latest first
 
+## v19
+- **No public admin door.** The "Log In as Admin" button is gone from the landing
+  page and the Log In page, and `/admin/login` now just sends you to the normal login
+  page. Admins sign in on the same form as everybody else.
+- **Log in with the registered number.** The head admin account carries the phone
+  number 08127758529 (change it with `ADMIN_PHONE`), and the login box accepts a
+  username, an email address or a phone number. The number can be typed as
+  08127758529, 0812 775 8529 or +2348127758529. Signing in with it lands on the admin
+  dashboard.
+- The head admin is created at start-up as Odumu John / Ken with the password
+  49321111@John unless `ADMIN_PASSWORD` says otherwise.
+- The download no longer ships `storage/*.json`. Earlier builds carried test accounts,
+  which meant a fresh install inherited an old head admin password. `storage/` now
+  arrives empty and is created on first run.
+- **Search results now carry the search.** Every link on a search results page embeds
+  the term in the destination's own search URL, so the site opens already showing what
+  was searched. Path-style searches (Spotify, Deezer, PlayStation) now encode spaces
+  as %20 instead of +, which is what those sites expect.
+
 ## v18
 - **History page** at `/history`, linked from the top bar and from "Recently visited"
   on the home page. Every place a visitor opens is listed newest first, grouped into

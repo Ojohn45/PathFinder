@@ -33,8 +33,21 @@ import (
 // ADMIN_PASSWORD is not set. Change it here, or set ADMIN_PASSWORD.
 const defaultHeadAdminPassword = "49321111@John"
 
+// defaultHeadAdminPhone is the number the head admin logs in with. It is set on
+// the account at start-up, so nobody has to hunt for a phone field.
+const defaultHeadAdminPhone = "08127758529"
+
 func seedHeadAdmin() {
 	if head, exists := headAdmin(); exists {
+		// Make sure the head admin can always sign in with the registered number.
+		phone := getenv("ADMIN_PHONE", defaultHeadAdminPhone)
+		if head.Phone != phone {
+			if err := setUserPhone(head.ID, phone); err != nil {
+				log.Println("Could not save the head admin phone number:", err)
+			} else {
+				log.Printf("Head admin %q: login number set to %s", head.Username, phone)
+			}
+		}
 		// The head admin already exists. If ADMIN_PASSWORD in .env is different from
 		// the saved password, .env wins - so changing it there really changes it.
 		if pw := os.Getenv("ADMIN_PASSWORD"); pw != "" &&
@@ -73,11 +86,16 @@ func seedHeadAdmin() {
 		return
 	}
 
-	if _, err := createUser(fullName, username, email, string(hash), RoleHeadAdmin); err != nil {
+	newUser, err := createUser(fullName, username, email, string(hash), RoleHeadAdmin)
+	if err != nil {
 		log.Println("Could not create head admin:", err, "(is that username/email already used by another account?)")
 		return
 	}
-	log.Println("Head admin created:", username)
+	phone := getenv("ADMIN_PHONE", defaultHeadAdminPhone)
+	if err := setUserPhone(newUser.ID, phone); err != nil {
+		log.Println("Could not save the head admin phone number:", err)
+	}
+	log.Printf("Head admin created: %s (log in as %s or %s)", username, username, phone)
 }
 
 // ---------- Guards: who may open which page ----------

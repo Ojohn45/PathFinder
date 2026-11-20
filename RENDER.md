@@ -81,6 +81,12 @@ press **Save and send a test email**. PathFinder keeps the details in
 `storage/settings.json` on the disk, so they survive restarts. Environment variables,
 if you do set them, take priority over the page.
 
+## 4c. Admin sign-in
+
+No admin page is needed. Log in at `/login` with the registered number (08127758529)
+and the password, and you land on the dashboard. Set `ADMIN_PHONE` if the number ever
+changes, and `ADMIN_PASSWORD` to set the password on first boot.
+
 ## 5. After it is live
 
 - Log in at `https://pathfinder.app/admin/login` as `Ken`.

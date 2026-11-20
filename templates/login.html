@@ -21,7 +21,7 @@
                 {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
 
                 <form method="POST" action="/login">
-                    <label>Username</label>
+                    <label>Username, email or phone number</label>
                     <input type="text" name="username" value="{{.Username}}" autocomplete="username" required autofocus>
 
                     <label>Password</label>
@@ -32,9 +32,6 @@
 
                 <p class="auth-switch">
                     New here? <a href="/signup">Create an account</a>
-                </p>
-                <p class="auth-switch">
-                    <a href="/admin/login">Log In as Admin</a>
                 </p>
             </div>
         </div>

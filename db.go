@@ -21,6 +21,7 @@ type User struct {
 	FullName     string    `json:"full_name"`
 	Username     string    `json:"username"`
 	Email        string    `json:"email"`
+	Phone        string    `json:"phone,omitempty"`
 	PasswordHash string    `json:"password_hash"`
 	Role         string    `json:"role,omitempty"` // "" = normal user, "admin", "head_admin"
 	CreatedAt    time.Time `json:"created_at"`
@@ -191,6 +192,58 @@ func findUserByUsername(username string) (User, bool) {
 		}
 	}
 	return User{}, false
+}
+
+// normalisePhone turns +2348127758529, 2348127758529 and 0812 775 8529 into
+// 08127758529, so the head admin can log in however they type the number.
+func normalisePhone(raw string) string {
+	var b strings.Builder
+	for _, r := range raw {
+		if r >= '0' && r <= '9' {
+			b.WriteRune(r)
+		}
+	}
+	digits := b.String()
+	switch {
+	case strings.HasPrefix(digits, "234") && len(digits) == 13:
+		return "0" + digits[3:]
+	case len(digits) == 10 && digits[0] != '0':
+		return "0" + digits
+	}
+	return digits
+}
+
+func findUserByPhone(phone string) (User, bool) {
+	want := normalisePhone(phone)
+	if want == "" {
+		return User{}, false
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	for _, u := range users {
+		if u.Phone != "" && normalisePhone(u.Phone) == want {
+			return u, true
+		}
+	}
+	return User{}, false
+}
+
+// setUserPhone saves a phone number on an account (used for the head admin).
+func setUserPhone(id int, phone string) error {
+	mu.Lock()
+	defer mu.Unlock()
+	for i := range users {
+		if users[i].ID == id {
+			old := users[i].Phone
+			users[i].Phone = phone
+			if err := saveJSON(usersFile, users); err != nil {
+				users[i].Phone = old
+				return err
+			}
+			return nil
+		}
+	}
+	return errors.New("no such user")
 }
 
 func findUserByID(id int) (User, bool) {

@@ -76,6 +76,13 @@ The topic boxes always show, but clicking one explains the three ways in:
 Read Manga and Read Manhwa skip the topic step: their places are all on the
 fraction page at once.
 
+## Who is the admin
+
+There is no separate admin login page. The head admin signs in on the normal Log In
+form using the registered phone number (08127758529 by default, set with
+`ADMIN_PHONE`), their username (Ken) or their email. Admins land on the dashboard
+automatically.
+
 ## History and search
 
 `/history` shows every place a visitor opened, newest first, grouped by day.
