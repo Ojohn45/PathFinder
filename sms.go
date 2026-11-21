@@ -96,7 +96,7 @@ func sendSMS(phone, message string) error {
 	return errSMSNotConfigured
 }
 
-// internationalPhone turns 08127758529 into +2348127758529.
+// internationalPhone turns 08012345678 into +2348012345678.
 func internationalPhone(phone string) string {
 	p := normalisePhone(phone)
 	if p == "" {

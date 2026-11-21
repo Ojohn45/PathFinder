@@ -17,10 +17,10 @@ import (
 // The head admin is created automatically when the server starts, so you can
 // log in and use the admin page immediately.
 //
-// The password has a built-in default below. Override it (recommended before
-// this goes online) with an environment variable:
+// There is NO built-in password. You must set one, in your .env file or in
+// your host's environment settings (for example Render > Environment):
 //
-//   ADMIN_PASSWORD='a-new-password'  go run .
+//   ADMIN_PASSWORD='a-long-password-only-you-know'
 //
 // The other details have defaults below, and can be changed with
 // ADMIN_EMAIL, ADMIN_FULLNAME and ADMIN_USERNAME.
@@ -29,23 +29,17 @@ import (
 // email already exists, it is upgraded to head admin. After that, ADMIN_PASSWORD
 // in .env is always the head admin's password.
 
-// defaultHeadAdminPassword is used only when there is no head admin yet and
-// ADMIN_PASSWORD is not set. Change it here, or set ADMIN_PASSWORD.
-const defaultHeadAdminPassword = "49321111@John"
-
-// defaultHeadAdminPhone is the number the head admin logs in with. It is set on
-// the account at start-up, so nobody has to hunt for a phone field.
-const defaultHeadAdminPhone = "08127758529"
+// The head admin's login phone number (optional) is read from ADMIN_PHONE.
+// It is never written in the code, so it never ends up in a public repo.
 
 func seedHeadAdmin() {
 	if head, exists := headAdmin(); exists {
 		// Make sure the head admin can always sign in with the registered number.
-		phone := getenv("ADMIN_PHONE", defaultHeadAdminPhone)
-		if head.Phone != phone {
+		if phone := os.Getenv("ADMIN_PHONE"); phone != "" && head.Phone != phone {
 			if err := setUserPhone(head.ID, phone); err != nil {
 				log.Println("Could not save the head admin phone number:", err)
 			} else {
-				log.Printf("Head admin %q: login number set to %s", head.Username, phone)
+				log.Printf("Head admin %q: login number updated from ADMIN_PHONE", head.Username)
 			}
 		}
 		// The head admin already exists. If ADMIN_PASSWORD in .env is different from
@@ -64,7 +58,11 @@ func seedHeadAdmin() {
 		return
 	}
 
-	password := getenv("ADMIN_PASSWORD", defaultHeadAdminPassword)
+	password := os.Getenv("ADMIN_PASSWORD")
+	if password == "" {
+		log.Println("NOTE: there is no head admin yet. Set ADMIN_PASSWORD (in .env, or in Render > Environment) and restart to create one.")
+		return
+	}
 
 	email := strings.ToLower(getenv("ADMIN_EMAIL", "brucenic12@gmail.com"))
 	fullName := getenv("ADMIN_FULLNAME", "Odumu John")
@@ -91,11 +89,12 @@ func seedHeadAdmin() {
 		log.Println("Could not create head admin:", err, "(is that username/email already used by another account?)")
 		return
 	}
-	phone := getenv("ADMIN_PHONE", defaultHeadAdminPhone)
-	if err := setUserPhone(newUser.ID, phone); err != nil {
-		log.Println("Could not save the head admin phone number:", err)
+	if phone := os.Getenv("ADMIN_PHONE"); phone != "" {
+		if err := setUserPhone(newUser.ID, phone); err != nil {
+			log.Println("Could not save the head admin phone number:", err)
+		}
 	}
-	log.Printf("Head admin created: %s (log in as %s or %s)", username, username, phone)
+	log.Printf("Head admin created: log in as %q with your ADMIN_PASSWORD", username)
 }
 
 // ---------- Guards: who may open which page ----------

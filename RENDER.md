@@ -83,7 +83,7 @@ if you do set them, take priority over the page.
 
 ## 4c. Admin sign-in
 
-No admin page is needed. Log in at `/login` with the registered number (08127758529)
+No admin page is needed. Log in at `/login` with the registered number (08012345678)
 and the password, and you land on the dashboard. Set `ADMIN_PHONE` if the number ever
 changes, and `ADMIN_PASSWORD` to set the password on first boot.
 

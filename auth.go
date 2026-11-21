@@ -176,7 +176,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if phone != "" && (len(phone) < 10 || len(phone) > 14) {
-		fail("Please enter a valid phone number, for example 08127758529")
+		fail("Please enter a valid phone number, for example 08012345678")
 		return
 	}
 	if phone != "" {

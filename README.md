@@ -25,24 +25,26 @@ Open http://localhost:8080
 
 ## What you need
 
-- Go 1.21 or newer.
+- Go 1.26 or newer (the `go` line in `go.mod`).
 - A `.env` file next to `main.go` with at least `ADMIN_PASSWORD` and the SMTP details
   for welcome and invitation emails. See `.env.example` for Gmail and Brevo setups.
 
 ## The head admin
 
-On the very first start, if `storage/users.json` is empty, the head admin is created
-automatically:
+There is **no built-in password**. Set `ADMIN_PASSWORD` (in `.env` on your computer, or in
+Render > Environment) and the head admin is created on start-up:
 
-| field    | value              |
-|----------|--------------------|
-| name     | Odumu John         |
-| username | Ken                |
-| email    | brucenic12@gmail.com |
-| password | your `ADMIN_PASSWORD` |
+| field    | value                                         |
+|----------|-----------------------------------------------|
+| name     | `ADMIN_FULLNAME` (default: Odumu John)        |
+| username | `ADMIN_USERNAME` (default: Ken)               |
+| email    | `ADMIN_EMAIL`                                 |
+| phone    | `ADMIN_PHONE` (optional, never written in code) |
+| password | your `ADMIN_PASSWORD`                         |
 
-Log in at `/admin/login`. Change the password afterwards by editing the user in
-`storage/users.json` (it stores a SHA-256 hash, never the plain password).
+If `ADMIN_PASSWORD` is not set, no head admin is created. Log in on the normal `/login`
+page. To change the password later, change `ADMIN_PASSWORD` and restart: the new value
+replaces the old one. Passwords are stored as bcrypt hashes, never as plain text.
 
 ## Storage
 
@@ -79,7 +81,7 @@ fraction page at once.
 ## Who is the admin
 
 There is no separate admin login page. The head admin signs in on the normal Log In
-form using the registered phone number (08127758529 by default, set with
+form using the registered phone number (08012345678 by default, set with
 `ADMIN_PHONE`), their username (Ken) or their email. Admins land on the dashboard
 automatically.
 

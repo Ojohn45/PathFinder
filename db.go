@@ -202,8 +202,8 @@ func findUserByUsername(username string) (User, bool) {
 	return User{}, false
 }
 
-// normalisePhone turns +2348127758529, 2348127758529 and 0812 775 8529 into
-// 08127758529, so the head admin can log in however they type the number.
+// normalisePhone turns +2348012345678, 2348012345678 and 0801 234 5678 into
+// 08012345678, so the head admin can log in however they type the number.
 func normalisePhone(raw string) string {
 	var b strings.Builder
 	for _, r := range raw {
