@@ -24,6 +24,10 @@ import (
 // deployed servers in control of their own secrets.
 
 type MailSettings struct {
+	// Favicon is the chosen tab icon (see branding.go). It lives here because
+	// this is the app's one settings file.
+	Favicon string `json:"favicon,omitempty"`
+
 	Host string `json:"host"`
 	Port string `json:"port"`
 	User string `json:"user"`
@@ -64,6 +68,8 @@ func loadMailSettings() {
 // The file sits in storage/, which is already excluded from git, so the
 // password never reaches GitHub.
 func saveMailSettings(in MailSettings) error {
+	// keep whichever tab icon is already chosen
+	in.Favicon = currentIcon()
 	in.Host = strings.TrimSpace(in.Host)
 	in.Port = strings.TrimSpace(in.Port)
 	in.User = strings.TrimSpace(in.User)
@@ -149,9 +155,6 @@ func firstNonEmpty(values ...string) string {
 
 // mailReady says whether there is enough to attempt a send.
 func mailReady() bool {
-	if brevoKey() != "" {
-		return true
-	}
 	m := effectiveMail()
 	return m.User != "" && m.Pass != ""
 }
@@ -167,7 +170,7 @@ func emailSettingsPageHandler(w http.ResponseWriter, r *http.Request) {
 	data := PageData{User: u}
 	data.Mail = effectiveMail()
 	data.MailSaved = mailSet.User != ""
-	data.MailFromEnv = os.Getenv("SMTP_USER") != "" || brevoKey() != ""
+	data.MailFromEnv = os.Getenv("SMTP_USER") != ""
 	data.MailReady = mailReady()
 
 	switch r.URL.Query().Get("saved") {
@@ -208,7 +211,7 @@ func emailSettingsSaveHandler(w http.ResponseWriter, r *http.Request) {
 		data := PageData{User: u, Error: err.Error()}
 		data.Mail = effectiveMail()
 		data.MailSaved = mailSet.User != ""
-		data.MailFromEnv = os.Getenv("SMTP_USER") != "" || brevoKey() != ""
+		data.MailFromEnv = os.Getenv("SMTP_USER") != ""
 		render(w, "email-settings.html", data)
 		return
 	}

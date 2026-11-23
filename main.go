@@ -19,7 +19,8 @@ func faviconHost(raw string) string {
 }
 
 var templates = template.Must(template.New("").Funcs(template.FuncMap{
-	"favicon": faviconHost,
+	"favicon":  faviconHost,
+	"iconName": func() string { return currentIcon() },
 	"faviconOf": func(slug, id string) string {
 		if t, ok := topicBySlug[slug]; ok {
 			for _, r := range t.Resources {
@@ -62,6 +63,10 @@ type PageData struct {
 
 	// Nav marks which sidebar link is the current page.
 	Nav string
+
+	// Branding page: the tab icon choices and which one is live.
+	Icons      []IconOption
+	IconChoice string
 
 	// Admin pages
 	Emails        []EmailRecord
@@ -250,6 +255,11 @@ func main() {
 	}
 	mux.HandleFunc("GET /history", historyPageHandler)
 	mux.HandleFunc("GET /out", outHandler)
+	// the tab icon: one address, whichever drawing is chosen
+	mux.HandleFunc("GET /favicon.ico", serveIcon("ico"))
+	mux.HandleFunc("GET /apple-touch-icon.png", serveIcon("touch"))
+	mux.HandleFunc("GET /admin/branding", brandingPageHandler)
+	mux.HandleFunc("POST /admin/branding", brandingSaveHandler)
 	mux.HandleFunc("GET /settings", settingsPageHandler)
 	mux.HandleFunc("POST /settings/name", settingsNameHandler)
 	mux.HandleFunc("POST /settings/password", settingsPasswordHandler)

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{.Theme}}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Branding - PathFinder Admin</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+</head>
+<body class="wide" data-theme="base">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb"><a href="/admin">Admin</a> · Branding</span>
+        <h1>The tab icon</h1>
+        <p>This is the small picture beside the page title in a browser tab. Pick one; it changes everywhere at once.</p>
+    </section>
+
+    {{if .Info}}<p class="form-success">Saved. Open a new tab to see it.</p>{{end}}
+    {{if .Error}}<p class="form-error">{{.Error}}</p>{{end}}
+
+    <form method="post" action="/admin/branding">
+        <div class="icon-grid">
+            {{range .Icons}}
+            <label class="icon-card{{if eq .ID $.IconChoice}} chosen{{end}}">
+                <input type="radio" name="icon" value="{{.ID}}"{{if eq .ID $.IconChoice}} checked{{end}}>
+                <img src="/static/icons/{{.ID}}-192.png" alt="{{.Name}}" width="72" height="72">
+                <strong>{{.Name}}</strong>
+                <span>{{.Blurb}}</span>
+                {{if eq .ID $.IconChoice}}<em>Showing now</em>{{end}}
+            </label>
+            {{end}}
+        </div>
+        <button type="submit" class="admin-btn primary" style="margin-top:18px">Use this icon</button>
+    </form>
+
+    <p class="settings-hint" style="margin-top:22px">
+        The tab icon also appears on a phone's home screen when PathFinder is added there.
+        Smaller sizes of each drawing are already made, so it stays sharp in a 16px tab.
+    </p>
+</body>
+</html>

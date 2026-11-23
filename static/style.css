@@ -2471,3 +2471,42 @@ body.has-sidebar.wide > *:not(.sidebar):not(.sidebar-toggle):not(.sidebar-scrim)
     margin-left: auto;
     margin-right: auto;
 }
+
+/* ---------- Branding: choosing the tab icon ---------- */
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px;
+}
+
+.icon-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px;
+    background-color: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+    position: relative;
+}
+
+.icon-card:hover { border-color: var(--accent); }
+
+.icon-card.chosen {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(var(--glow), 0.22);
+}
+
+.icon-card input { position: absolute; top: 12px; right: 12px; accent-color: var(--accent); }
+.icon-card img { border-radius: 14px; }
+.icon-card strong { font-size: 0.98rem; color: var(--ink); }
+.icon-card span { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
+.icon-card em { font-size: 0.76rem; color: var(--accent-2); font-style: normal; font-weight: 600; }
+
+@media (max-width: 560px) {
+    .icon-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    .icon-card { padding: 12px; }
+    .icon-card img { width: 56px; height: 56px; }
+}
