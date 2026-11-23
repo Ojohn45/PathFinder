@@ -149,6 +149,9 @@ func firstNonEmpty(values ...string) string {
 
 // mailReady says whether there is enough to attempt a send.
 func mailReady() bool {
+	if brevoKey() != "" {
+		return true
+	}
 	m := effectiveMail()
 	return m.User != "" && m.Pass != ""
 }
@@ -164,7 +167,7 @@ func emailSettingsPageHandler(w http.ResponseWriter, r *http.Request) {
 	data := PageData{User: u}
 	data.Mail = effectiveMail()
 	data.MailSaved = mailSet.User != ""
-	data.MailFromEnv = os.Getenv("SMTP_USER") != ""
+	data.MailFromEnv = os.Getenv("SMTP_USER") != "" || brevoKey() != ""
 	data.MailReady = mailReady()
 
 	switch r.URL.Query().Get("saved") {
@@ -205,7 +208,7 @@ func emailSettingsSaveHandler(w http.ResponseWriter, r *http.Request) {
 		data := PageData{User: u, Error: err.Error()}
 		data.Mail = effectiveMail()
 		data.MailSaved = mailSet.User != ""
-		data.MailFromEnv = os.Getenv("SMTP_USER") != ""
+		data.MailFromEnv = os.Getenv("SMTP_USER") != "" || brevoKey() != ""
 		render(w, "email-settings.html", data)
 		return
 	}

@@ -7,13 +7,17 @@ import (
 	_ "embed" // lets us bake the banner picture into the program
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"html"
+	"io"
 	"log"
 	"mime"
 	"mime/multipart"
 	"mime/quotedprintable"
 	"net"
+	"net/http"
 	"net/smtp"
 	"net/textproto"
 	"os"
@@ -90,6 +94,9 @@ func loadDotEnv() {
 func logEmailStatus() {
 	m := effectiveMail()
 	switch {
+	case brevoKey() != "":
+		log.Println("EMAIL: Brevo API key found (emails go out over https, which Render's free plan allows) - checking it...")
+		go checkBrevoAPI() // runs in the background, result appears in a few seconds
 	case m.User == "" && m.Pass == "":
 		log.Println("EMAIL: not set up yet - log in as the head admin and open Admin > Email Settings")
 	case m.User == "" || m.Pass == "":
@@ -141,6 +148,89 @@ func checkEmailLogin() {
 	log.Println("EMAIL CHECK: OK - login accepted, invitations will be emailed from", user)
 }
 
+// ---------- Brevo over HTTPS (works where SMTP is blocked, like Render's free plan) ----------
+//
+// Set these two in Render > Environment (or .env):
+//   BREVO_API_KEY   an API key from Brevo
+//   EMAIL_FROM      the sender address you verified inside Brevo
+
+func brevoKey() string { return strings.TrimSpace(os.Getenv("BREVO_API_KEY")) }
+
+func brevoBase() string {
+	return strings.TrimRight(getenv("BREVO_API_BASE", "https://api.brevo.com/v3"), "/")
+}
+
+// brevoSender is the address emails come from. It MUST be a sender verified in Brevo.
+func brevoSender() string {
+	for _, v := range []string{os.Getenv("EMAIL_FROM"), effectiveMail().From} {
+		if v = strings.TrimSpace(v); strings.Contains(v, "@") {
+			return v
+		}
+	}
+	return ""
+}
+
+func checkBrevoAPI() {
+	req, _ := http.NewRequest("GET", brevoBase()+"/account", nil)
+	req.Header.Set("api-key", brevoKey())
+	req.Header.Set("Accept", "application/json")
+	resp, err := (&http.Client{Timeout: 15 * time.Second}).Do(req)
+	if err != nil {
+		log.Println("EMAIL CHECK: could not reach Brevo -", err)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		log.Printf("EMAIL CHECK: FAILED - Brevo refused the API key (HTTP %d). FIX: copy a fresh API key from Brevo into BREVO_API_KEY.", resp.StatusCode)
+		return
+	}
+	if brevoSender() == "" {
+		log.Println("EMAIL CHECK: API key OK, but there is no sender yet - set EMAIL_FROM to the sender address you verified in Brevo")
+		return
+	}
+	log.Println("EMAIL CHECK: OK - Brevo accepted the API key, emails will be sent from", brevoSender())
+}
+
+// sendViaBrevoAPI sends one email through Brevo's HTTPS API (port 443).
+func sendViaBrevoAPI(toEmail, subject, textBody, htmlBody string) error {
+	from := brevoSender()
+	if from == "" {
+		return errors.New("no sender address: set EMAIL_FROM to the sender you verified in Brevo")
+	}
+	payload := map[string]any{
+		"sender":      map[string]string{"name": "PathFinder", "email": from},
+		"to":          []map[string]string{{"email": toEmail}},
+		"subject":     subject,
+		"textContent": textBody,
+	}
+	if htmlBody != "" {
+		// Over the API the banner can't travel inside the email, so it loads from the website.
+		payload["htmlContent"] = strings.ReplaceAll(htmlBody, "cid:"+bannerCID, baseURL()+"/static/email-banner.gif")
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest("POST", brevoBase()+"/smtp/email", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("api-key", brevoKey())
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := (&http.Client{Timeout: 20 * time.Second}).Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 300 {
+		msg, _ := io.ReadAll(io.LimitReader(resp.Body, 400))
+		return fmt.Errorf("Brevo said HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(msg)))
+	}
+	return nil
+}
+
 // ---------- Sending ----------
 
 // sendEmail sends an email to ONE person and writes the result in the email diary.
@@ -159,6 +249,12 @@ func sendEmail(toEmail, subject, textBody, htmlBody string) (err error) {
 		addEmailRecord(rec)
 	}()
 
+	// Option 1: Brevo over https (use this on Render's free plan, which blocks SMTP)
+	if brevoKey() != "" {
+		return sendViaBrevoAPI(toEmail, subject, textBody, htmlBody)
+	}
+
+	// Option 2: normal SMTP
 	m := effectiveMail()
 	user, pass, host, port, from := m.User, m.Pass, m.Host, m.Port, m.From
 	if user == "" || pass == "" {
