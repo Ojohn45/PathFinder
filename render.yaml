@@ -18,8 +18,18 @@ services:
       # custom domain is live, then redeploy:
       # - key: BASE_URL
       #   value: https://pathfinder.app
+      # The head admin. Render asks you for these when you create the service.
+      # To change the head admin later: edit them in Render > Environment and redeploy.
+      - key: ADMIN_FULLNAME
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
       - key: ADMIN_PASSWORD
-        sync: false        # Render asks you for this when you create the service
+        sync: false
+      - key: ADMIN_PHONE      # optional
+        sync: false
       - key: SMTP_USER
         sync: false
       - key: SMTP_PASS

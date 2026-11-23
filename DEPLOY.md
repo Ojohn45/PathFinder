@@ -67,6 +67,9 @@ nano .env
 In `.env` set at least:
 
 ```
+ADMIN_FULLNAME=Full Name Of The Head Admin
+ADMIN_USERNAME=their-username
+ADMIN_EMAIL=their-email@example.com
 ADMIN_PASSWORD=a-long-password-you-choose
 BASE_URL=https://pathfinder.app
 SMTP_USER=your Gmail address

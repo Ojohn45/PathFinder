@@ -31,20 +31,30 @@ Open http://localhost:8080
 
 ## The head admin
 
-There is **no built-in password**. Set `ADMIN_PASSWORD` (in `.env` on your computer, or in
-Render > Environment) and the head admin is created on start-up:
+The head admin comes from these settings (in `.env` on your computer, or in Render >
+Environment). Nothing personal is written in the code and there is **no built-in password**:
 
-| field    | value                                         |
-|----------|-----------------------------------------------|
-| name     | `ADMIN_FULLNAME` (default: Odumu John)        |
-| username | `ADMIN_USERNAME` (default: Ken)               |
-| email    | `ADMIN_EMAIL`                                 |
-| phone    | `ADMIN_PHONE` (optional, never written in code) |
-| password | your `ADMIN_PASSWORD`                         |
+| setting          | what it is                                        |
+|------------------|---------------------------------------------------|
+| `ADMIN_FULLNAME` | the head admin's full name                        |
+| `ADMIN_USERNAME` | the username                                      |
+| `ADMIN_EMAIL`    | the email                                         |
+| `ADMIN_PASSWORD` | the password                                      |
+| `ADMIN_PHONE`    | optional: a number they can also log in with      |
 
-If `ADMIN_PASSWORD` is not set, no head admin is created. Log in on the normal `/login`
-page. To change the password later, change `ADMIN_PASSWORD` and restart: the new value
-replaces the old one. Passwords are stored as bcrypt hashes, never as plain text.
+On every start the head admin is made to match these settings:
+
+- nobody is head admin yet: one is created;
+- the email belongs to an existing account: that account becomes the head admin;
+- otherwise the current head admin is updated to the new details.
+
+A previous head admin is never deleted: they stay on as a normal admin (staff). There is
+always exactly one head admin. If `ADMIN_FULLNAME`, `ADMIN_USERNAME` and `ADMIN_EMAIL` are
+left out, the existing head admin is kept and only the password and phone follow the settings.
+
+The head admin can invite people as **users** or as fellow **admins (staff)**. Admins can
+invite users only. Log in on the normal `/login` page. Passwords are stored as bcrypt
+hashes, never as plain text.
 
 ## Storage
 
@@ -81,8 +91,7 @@ fraction page at once.
 ## Who is the admin
 
 There is no separate admin login page. The head admin signs in on the normal Log In
-form using the registered phone number (08012345678 by default, set with
-`ADMIN_PHONE`), their username (Ken) or their email. Admins land on the dashboard
+form using the registered phone number (set with `ADMIN_PHONE`), their username or their email. Admins land on the dashboard
 automatically.
 
 ## History and search

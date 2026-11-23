@@ -14,87 +14,101 @@ import (
 
 // ---------- The head admin ----------
 //
-// The head admin is created automatically when the server starts, so you can
-// log in and use the admin page immediately.
+// The head admin is set from these settings (in .env on your computer, or in
+// Render > Environment). NOTHING personal is written in the code:
 //
-// There is NO built-in password. You must set one, in your .env file or in
-// your host's environment settings (for example Render > Environment):
+//   ADMIN_FULLNAME   the head admin's full name
+//   ADMIN_USERNAME   the username
+//   ADMIN_EMAIL      the email
+//   ADMIN_PASSWORD   the password   (there is no built-in password)
+//   ADMIN_PHONE      optional, a phone number they can also log in with
 //
-//   ADMIN_PASSWORD='a-long-password-only-you-know'
-//
-// The other details have defaults below, and can be changed with
-// ADMIN_EMAIL, ADMIN_FULLNAME and ADMIN_USERNAME.
-//
-// If there is NO head admin yet, one is created. If an account with the admin
-// email already exists, it is upgraded to head admin. After that, ADMIN_PASSWORD
-// in .env is always the head admin's password.
-
-// The head admin's login phone number (optional) is read from ADMIN_PHONE.
-// It is never written in the code, so it never ends up in a public repo.
+// Every time the server starts it makes sure the head admin matches these settings:
+//   - nobody is head admin yet      -> one is created
+//   - these details match an existing account (same email) -> that account becomes
+//     the head admin
+//   - otherwise the current head admin is updated to the new details
+// If a different person was head admin before, they are NOT deleted: they stay on
+// as a normal admin (staff). There is only ever one head admin.
+// If ADMIN_FULLNAME / ADMIN_USERNAME / ADMIN_EMAIL are left out, the existing head
+// admin is kept as it is (only the password and phone follow their settings).
 
 func seedHeadAdmin() {
-	if head, exists := headAdmin(); exists {
-		// Make sure the head admin can always sign in with the registered number.
-		if phone := os.Getenv("ADMIN_PHONE"); phone != "" && head.Phone != phone {
-			if err := setUserPhone(head.ID, phone); err != nil {
-				log.Println("Could not save the head admin phone number:", err)
-			} else {
-				log.Printf("Head admin %q: login number updated from ADMIN_PHONE", head.Username)
-			}
+	fullName := strings.TrimSpace(os.Getenv("ADMIN_FULLNAME"))
+	username := strings.TrimSpace(os.Getenv("ADMIN_USERNAME"))
+	email := strings.ToLower(strings.TrimSpace(os.Getenv("ADMIN_EMAIL")))
+	password := os.Getenv("ADMIN_PASSWORD")
+	phone := strings.TrimSpace(os.Getenv("ADMIN_PHONE"))
+
+	head, hasHead := headAdmin()
+	haveDetails := fullName != "" && username != "" && email != ""
+
+	// Make a password hash only when the password setting is new for the account we will use.
+	hashFor := func(current string) string {
+		if password == "" {
+			return ""
 		}
-		// The head admin already exists. If ADMIN_PASSWORD in .env is different from
-		// the saved password, .env wins - so changing it there really changes it.
-		if pw := os.Getenv("ADMIN_PASSWORD"); pw != "" &&
-			bcrypt.CompareHashAndPassword([]byte(head.PasswordHash), []byte(pw)) != nil {
-			hash, err := bcrypt.GenerateFromPassword([]byte(pw), bcrypt.DefaultCost)
-			if err != nil {
-				log.Println("Could not update the head admin password:", err, "(passwords can be at most 72 characters)")
-			} else if err := setUserPassword(head.ID, string(hash)); err != nil {
+		if current != "" && bcrypt.CompareHashAndPassword([]byte(current), []byte(password)) == nil {
+			return "" // already the same password, nothing to change
+		}
+		h, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			log.Println("Could not use ADMIN_PASSWORD:", err, "(passwords can be at most 72 characters)")
+			return ""
+		}
+		return string(h)
+	}
+
+	switch {
+	case haveDetails:
+		target, found := findUserByEmail(email)
+		if !found && hasHead {
+			target, found = head, true // same head admin, new details
+		}
+		if found {
+			changed, err := applyHeadAdmin(target.ID, fullName, username, email, hashFor(target.PasswordHash))
+			switch {
+			case err != nil:
+				log.Println("Could not set the head admin to the new details:", err)
+				return
+			case changed:
+				log.Printf("Head admin is now %q (details and password taken from your settings)", username)
+			}
+		} else {
+			if password == "" {
+				log.Println("NOTE: there is no head admin yet. Also set ADMIN_PASSWORD (in .env, or in Render > Environment) and restart.")
+				return
+			}
+			if _, err := createUser(fullName, username, email, hashFor(""), RoleHeadAdmin); err != nil {
+				log.Println("Could not create the head admin:", err)
+				return
+			}
+			log.Printf("Head admin created: log in as %q with your ADMIN_PASSWORD", username)
+		}
+	case hasHead:
+		// No new details given: keep the head admin, but ADMIN_PASSWORD still wins.
+		if h := hashFor(head.PasswordHash); h != "" {
+			if err := setUserPassword(head.ID, h); err != nil {
 				log.Println("Could not update the head admin password:", err)
 			} else {
-				log.Printf("Head admin %q: password updated from ADMIN_PASSWORD in .env", head.Username)
+				log.Printf("Head admin %q: password updated from ADMIN_PASSWORD", head.Username)
 			}
 		}
+	default:
+		log.Println("NOTE: there is no head admin yet. Set ADMIN_FULLNAME, ADMIN_USERNAME, ADMIN_EMAIL and ADMIN_PASSWORD (in .env, or in Render > Environment) and restart.")
 		return
 	}
 
-	password := os.Getenv("ADMIN_PASSWORD")
-	if password == "" {
-		log.Println("NOTE: there is no head admin yet. Set ADMIN_PASSWORD (in .env, or in Render > Environment) and restart to create one.")
-		return
-	}
-
-	email := strings.ToLower(getenv("ADMIN_EMAIL", "brucenic12@gmail.com"))
-	fullName := getenv("ADMIN_FULLNAME", "Odumu John")
-	username := getenv("ADMIN_USERNAME", "Ken")
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		log.Println("Could not create head admin:", err)
-		return
-	}
-	// If this email already has a normal account (for example from an earlier
-	// test signup), upgrade THAT account instead of failing.
-	if existing, found := findUserByEmail(email); found {
-		if err := promoteToHeadAdmin(existing.ID, fullName, username, string(hash)); err != nil {
-			log.Println("Could not make", existing.Username, "the head admin:", err, "(another account may already use the username", username+")")
-			return
-		}
-		log.Printf("Existing account %q upgraded to head admin. Log in as %q with your ADMIN_PASSWORD.", existing.Username, username)
-		return
-	}
-
-	newUser, err := createUser(fullName, username, email, string(hash), RoleHeadAdmin)
-	if err != nil {
-		log.Println("Could not create head admin:", err, "(is that username/email already used by another account?)")
-		return
-	}
-	if phone := os.Getenv("ADMIN_PHONE"); phone != "" {
-		if err := setUserPhone(newUser.ID, phone); err != nil {
-			log.Println("Could not save the head admin phone number:", err)
+	// the optional login phone number
+	if phone != "" {
+		if h, ok := headAdmin(); ok && h.Phone != phone {
+			if err := setUserPhone(h.ID, phone); err != nil {
+				log.Println("Could not save the head admin phone number:", err)
+			} else {
+				log.Printf("Head admin %q: login number updated from ADMIN_PHONE", h.Username)
+			}
 		}
 	}
-	log.Printf("Head admin created: log in as %q with your ADMIN_PASSWORD", username)
 }
 
 // ---------- Guards: who may open which page ----------

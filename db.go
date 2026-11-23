@@ -500,3 +500,58 @@ func setUserPassword(id int, passwordHash string) error {
 	}
 	return errors.New("user not found")
 }
+
+// applyHeadAdmin makes the account with this id the ONLY head admin and gives it
+// these details. Any other head admin is not deleted: they become a normal admin
+// (staff). An empty passwordHash keeps the password the account already has.
+// It returns changed=false when nothing needed to change (so start-up stays quiet).
+func applyHeadAdmin(id int, fullName, username, email, passwordHash string) (changed bool, err error) {
+	mu.Lock()
+	defer mu.Unlock()
+
+	email = strings.ToLower(email)
+	idx := -1
+	for i, u := range users {
+		if u.ID == id {
+			idx = i
+			continue
+		}
+		if strings.EqualFold(u.Username, username) {
+			return false, ErrUsernameTaken // another account already uses that username
+		}
+		if strings.EqualFold(u.Email, email) {
+			return false, ErrEmailTaken // another account already uses that email
+		}
+	}
+	if idx < 0 {
+		return false, errors.New("user not found")
+	}
+
+	backup := make([]User, len(users))
+	copy(backup, users)
+
+	for i := range users {
+		if i != idx && users[i].Role == RoleHeadAdmin {
+			users[i].Role = RoleAdmin // the previous head admin stays on as staff
+			changed = true
+		}
+	}
+	t := &users[idx]
+	if t.FullName != fullName || t.Username != username || t.Email != email || t.Role != RoleHeadAdmin ||
+		(passwordHash != "" && t.PasswordHash != passwordHash) {
+		changed = true
+	}
+	t.FullName, t.Username, t.Email, t.Role = fullName, username, email, RoleHeadAdmin
+	if passwordHash != "" {
+		t.PasswordHash = passwordHash
+	}
+
+	if !changed {
+		return false, nil
+	}
+	if err := saveJSON(usersFile, users); err != nil {
+		copy(users, backup)
+		return false, err
+	}
+	return true, nil
+}

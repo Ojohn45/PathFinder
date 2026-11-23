@@ -1,5 +1,17 @@
 # What changed, latest first
 
+## v22
+- **The head admin now comes from settings, not from the code.** Set `ADMIN_FULLNAME`,
+  `ADMIN_USERNAME`, `ADMIN_EMAIL` and `ADMIN_PASSWORD` (and optionally `ADMIN_PHONE`) in
+  `.env` or in Render > Environment. On every start the head admin is made to match them:
+  created if missing, an existing account with that email is promoted, or the current head
+  admin is updated to the new details. A previous head admin is never deleted, they stay on
+  as a normal admin (staff). There is always exactly one head admin.
+- **No built-in password and no personal details in the code.** The old default password
+  and phone number were removed. Without `ADMIN_PASSWORD` no head admin is created.
+- The head admin invites **users** or fellow **admins (staff)**; admins invite users only.
+  The button now reads "Invite an Admin (Staff)".
+
 ## v21
 - **The sidebar folds away and comes back**, like the one in your recording. A button
   at the top of the sidebar folds it; a button in the corner brings it back; Ctrl+Shift+B
@@ -158,7 +170,7 @@
 
 ## v8 and earlier
 - Signup collects an email and sends a welcome mail. Login and admin login forms work.
-- Head admin Ken (Odumu John) auto-creates on first start, so the admin page and
+- The head admin auto-creates on first start, so the admin page and
   invites work immediately.
 - Logout asks YES or NO, YES says thank you, NO keeps you logged in.
 - Large language boxes with bold centred names, site boxes at half that size.

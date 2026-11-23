@@ -32,8 +32,10 @@ Check that `.gitignore` kept `.env` out of the repo. It is already listed there.
 2. **New > Blueprint**, choose the `pathfinder` repo, click **Apply**.
 3. Render reads `render.yaml`: one Docker web service, Starter plan, Frankfurt, and a
    1 GB disk mounted at `/app/storage`.
-4. It asks you for the two secret values. Fill them in:
-   - `ADMIN_PASSWORD`: the password you want for Ken.
+4. It asks you for the head admin details and the email login. Fill them in:
+   - `ADMIN_FULLNAME`, `ADMIN_USERNAME`, `ADMIN_EMAIL`: who the head admin is.
+   - `ADMIN_PASSWORD`: their password (a long one only you know). There is no built-in password.
+   - `ADMIN_PHONE`: optional, a number they can also log in with.
    - `SMTP_USER` and `SMTP_PASS`: your Gmail address and the 16 letter Google App Password.
 5. Wait for the first build. You get a URL like `pathfinder-xxxx.onrender.com`. Open it.
 
@@ -85,7 +87,8 @@ if you do set them, take priority over the page.
 
 No admin page is needed. Log in at `/login` with the registered number (08012345678)
 and the password, and you land on the dashboard. Set `ADMIN_PHONE` if the number ever
-changes, and `ADMIN_PASSWORD` to set the password on first boot.
+changes. To make someone else the head admin, change the four `ADMIN_` details in
+Render > Environment and redeploy: the old head admin stays on as a normal admin (staff).
 
 ## 5. After it is live
 
