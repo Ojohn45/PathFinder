@@ -54,6 +54,10 @@ type PageData struct {
 	// Places shown straight on a section page (Read Manga, Read Manhwa)
 	Sites []Resource
 
+	// SitesLabel is the heading above the places list, e.g. "Where to read"
+	// for comics or "Where to see clothing & accessories" for clothing.
+	SitesLabel string
+
 	// Set on a home base (the home page, the admin dashboard): no back button
 	NoBack bool
 
@@ -181,6 +185,7 @@ func sectionHandler(w http.ResponseWriter, r *http.Request) {
 	data := PageData{User: user, Section: f, Theme: f.Theme}
 	if f.Direct && len(f.Topics) > 0 {
 		data.Sites = learningFor(f.Topics[0])
+		data.SitesLabel = sitesLabelFor(f)
 	}
 	render(w, "section.html", data)
 }

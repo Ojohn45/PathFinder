@@ -1,5 +1,23 @@
 # What changed, latest first
 
+## v23 - Sports, Loans and Read Novels
+- **Sports** section with six sports to pick from (Football, Basketball, Tennis,
+  Boxing & MMA, Motorsport, Cricket), 15 places to watch each. No betting sites, as
+  agreed: watching only.
+- **Loans** section, 20 licensed lenders and credit providers, Nigerian first, with the
+  Central Bank register so anyone can check a lender is real.
+- **Read Novels** section with five kinds: Historical, Sci-Fi, Fiction, Based on a True
+  Story, and Romance. Romance stands in for the 18+ erotica you asked for, because this
+  project's own rules say no adult content; say the word if you want that changed.
+- Clothing & Accessories now says "Where to see clothing & accessories" instead of
+  "Where to read". The heading is chosen per section in `sitesLabelFor`.
+- Three new dark themes: `sports` (dark orange), `loan` (dark teal-green) and `novel`
+  (deep violet).
+- `Topic.Want` added so a topic can ask for a different count; Loans uses 20, the rest
+  stay at 15, and the test honours it.
+- Gutenberg and LibriVox were left out: both refused every check from here (503 and 522),
+  so they could not be verified. Archive.org copies of LibriVox are used instead.
+
 ## v22 - Phase 1 sections
 - Three new sections: **Exams & Scholarships** (exams), **Jobs & Careers** (jobs) and
   **Developer Tools** (devtools), five topics each, fifteen places each: 225 in total.

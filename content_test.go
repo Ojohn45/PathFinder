@@ -37,8 +37,12 @@ func everyTopic() []Topic {
 // 1. Every topic has exactly fifteen places.
 func TestEveryTopicHasFifteenResources(t *testing.T) {
 	for _, topic := range everyTopic() {
-		if got := len(topic.Resources); got != 15 {
-			t.Errorf("topic %q has %d places, want 15", topic.Slug, got)
+		want := topic.Want
+		if want == 0 {
+			want = 15
+		}
+		if got := len(topic.Resources); got != want {
+			t.Errorf("topic %q has %d places, want %d", topic.Slug, got, want)
 		}
 	}
 }

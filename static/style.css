@@ -1123,6 +1123,33 @@ body.wide {
     --on-accent: #150524; --glow: 168, 85, 247;
 }
 
+[data-theme="sports"] {
+    --bg: #24100a; --bg-2: #35180d; --bg-deep: #190a06;
+    --panel: #2b130c; --panel-2: #381a10; --panel-deep: #190a06;
+    --line: #4f2415; --line-2: #632e1b;
+    --ink: #ffece2; --muted: #c69c86;
+    --accent: #ff7a2f; --accent-2: #ff9a5c; --accent-3: #ffbe92;
+    --on-accent: #24100a; --glow: 255, 122, 47;
+}
+
+[data-theme="loan"] {
+    --bg: #0a1f1c; --bg-2: #0f2f2a; --bg-deep: #061412;
+    --panel: #0d2622; --panel-2: #123430; --panel-deep: #061412;
+    --line: #1d4a43; --line-2: #265c54;
+    --ink: #e4faf4; --muted: #8fbcb2;
+    --accent: #2fbfa0; --accent-2: #57d4b8; --accent-3: #8ce6d1;
+    --on-accent: #0a1f1c; --glow: 47, 191, 160;
+}
+
+[data-theme="novel"] {
+    --bg: #1a1024; --bg-2: #271739; --bg-deep: #120a1a;
+    --panel: #21132e; --panel-2: #2b193c; --panel-deep: #120a1a;
+    --line: #3d2352; --line-2: #4d2d67;
+    --ink: #f4e9ff; --muted: #b394cc;
+    --accent: #b06bff; --accent-2: #c491ff; --accent-3: #dcc0ff;
+    --on-accent: #1a1024; --glow: 176, 107, 255;
+}
+
 [data-theme="exams"] {
     --bg: #1f1a06; --bg-2: #2f2709; --bg-deep: #151103;
     --panel: #26200a; --panel-2: #322a0d; --panel-deep: #151103;
@@ -1757,6 +1784,9 @@ a:hover { color: var(--ink); }
 .sect-card.theme-exams  { --fc-bg: #26200a; --fc-line: #4a3d13; --fc-accent: #e0b341; --fc-glow: rgba(224, 179, 65, 0.34); }
 .sect-card.theme-jobs   { --fc-bg: #131f2a; --fc-line: #26394a; --fc-accent: #5fa8d3; --fc-glow: rgba(95, 168, 211, 0.34); }
 .sect-card.theme-dev    { --fc-bg: #171717; --fc-line: #2c2c2c; --fc-accent: #ff8a3d; --fc-glow: rgba(255, 138, 61, 0.34); }
+.sect-card.theme-sports { --fc-bg: #2b130c; --fc-line: #4f2415; --fc-accent: #ff7a2f; --fc-glow: rgba(255, 122, 47, 0.34); }
+.sect-card.theme-loan   { --fc-bg: #0d2622; --fc-line: #1d4a43; --fc-accent: #2fbfa0; --fc-glow: rgba(47, 191, 160, 0.34); }
+.sect-card.theme-novel  { --fc-bg: #21132e; --fc-line: #3d2352; --fc-accent: #b06bff; --fc-glow: rgba(176, 107, 255, 0.34); }
 
 /* =====================================================================
    THE PROGRAMMING ROOM: three tabs, locked topics, language pickers
