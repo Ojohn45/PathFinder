@@ -12,6 +12,10 @@ type Topic struct {
 	Name      string
 	Blurb     string // one short line under the name on the box
 	Resources []Resource
+
+	// Want is how many places this topic should hold. Zero means the usual 15.
+	// Loans asks for 20 because there are more lenders worth listing.
+	Want int
 }
 
 var curatedTopics = map[string]Topic{
