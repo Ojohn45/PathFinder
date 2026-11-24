@@ -39,6 +39,28 @@ func res(id, name, url, description string) Resource {
 
 // Extra topics that are not programming languages.
 var otherTopics = map[string]Topic{
+	"clothing": {
+		Slug:  "clothing",
+		Name:  "Clothing & Accessories",
+		Blurb: "15 places to buy clothes, shoes and accessories",
+		Resources: []Resource{
+			res("clothing-jumia", "Jumia Nigeria", "https://www.jumia.com.ng", "Nigeria's biggest store: clothes, shoes, bags"),
+			res("clothing-konga", "Konga", "https://www.konga.com", "Nigerian store with fashion and accessories"),
+			res("clothing-jiji", "Jiji", "https://jiji.ng", "Buy and sell locally, plenty of thrift finds"),
+			res("clothing-payporte", "PayPorte", "https://www.payporte.com", "Nigerian fashion store, fast local delivery"),
+			res("clothing-amazon", "Amazon Fashion", "https://www.amazon.com/fashion", "Huge catalogue, ships worldwide"),
+			res("clothing-nike", "Nike", "https://www.nike.com", "Trainers, sportswear and official drops"),
+			res("clothing-zalando", "Zalando", "https://www.zalando.com", "European brands with easy free returns"),
+			res("clothing-boohoo", "Boohoo", "https://www.boohoo.com", "Cheap trend-led fashion, frequent sales"),
+			res("clothing-shein", "Shein", "https://www.shein.com", "Very cheap clothing, read reviews before buying"),
+			res("clothing-myntra", "Myntra", "https://www.myntra.com", "Big on Indian and global labels"),
+			res("clothing-zara", "Zara", "https://www.zara.com", "Smart everyday wear, quality basics"),
+			res("clothing-hm", "H&M", "https://www2.hm.com", "Affordable basics for everyone"),
+			res("clothing-uniqlo", "Uniqlo", "https://www.uniqlo.com", "Simple, hard-wearing everyday clothing"),
+			res("clothing-etsy", "Etsy", "https://www.etsy.com", "Handmade jewellery and one-off accessories"),
+			res("clothing-vinted", "Vinted", "https://www.vinted.com", "Second-hand fashion, cheaper and greener"),
+		},
+	},
 	"documentaries": {
 		Slug:  "documentaries",
 		Name:  "Documentaries",
@@ -512,6 +534,15 @@ var sections = []Section{
 		Blurb:   "Fifteen places to read comics, official publishers and free libraries first.",
 		Theme:   "comix",
 		Topics:  []Topic{otherTopics["read-comix"]},
+		Direct:  true,
+	},
+	{
+		Slug:    "clothing",
+		Name:    "Clothing & Accessories",
+		Tagline: "Fashion · Shoes · Jewellery",
+		Blurb:   "Fifteen places to buy clothes, shoes and accessories, local stores first.",
+		Theme:   "cloth",
+		Topics:  []Topic{otherTopics["clothing"]},
 		Direct:  true,
 	},
 }

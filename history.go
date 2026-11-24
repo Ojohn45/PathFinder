@@ -133,13 +133,55 @@ func sameDay(a, b time.Time) bool {
 }
 
 // historyPageHandler serves /history.
+// withinRange says whether a time falls inside the chosen window.
+// Weeks start on Monday.
+func withinRange(t time.Time, span string) bool {
+	now := time.Now()
+	t, now = t.Local(), now.Local()
+	switch span {
+	case "today":
+		return sameDay(t, now)
+	case "week":
+		weekday := int(now.Weekday())
+		if weekday == 0 {
+			weekday = 7
+		}
+		start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location()).AddDate(0, 0, -(weekday - 1))
+		return !t.Before(start)
+	case "month":
+		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		return !t.Before(start)
+	case "year":
+		start := time.Date(now.Year(), 1, 1, 0, 0, 0, 0, now.Location())
+		return !t.Before(start)
+	}
+	return true // "all"
+}
+
 func historyPageHandler(w http.ResponseWriter, r *http.Request) {
 	u := currentUser(r)
 	if u == nil {
 		guestRedirect(w, r)
 		return
 	}
+	span := r.URL.Query().Get("range")
+	switch span {
+	case "today", "week", "month", "year":
+	default:
+		span = "all"
+	}
+
 	entries := allHistory(u.ID)
+	if span != "all" {
+		kept := make([]HistoryEntry, 0, len(entries))
+		for _, e := range entries {
+			if withinRange(e.ClickedAt, span) {
+				kept = append(kept, e)
+			}
+		}
+		entries = kept
+	}
+
 	rows := historyRows(entries)
 	data := PageData{
 		User:      u,
@@ -147,6 +189,7 @@ func historyPageHandler(w http.ResponseWriter, r *http.Request) {
 		TotalSeen: len(entries),
 		History:   groupByDay(rows),
 		Nav:       "history",
+		Range:     span,
 	}
 	render(w, "history.html", data)
 }

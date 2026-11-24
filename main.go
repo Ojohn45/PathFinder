@@ -64,6 +64,9 @@ type PageData struct {
 	// Nav marks which sidebar link is the current page.
 	Nav string
 
+	// History page: "today", "week", "month", "year" or "all".
+	Range string
+
 	// Branding page: the tab icon choices and which one is live.
 	Icons      []IconOption
 	IconChoice string

@@ -1123,6 +1123,15 @@ body.wide {
     --on-accent: #150524; --glow: 168, 85, 247;
 }
 
+[data-theme="cloth"] {
+    --bg: #2b0a1f; --bg-2: #3f0f2e; --bg-deep: #1c0614;
+    --panel: #351026; --panel-2: #431532; --panel-deep: #1c0614;
+    --line: #5e2147; --line-2: #742a59;
+    --ink: #ffeaf5; --muted: #d0a0bd;
+    --accent: #ff7ab8; --accent-2: #ffa3cf; --accent-3: #ffcbe3;
+    --on-accent: #2b0a1f; --glow: 255, 122, 184;
+}
+
 [data-theme="learn"] {
     --bg: #04262c; --bg-2: #073a43; --bg-deep: #031c20;
     --panel: #063038; --panel-2: #083b45; --panel-deep: #031c20;
@@ -1717,6 +1726,7 @@ a:hover { color: var(--ink); }
     --on-accent: #1a0703; --glow: 255, 122, 69;
 }
 .sect-card.theme-comix  { --fc-bg: #33140d; --fc-line: #5e2415; --fc-accent: #ff7a45; --fc-glow: rgba(255, 122, 69, 0.34); }
+.sect-card.theme-cloth  { --fc-bg: #351026; --fc-line: #5e2147; --fc-accent: #ff7ab8; --fc-glow: rgba(255, 122, 184, 0.34); }
 
 /* =====================================================================
    THE PROGRAMMING ROOM: three tabs, locked topics, language pickers
@@ -2509,4 +2519,34 @@ body.has-sidebar.wide > *:not(.sidebar):not(.sidebar-toggle):not(.sidebar-scrim)
     .icon-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
     .icon-card { padding: 12px; }
     .icon-card img { width: 56px; height: 56px; }
+}
+
+/* ---------- History: today / week / month / year ---------- */
+.history-ranges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 14px;
+}
+
+.history-ranges a {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background-color: var(--panel);
+    color: var(--muted);
+    font-size: 0.86rem;
+    text-decoration: none;
+}
+
+.history-ranges a:hover { color: var(--ink); border-color: var(--accent); }
+.history-ranges a.on {
+    background-color: rgba(var(--glow), 0.18);
+    border-color: var(--accent);
+    color: var(--accent-2);
+    font-weight: 600;
+}
+
+@media (max-width: 560px) {
+    .history-ranges a { padding: 7px 11px; font-size: 0.8rem; }
 }
