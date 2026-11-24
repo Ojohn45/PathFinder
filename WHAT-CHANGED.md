@@ -1,16 +1,18 @@
 # What changed, latest first
 
-## v22
-- **The head admin now comes from settings, not from the code.** Set `ADMIN_FULLNAME`,
-  `ADMIN_USERNAME`, `ADMIN_EMAIL` and `ADMIN_PASSWORD` (and optionally `ADMIN_PHONE`) in
-  `.env` or in Render > Environment. On every start the head admin is made to match them:
-  created if missing, an existing account with that email is promoted, or the current head
-  admin is updated to the new details. A previous head admin is never deleted, they stay on
-  as a normal admin (staff). There is always exactly one head admin.
-- **No built-in password and no personal details in the code.** The old default password
-  and phone number were removed. Without `ADMIN_PASSWORD` no head admin is created.
-- The head admin invites **users** or fellow **admins (staff)**; admins invite users only.
-  The button now reads "Invite an Admin (Staff)".
+## v22 - Phase 1 sections
+- Three new sections: **Exams & Scholarships** (exams), **Jobs & Careers** (jobs) and
+  **Developer Tools** (devtools), five topics each, fifteen places each: 225 in total.
+- Each has its own dark theme: dark gold-olive, dark slate-steel, and dark graphite with
+  an orange accent. Readable text, same animation style, no new libraries.
+- These three sections have no search bar on purpose. The search bar answers "where can I
+  watch/read/listen to this title" and returns outside search links; for a fixed list of
+  exam boards, job boards and developer tools it would only produce a search engine link.
+- `content_test.go` added: fifteen places per topic, unique IDs and URLs, https only,
+  unique section slugs and themes, and a CSS block for every theme.
+- Fixed a real bug the tests found: the C++ topic listed LearnCpp twice and had two
+  entries for the C++ Core Guidelines, so it was short of distinct places. Replaced with
+  cpp.sh and CppCon.
 
 ## v21
 - **The sidebar folds away and comes back**, like the one in your recording. A button
@@ -41,11 +43,12 @@
   page and the Log In page, and `/admin/login` now just sends you to the normal login
   page. Admins sign in on the same form as everybody else.
 - **Log in with the registered number.** The head admin account carries the phone
-  number 08012345678 (change it with `ADMIN_PHONE`), and the login box accepts a
+  number 08127758529 (change it with `ADMIN_PHONE`), and the login box accepts a
   username, an email address or a phone number. The number can be typed as
-  08012345678, 0801 234 5678 or <your number>. Signing in with it lands on the admin
+  08127758529, 0812 775 8529 or +2348127758529. Signing in with it lands on the admin
   dashboard.
-- The head admin is created at start-up from `ADMIN_PASSWORD`. There is no built-in password.
+- The head admin is created at start-up as Odumu John / Ken with the password
+  49321111@John unless `ADMIN_PASSWORD` says otherwise.
 - The download no longer ships `storage/*.json`. Earlier builds carried test accounts,
   which meant a fresh install inherited an old head admin password. `storage/` now
   arrives empty and is created on first run.
@@ -170,7 +173,7 @@
 
 ## v8 and earlier
 - Signup collects an email and sends a welcome mail. Login and admin login forms work.
-- The head admin auto-creates on first start, so the admin page and
+- Head admin Ken (Odumu John) auto-creates on first start, so the admin page and
   invites work immediately.
 - Logout asks YES or NO, YES says thank you, NO keeps you logged in.
 - Large language boxes with bold centred names, site boxes at half that size.

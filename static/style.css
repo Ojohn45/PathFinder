@@ -1123,6 +1123,33 @@ body.wide {
     --on-accent: #150524; --glow: 168, 85, 247;
 }
 
+[data-theme="exams"] {
+    --bg: #1f1a06; --bg-2: #2f2709; --bg-deep: #151103;
+    --panel: #26200a; --panel-2: #322a0d; --panel-deep: #151103;
+    --line: #4a3d13; --line-2: #5c4c19;
+    --ink: #fdf6dd; --muted: #c3b183;
+    --accent: #e0b341; --accent-2: #f0c95f; --accent-3: #f8df95;
+    --on-accent: #1f1a06; --glow: 224, 179, 65;
+}
+
+[data-theme="jobs"] {
+    --bg: #0e1620; --bg-2: #16232f; --bg-deep: #080f16;
+    --panel: #131f2a; --panel-2: #1a2a37; --panel-deep: #080f16;
+    --line: #26394a; --line-2: #33495d;
+    --ink: #e8f0f7; --muted: #93a8bb;
+    --accent: #5fa8d3; --accent-2: #84c0e2; --accent-3: #b3d8ee;
+    --on-accent: #0e1620; --glow: 95, 168, 211;
+}
+
+[data-theme="dev"] {
+    --bg: #121212; --bg-2: #1c1c1c; --bg-deep: #0a0a0a;
+    --panel: #171717; --panel-2: #202020; --panel-deep: #0a0a0a;
+    --line: #2c2c2c; --line-2: #3a3a3a;
+    --ink: #f2f2f2; --muted: #a3a3a3;
+    --accent: #ff8a3d; --accent-2: #ffa566; --accent-3: #ffc59b;
+    --on-accent: #121212; --glow: 255, 138, 61;
+}
+
 [data-theme="cloth"] {
     --bg: #2b0a1f; --bg-2: #3f0f2e; --bg-deep: #1c0614;
     --panel: #351026; --panel-2: #431532; --panel-deep: #1c0614;
@@ -1727,6 +1754,9 @@ a:hover { color: var(--ink); }
 }
 .sect-card.theme-comix  { --fc-bg: #33140d; --fc-line: #5e2415; --fc-accent: #ff7a45; --fc-glow: rgba(255, 122, 69, 0.34); }
 .sect-card.theme-cloth  { --fc-bg: #351026; --fc-line: #5e2147; --fc-accent: #ff7ab8; --fc-glow: rgba(255, 122, 184, 0.34); }
+.sect-card.theme-exams  { --fc-bg: #26200a; --fc-line: #4a3d13; --fc-accent: #e0b341; --fc-glow: rgba(224, 179, 65, 0.34); }
+.sect-card.theme-jobs   { --fc-bg: #131f2a; --fc-line: #26394a; --fc-accent: #5fa8d3; --fc-glow: rgba(95, 168, 211, 0.34); }
+.sect-card.theme-dev    { --fc-bg: #171717; --fc-line: #2c2c2c; --fc-accent: #ff8a3d; --fc-glow: rgba(255, 138, 61, 0.34); }
 
 /* =====================================================================
    THE PROGRAMMING ROOM: three tabs, locked topics, language pickers
