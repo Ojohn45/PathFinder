@@ -1,5 +1,13 @@
 # What changed, latest first
 
+## v24 - every sport
+- The Sports section now lists 48 sports, each opening its own watch page.
+- Six already existed (Football, Basketball, Tennis, Boxing & MMA, Motorsport, Cricket).
+- Forty-two were added with their real, verified sources only: no padding with the
+  same broadcasters. Sports with fewer than 15 real places show fewer, and say so.
+- Every place is verified (2xx/3xx) or confirmed live but bot-blocked, and each has a
+  description under 60 characters.
+
 ## v23 - Sports, Loans and Read Novels
 - **Sports** section with six sports to pick from (Football, Basketball, Tennis,
   Boxing & MMA, Motorsport, Cricket), 15 places to watch each. No betting sites, as
