@@ -106,6 +106,9 @@ var (
 
 // initDB creates the storage folder and loads the JSON files into memory.
 func initDB() {
+	if err := initStore(); err != nil {
+		log.Fatal("Database problem:", err)
+	}
 	if err := os.MkdirAll(storageDir, 0o755); err != nil {
 		log.Fatal("Cannot create storage folder:", err)
 	}
@@ -121,12 +124,16 @@ func initDB() {
 	if err := loadJSON(emailsFile, &emailLog); err != nil {
 		log.Fatal("Cannot read emails.json:", err)
 	}
+	loadSavedSessions()
 	seedHeadAdmin()
 	log.Printf("Storage ready: %d user(s), %d history entries", len(users), len(history))
 }
 
 // loadJSON reads a file into v. A missing file is fine (first run).
 func loadJSON(path string, v any) error {
+	if pgOn() {
+		return pgLoad(path, v)
+	}
 	data, err := os.ReadFile(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
@@ -143,6 +150,9 @@ func loadJSON(path string, v any) error {
 // saveJSON writes to a temp file first, then renames it over the real one.
 // That way a crash mid-write can never leave a half-written (corrupt) file.
 func saveJSON(path string, v any) error {
+	if pgOn() {
+		return pgSave(path, v)
+	}
 	data, err := json.MarshalIndent(v, "", "  ")
 	if err != nil {
 		return err
@@ -202,8 +212,8 @@ func findUserByUsername(username string) (User, bool) {
 	return User{}, false
 }
 
-// normalisePhone turns +2348012345678, 2348012345678 and 0801 234 5678 into
-// 08012345678, so the head admin can log in however they type the number.
+// normalisePhone turns +2348127758529, 2348127758529 and 0812 775 8529 into
+// 08127758529, so the head admin can log in however they type the number.
 func normalisePhone(raw string) string {
 	var b strings.Builder
 	for _, r := range raw {
@@ -499,59 +509,4 @@ func setUserPassword(id int, passwordHash string) error {
 		}
 	}
 	return errors.New("user not found")
-}
-
-// applyHeadAdmin makes the account with this id the ONLY head admin and gives it
-// these details. Any other head admin is not deleted: they become a normal admin
-// (staff). An empty passwordHash keeps the password the account already has.
-// It returns changed=false when nothing needed to change (so start-up stays quiet).
-func applyHeadAdmin(id int, fullName, username, email, passwordHash string) (changed bool, err error) {
-	mu.Lock()
-	defer mu.Unlock()
-
-	email = strings.ToLower(email)
-	idx := -1
-	for i, u := range users {
-		if u.ID == id {
-			idx = i
-			continue
-		}
-		if strings.EqualFold(u.Username, username) {
-			return false, ErrUsernameTaken // another account already uses that username
-		}
-		if strings.EqualFold(u.Email, email) {
-			return false, ErrEmailTaken // another account already uses that email
-		}
-	}
-	if idx < 0 {
-		return false, errors.New("user not found")
-	}
-
-	backup := make([]User, len(users))
-	copy(backup, users)
-
-	for i := range users {
-		if i != idx && users[i].Role == RoleHeadAdmin {
-			users[i].Role = RoleAdmin // the previous head admin stays on as staff
-			changed = true
-		}
-	}
-	t := &users[idx]
-	if t.FullName != fullName || t.Username != username || t.Email != email || t.Role != RoleHeadAdmin ||
-		(passwordHash != "" && t.PasswordHash != passwordHash) {
-		changed = true
-	}
-	t.FullName, t.Username, t.Email, t.Role = fullName, username, email, RoleHeadAdmin
-	if passwordHash != "" {
-		t.PasswordHash = passwordHash
-	}
-
-	if !changed {
-		return false, nil
-	}
-	if err := saveJSON(usersFile, users); err != nil {
-		copy(users, backup)
-		return false, err
-	}
-	return true, nil
 }

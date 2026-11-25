@@ -69,10 +69,7 @@ func saveIconChoice(choice string) error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll("storage", 0o755); err != nil {
-		return err
-	}
-	if err := os.WriteFile(settingsPath, data, 0o600); err != nil {
+	if err := storeWriteSettings(data); err != nil {
 		return err
 	}
 

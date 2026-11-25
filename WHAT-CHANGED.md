@@ -1,5 +1,28 @@
 # What changed, latest first
 
+## v25 - accounts that survive, and a site that works on a phone
+### Data
+- `pg.go` (new): Postgres storage. Set DATABASE_URL and users, history, invites,
+  the email log, mail settings and sessions all live in a real database with
+  tables created automatically at startup.
+- Logout was never the problem: it only deletes the session cookie. The data was
+  in storage/*.json, and Render wipes that folder on redeploy, restart and sleep.
+- Sessions are saved in Postgres, so a redeploy no longer signs everyone out.
+- Passwords were already bcrypt; unchanged and still hashed.
+- With no DATABASE_URL the app still uses JSON files, so `go run .` on a laptop
+  behaves exactly as before.
+
+### Phones
+- Viewport tag added to the 11 pages that were missing it.
+- Menu is a drawer under 900px: closed at startup, floats over the page with a
+  dim backdrop, closes on an outside tap, on Escape, or on choosing a link.
+- Page starts 66px down on phones so the menu button never sits on the text.
+- Category cards: one per row at 150px tall on a phone, two across on a tablet,
+  the grid on desktop.
+- Admin buttons stack full width; tap targets are at least 44px; long tables
+  scroll inside their own box. No page scrolls sideways at 360, 390, 412, 768
+  or 1024px.
+
 ## v24 - every sport
 - The Sports section now lists 48 sports, each opening its own watch page.
 - Six already existed (Football, Basketball, Tennis, Boxing & MMA, Motorsport, Cricket).

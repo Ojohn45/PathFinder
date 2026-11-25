@@ -2610,3 +2610,174 @@ body.has-sidebar.wide > *:not(.sidebar):not(.sidebar-toggle):not(.sidebar-scrim)
 @media (max-width: 560px) {
     .history-ranges a { padding: 7px 11px; font-size: 0.8rem; }
 }
+
+/* ==========================================================================
+   Phones and tablets
+   --------------------------------------------------------------------------
+   Two things went wrong on a phone before this block:
+
+   1. The menu button is fixed to the top-left corner, and the page started at
+      the very top, so the button sat on top of the first line of text.
+   2. Category cards were square and as wide as the screen (aspect-ratio 1/1),
+      so one card filled almost a whole screen.
+
+   Now: the page starts below the button, cards are a short bar on a phone,
+   two across on a tablet, and the menu is a drawer that floats over the page
+   with a dim backdrop instead of squeezing it.
+   ========================================================================== */
+
+/* the dim layer behind the drawer; hidden unless the menu is open */
+.sidebar-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: rgba(3, 8, 16, 0.62);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+}
+.sidebar-scrim[hidden] { display: none; }
+
+@media (max-width: 900px) {
+    /* room for the fixed menu button, so it never covers writing */
+    body,
+    body.has-sidebar,
+    body.sidebar-hidden.has-sidebar {
+        padding-top: 66px;
+        padding-left: 14px;
+        padding-right: 14px;
+        margin-top: 0;
+    }
+
+    .sidebar-toggle { top: 12px; left: 12px; min-width: 46px; min-height: 44px; }
+
+    /* the back button no longer needs to dodge the menu button */
+    .back-btn,
+    body.sidebar-hidden .back-btn { margin-left: 0; margin-top: 0; }
+
+    /* the drawer floats above the page; the page text is never pushed aside */
+    .sidebar {
+        width: min(84vw, 320px);
+        height: 100%;
+        box-shadow: 22px 0 48px rgba(0, 0, 0, 0.5);
+    }
+
+    /* easy to tap with a thumb */
+    .sidebar-nav a,
+    .sidebar-bottom a,
+    .sidebar-logout,
+    .sidebar-collapse { min-height: 46px; display: flex; align-items: center; }
+
+    h1 { font-size: clamp(1.4rem, 6vw, 1.9rem); line-height: 1.25; }
+    .page-head p { font-size: 0.98rem; }
+}
+
+@media (max-width: 768px) {
+    /* one card per row, short and centred */
+    .section-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 22px;
+    }
+    .sect-card {
+        aspect-ratio: auto;
+        height: 150px;
+        padding: 14px;
+        border-radius: 16px;
+        gap: 8px;
+    }
+    .sect-card b { font-size: 1.08rem; }
+    .sect-card span { font-size: 0.68rem; letter-spacing: 0.1em; }
+
+    /* topics: two small tiles per row instead of one giant square */
+    .topic-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+    }
+    .topic-box {
+        height: auto;
+        min-height: 96px;
+        padding: 12px 10px;
+        font-size: 0.95rem;
+        line-height: 1.25;
+        word-break: break-word;
+    }
+    .topic-box small { font-size: 0.68rem; }
+
+    /* the places list: full width, readable, no clipping */
+    .site-grid { grid-template-columns: 1fr; gap: 12px; }
+    .site-box {
+        width: 100%;
+        height: auto;
+        min-height: 88px;
+        padding: 12px 14px;
+        overflow: visible;
+    }
+    .site-box b, .site-box strong { font-size: 0.98rem; }
+
+    /* admin buttons stack and stay easy to hit */
+    .admin-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .admin-btn {
+        width: 100%;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.98rem;
+    }
+
+    /* long tables scroll inside their own box instead of the whole page */
+    .admin-table, table { display: block; width: 100%; overflow-x: auto; }
+
+    .icon-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .icon-card { padding: 12px; }
+    .icon-card img { width: 56px; height: 56px; }
+
+    /* text never spills out of its box */
+    h1, h2, h3, p, li, a, b, strong, span { overflow-wrap: anywhere; }
+    img, svg, video { max-width: 100%; height: auto; }
+    pre, code { white-space: pre-wrap; word-break: break-word; }
+}
+
+/* two cards across on a tablet, grid on a laptop */
+@media (min-width: 769px) and (max-width: 1100px) {
+    .section-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .sect-card { aspect-ratio: auto; height: 170px; }
+}
+
+/* very narrow phones: keep the type readable and the tiles tight */
+@media (max-width: 380px) {
+    body,
+    body.has-sidebar,
+    body.sidebar-hidden.has-sidebar { padding-left: 11px; padding-right: 11px; }
+    .topic-grid { grid-template-columns: 1fr; }
+    .topic-box { min-height: 84px; }
+    .sect-card { height: 138px; }
+}
+
+/* ---------- No sideways scrolling, anywhere ----------
+   The drawer is parked off the left edge when closed. Without this, its width
+   still counted towards the page width and every page could slide a few pixels
+   sideways on a phone. clip is the modern way; hidden is the fallback. */
+html { overflow-x: hidden; }
+@supports (overflow-x: clip) {
+    html, body { overflow-x: clip; }
+}
+
+@media (max-width: 900px) {
+    /* the drawer must be exactly as wide as we say, padding included */
+    .sidebar { box-sizing: border-box; width: min(84vw, 320px); }
+}
+
+@media (max-width: 768px) {
+    /* height means the whole card, padding included, so 150px is 150px */
+    .sect-card { box-sizing: border-box; }
+
+    /* the Back button and the PathFinder name are links too: thumb-sized */
+    .back-btn { min-height: 44px; padding-top: 4px; padding-bottom: 4px; }
+    .sidebar-name { min-height: 44px; display: flex; align-items: center; }
+}

@@ -119,6 +119,13 @@
     setShown(narrow.matches ? false : saved !== 'closed', false);
 
     open.addEventListener('click', function () { setShown(true, true); });
+
+    // On a phone, choosing anything in the menu closes it straight away, so the
+    // page is never left with the drawer sitting over the content.
+    side.addEventListener('click', function (e) {
+        if (!narrow.matches) return;
+        if (e.target.closest('a')) setShown(false, false);
+    });
     if (shut) shut.addEventListener('click', function () { setShown(false, true); });
     if (scrim) scrim.addEventListener('click', function () { setShown(false, false); });
     document.addEventListener('keydown', function (e) {

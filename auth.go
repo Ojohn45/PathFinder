@@ -83,7 +83,18 @@ func startSession(w http.ResponseWriter, userID int) error {
 
 	sessionsMu.Lock()
 	sessions[token] = session{userID: userID, expires: time.Now().Add(sessionTTL)}
+	snapshot := make(map[string]session, len(sessions))
+	for k, v := range sessions {
+		snapshot[k] = v
+	}
 	sessionsMu.Unlock()
+
+	// Written to Postgres too, so a redeploy does not sign everyone out.
+	if pgOn() {
+		if err := pgSaveSessions(snapshot); err != nil {
+			log.Println("Could not save the session to the database:", err)
+		}
+	}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     sessionCookie,
@@ -107,6 +118,12 @@ func endSession(w http.ResponseWriter, r *http.Request) {
 		}
 		delete(sessions, c.Value)
 		sessionsMu.Unlock()
+
+		if pgOn() {
+			if err := pgDeleteSession(c.Value); err != nil {
+				log.Println("Could not clear the session from the database:", err)
+			}
+		}
 	}
 	http.SetCookie(w, &http.Cookie{Name: sessionCookie, Value: "", Path: "/", MaxAge: -1})
 }
@@ -176,7 +193,7 @@ func signupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if phone != "" && (len(phone) < 10 || len(phone) > 14) {
-		fail("Please enter a valid phone number, for example 08012345678")
+		fail("Please enter a valid phone number, for example 08127758529")
 		return
 	}
 	if phone != "" {
@@ -350,4 +367,26 @@ func homeFor(u *User) string {
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	endSession(w, r)
 	http.Redirect(w, r, "/goodbye", http.StatusSeeOther)
+}
+
+// loadSavedSessions restores logins that were still valid when the server last
+// stopped. Without this, every restart and every Render sleep would log out
+// everyone who was signed in.
+func loadSavedSessions() {
+	if !pgOn() {
+		return
+	}
+	fresh := map[string]session{}
+	if err := pgLoadSessions(fresh); err != nil {
+		log.Println("Could not read saved sessions:", err)
+		return
+	}
+	sessionsMu.Lock()
+	for k, v := range fresh {
+		sessions[k] = v
+	}
+	sessionsMu.Unlock()
+	if len(fresh) > 0 {
+		log.Printf("Sessions restored: %d still signed in", len(fresh))
+	}
 }

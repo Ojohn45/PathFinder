@@ -49,8 +49,8 @@ func loadMailSettings() {
 	defer mailMu.Unlock()
 	mailSet = MailSettings{}
 
-	data, err := os.ReadFile(settingsPath)
-	if err != nil {
+	data, err := storeReadSettings()
+	if err != nil || len(data) == 0 {
 		return
 	}
 	var stored MailSettings
@@ -96,10 +96,7 @@ func saveMailSettings(in MailSettings) error {
 	if err != nil {
 		return err
 	}
-	if err := os.MkdirAll("storage", 0o755); err != nil {
-		return err
-	}
-	if err := os.WriteFile(settingsPath, data, 0o600); err != nil {
+	if err := storeWriteSettings(data); err != nil {
 		return err
 	}
 
