@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{.Topic.Name}} - PathFinder</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/{{iconName}}-192.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
 </head>
 <body class="wide" data-theme="{{.Theme}}">
     {{template "topbar" .}}
@@ -13,6 +17,7 @@
         <span class="crumb">
             <a href="/browse">Browse</a>
             {{if .Section.Name}} · <a href="/section/{{.Section.Slug}}">{{.Section.Name}}</a>{{end}}
+
             · {{.Topic.Name}}
         </span>
         <h1>{{.Topic.Name}}</h1>
@@ -22,11 +27,17 @@
     <div class="site-grid">
         {{range .Topic.Resources}}
         <a class="site-box" href="/go/{{$.Topic.Slug}}/{{.ID}}" target="_blank" rel="noopener noreferrer">
-            <img class="favicon" src="https://www.google.com/s2/favicons?domain={{favicon .URL}}&sz=64" alt="" loading="lazy" onerror="this.style.display='none'">
+            <span class="site-logo">
+                <img class="site-logo-img" src="https://www.google.com/s2/favicons?domain={{favicon .URL}}&sz=128" alt="" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+                <b class="logo-letter" aria-hidden="true">{{initial .Name}}</b>
+            </span>
             <strong>{{.Name}}</strong>
             <span>{{.Description}}</span>
         </a>
         {{end}}
+    </div>
+    <div class="load-more-wrap" id="load-more-wrap" hidden>
+        <button type="button" class="load-more-btn" id="load-more">Show all places</button>
     </div>
 
     <p class="center" style="margin-top:34px;color:var(--muted);font-size:.85rem">
@@ -34,3 +45,31 @@
     </p>
 </body>
 </html>
+
+<script>
+(function () {
+    // Long lists start short: the first 24 places show, the rest appear on a tap.
+    var grid = document.querySelector('.site-grid');
+    var btn = document.getElementById('load-more');
+    var wrap = document.getElementById('load-more-wrap');
+    if (!grid || !btn || !wrap) return;
+    var boxes = grid.querySelectorAll('.site-box');
+    var STEP = 24, shown = STEP;
+    if (boxes.length <= STEP) return;
+    for (var i = STEP; i < boxes.length; i++) boxes[i].classList.add('is-hidden');
+    wrap.hidden = false;
+    function label() {
+        var left = boxes.length - shown;
+        btn.textContent = left > 0
+            ? 'Show ' + Math.min(STEP, left) + ' more (' + left + ' left)'
+            : 'All ' + boxes.length + ' places shown';
+    }
+    label();
+    btn.addEventListener('click', function () {
+        for (var i = shown; i < Math.min(shown + STEP, boxes.length); i++) boxes[i].classList.remove('is-hidden');
+        shown = Math.min(shown + STEP, boxes.length);
+        label();
+        if (shown >= boxes.length) btn.disabled = true;
+    });
+})();
+</script>

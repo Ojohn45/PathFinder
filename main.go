@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // faviconHost is a template helper: it turns a link into the domain whose logo
@@ -20,6 +21,7 @@ func faviconHost(raw string) string {
 
 var templates = template.Must(template.New("").Funcs(template.FuncMap{
 	"favicon":  faviconHost,
+	"initial":  initialLetter,
 	"iconName": func() string { return currentIcon() },
 	"faviconOf": func(slug, id string) string {
 		if t, ok := topicBySlug[slug]; ok {
@@ -320,4 +322,16 @@ func main() {
 	addr := ":" + getenv("PORT", "8080")
 	log.Println("Server starting on http://localhost" + addr)
 	log.Fatal(http.ListenAndServe(addr, mux))
+}
+
+// initialLetter returns the first character of a name, for the fallback logo
+// tile shown when a site's own icon cannot be loaded.
+func initialLetter(name string) string {
+	for _, r := range name {
+		if r == ' ' {
+			continue
+		}
+		return strings.ToUpper(string(r))
+	}
+	return "?"
 }

@@ -48,7 +48,10 @@
                 <div class="search-links">
                     {{range .Links}}
                     <a class="search-link" href="{{if .Out}}{{.Out}}{{else}}{{.URL}}{{end}}" target="_blank" rel="noopener noreferrer">
-                        <img class="favicon" src="https://www.google.com/s2/favicons?domain={{favicon .URL}}&sz=64" alt="" loading="lazy" onerror="this.style.display='none'">
+                        <span class="site-logo">
+                            <img class="site-logo-img" src="https://www.google.com/s2/favicons?domain={{favicon .URL}}&sz=128" alt="" loading="lazy" decoding="async" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
+                            <b class="logo-letter" aria-hidden="true">{{initial .Name}}</b>
+                        </span>
                         <strong>{{.Name}}</strong>
                         <span>{{.Description}}</span>
                     </a>

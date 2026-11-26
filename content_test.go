@@ -35,14 +35,16 @@ func everyTopic() []Topic {
 }
 
 // 1. Every topic has exactly fifteen places.
-func TestEveryTopicHasFifteenResources(t *testing.T) {
+func TestEveryTopicHasEnoughResources(t *testing.T) {
 	for _, topic := range everyTopic() {
 		want := topic.Want
 		if want == 0 {
 			want = 15
 		}
-		if got := len(topic.Resources); got != want {
-			t.Errorf("topic %q has %d places, want %d", topic.Slug, got, want)
+		// Want is now a floor, not a cap: a topic may hold as many verified
+		// places as we can find, but never fewer than it promises.
+		if got := len(topic.Resources); got < want {
+			t.Errorf("topic %q has %d places, want at least %d", topic.Slug, got, want)
 		}
 	}
 }
