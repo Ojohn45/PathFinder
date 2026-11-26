@@ -3,62 +3,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>PathFinder — Find Your Way to the Right Resource</title>
+    <title>PathFinder - Find your way to the right resource</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/{{iconName}}-192.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-
 </head>
-<body class="landing" data-theme="{{.Theme}}">
-    <nav class="navbar center-brand">
-        <div class="dropdown">
-            <button class="pill" type="button">
-                Log In / Sign Up <span class="caret">▾</span>
-            </button>
-            <div class="dropdown-menu">
-                <div class="menu-panel">
-                    <a href="/login" class="menu-item">
-                        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-                        <span><strong>Log In</strong><small>Access your account</small></span>
-                    </a>
-                    <a href="/signup" class="menu-item">
-                        <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M19 8v6M16 11h6"/></svg>
-                        <span><strong>Sign Up</strong><small>Create a free account</small></span>
-                    </a>
-                    <a href="/browse" class="menu-item">
-                        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                        <span><strong>Browse</strong><small>See all eight sections</small></span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
+<body class="wide" data-theme="{{.Theme}}">
+    {{template "topbar" .}}
 
-    <section class="hero">
-        <div class="hero-logo">{{template "logo" .}}</div>
-        <p class="tagline">Find your way to the right resource.</p>
-        <p class="hero-text">
-            PathFinder isn't another course platform trying to teach you everything
-            from scratch. It's a curated launchpad. Pick a section — programming,
-            entertainment, learning, lifestyle, create and work, or go straight to
-            reading with manga, manhwa and comix — and PathFinder points you straight
-            at the fifteen places worth your time inside it: official docs, free
-            courses, practice grounds, the good documentaries, the sites people
-            actually finish. No more spending an hour searching
-            "best way to learn Python". Create a free account and PathFinder keeps
-            track of every place you visit, so you never lose your place.
-        </p>
-        <div class="hero-actions">
-            <a href="/browse" class="pill">
-                <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                Browse
-            </a>
-            <a href="/signup" class="pill pill-soft">
-                <svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3-6 7-6s7 2 7 6"/><path d="M19 8v6M16 11h6"/></svg>
-                Create Free Account
-            </a>
-        </div>
-    </section>
+{{template "landingbody" .}}
 </body>
 </html>

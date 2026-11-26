@@ -130,7 +130,12 @@ func render(w http.ResponseWriter, name string, data PageData) {
 // ---------- Public pages ----------
 
 func landingPageHandler(w http.ResponseWriter, r *http.Request) {
-	render(w, "landing.html", PageData{Theme: "base", CenterLogo: true})
+	render(w, "landing.html", PageData{
+		User:       currentUser(r),
+		Sections:   sections,
+		Theme:      "base",
+		CenterLogo: true,
+	})
 }
 
 // The Browse page: every section as a big box.
