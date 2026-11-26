@@ -1,5 +1,14 @@
 # What changed, latest first
 
+## v28 - the deploy that failed on 26 November
+- Cause: the Dockerfile built with golang:1.24-alpine, but golang.org/x/image
+  (added for avatars) declares go 1.26.0. A 1.24 toolchain cannot build it, so the
+  build stopped before the app ever started.
+- Fix: the build image is now golang:1.26-alpine, matching go.mod.
+- Dependencies are vendored (vendor/, 75 files, 760KB) and the build uses
+  -mod=vendor, so it needs no internet and no module proxy at build time.
+- Added .dockerignore so storage/, .git and zips stay out of the image.
+
 ## v27 - avatars and profiles
 - Every account can now have a picture: uploaded (JPG, PNG, WebP) or one of 60
   original drawings in ten styles.

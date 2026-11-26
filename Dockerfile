@@ -3,12 +3,18 @@
 # Run:    docker run -d --name pathfinder -p 8080:8080 \
 #           --env-file .env -v pathfinder-data:/app/storage pathfinder
 
+# The Go version here must be at least the version in go.mod. Our dependencies
+# (golang.org/x/image) now ask for Go 1.26, and a 1.24 image cannot build them,
+# which is what broke the deploy on 26 November.
 FROM golang:1.26-alpine AS build
 WORKDIR /src
-COPY go.mod go.sum ./
-RUN go mod download
+
+# Everything, including the vendor/ folder, so the build needs no internet.
 COPY . .
-RUN CGO_ENABLED=0 go build -trimpath -ldflags "-s -w" -o /out/pathfinder .
+
+# -mod=vendor means Go reads the dependencies from vendor/ instead of
+# downloading them. Nothing can go missing and no proxy can be unreachable.
+RUN CGO_ENABLED=0 go build -mod=vendor -trimpath -ldflags "-s -w" -o /out/pathfinder .
 
 FROM alpine:3.20
 # su-exec lets the entrypoint fix ownership of the mounted data disk, then drop
