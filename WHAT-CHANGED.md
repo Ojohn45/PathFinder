@@ -1,6 +1,12 @@
 # What changed, latest first
 
 ## v28 - the deploy that failed on 26 November
+- CORRECTION: my first explanation was wrong. golang.org/x/crypto v0.57.0 already
+  required Go 1.26 and deployed fine on the golang:1.24 image, so the Go version was
+  never the fault. The Dockerfile is back to the version that was building, and the
+  vendor/ experiment is removed.
+- The likely cause is an incomplete push: a ~20s failure with no compile output usually
+  means a Go file or go.mod/go.sum never reached GitHub. Run check.sh before pushing.
 - Cause: the Dockerfile built with golang:1.24-alpine, but golang.org/x/image
   (added for avatars) declares go 1.26.0. A 1.24 toolchain cannot build it, so the
   build stopped before the app ever started.
