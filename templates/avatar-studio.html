@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{.Theme}}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Your avatar - PathFinder</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/{{iconName}}-192.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body class="wide" data-theme="{{.Theme}}">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb">Settings</span>
+        <h1>Your avatar</h1>
+        <p>Pick one of our drawings, or use your own picture. It follows you everywhere on PathFinder.</p>
+    </section>
+
+    {{if .Saved}}<p class="av-flash av-flash-ok" role="status">{{.Saved}} 🎉</p>{{end}}
+    {{if .Error}}<p class="av-flash av-flash-err" role="alert">{{.Error}}</p>{{end}}
+
+    <div class="av-current">
+        <div class="av-preview">
+            {{if .User.AvatarKind}}
+            <img id="av-live" class="av av-lg fr-{{.User.Frame}}" src="{{avatarURL .User}}" alt="Your current avatar">
+            {{else}}
+            <span id="av-live" class="av av-lg av-empty fr-{{.User.Frame}}">{{initial (shownName .User)}}</span>
+            {{end}}
+        </div>
+        <div class="av-current-text">
+            <b>{{shownName .User}}</b>
+            <span>@{{.User.Username}}</span>
+            {{if eq .User.AvatarKind "upload"}}<span class="av-tag">Your own picture</span>{{end}}
+            {{if eq .User.AvatarKind "builtin"}}<span class="av-tag">Gallery avatar</span>{{end}}
+            {{if not .User.AvatarKind}}<span class="av-tag">No picture yet</span>{{end}}
+            <a class="pill-btn pill-ghost" href="/profile">View profile</a>
+        </div>
+    </div>
+
+    <section class="av-block" id="upload">
+        <h2>Upload your own picture</h2>
+        <p class="av-hint">JPG, PNG or WebP, up to 4 MB. Drag to move it, use the slider to zoom, then save.</p>
+
+        <form id="pf-upload-form" class="av-upload">
+            <label class="av-file">
+                <input type="file" id="pf-file" accept="image/jpeg,image/png,image/webp">
+                <span>Choose a picture</span>
+            </label>
+
+            <div class="av-crop-wrap" id="pf-crop-wrap" hidden>
+                <canvas id="pf-crop" width="512" height="512" aria-label="Crop your picture"></canvas>
+                <label class="av-zoom">
+                    <span>Zoom</span>
+                    <input type="range" id="pf-zoom" min="0" max="100" value="0">
+                </label>
+                <p class="av-hint">Drag the picture to move it inside the circle.</p>
+            </div>
+
+            <div class="av-actions">
+                <button type="submit" class="pill-btn pill-primary" id="pf-save" hidden>Save changes</button>
+                <button type="button" class="pill-btn pill-ghost" id="pf-cancel" hidden>Cancel</button>
+            </div>
+        </form>
+
+        {{if .User.AvatarKind}}
+        <form method="post" action="/avatar/remove" class="av-remove">
+            <button type="submit" class="pill-btn pill-ghost">Remove my picture</button>
+        </form>
+        {{end}}
+    </section>
+
+    <section class="av-block">
+        <h2>Or choose from the gallery</h2>
+        <p class="av-hint">Our own artwork, made for PathFinder. Ten styles, six of each.</p>
+
+        <div class="av-filters">
+            <input type="search" id="av-search" placeholder="Search avatars" aria-label="Search avatars" autocomplete="off">
+            <div class="av-chips" id="av-chips">
+                <button type="button" class="av-chip is-on" data-cat="all">All</button>
+                {{range .AvatarGroups}}<button type="button" class="av-chip" data-cat="{{.Slug}}">{{.Name}}</button>{{end}}
+            </div>
+        </div>
+
+        {{range .AvatarGroups}}
+        <div class="av-group" data-cat="{{.Slug}}">
+            <h3>{{.Name}}</h3>
+            <div class="av-grid">
+                {{$cat := .Slug}}
+                {{range .Items}}
+                <form method="post" action="/avatar/builtin" class="av-form">
+                    <input type="hidden" name="avatar" value="{{.}}">
+                    <button type="submit" class="av-pick{{if eq . $.User.AvatarRef}} is-selected{{end}}" data-name="{{.}}" aria-label="Choose avatar {{.}}" aria-pressed="{{if eq . $.User.AvatarRef}}true{{else}}false{{end}}">
+                        <img src="/avatar/b/{{.}}" alt="" loading="lazy" width="72" height="72">
+                        {{if eq . $.User.AvatarRef}}<span class="av-tick" aria-hidden="true">✓</span>{{end}}
+                    </button>
+                </form>
+                {{end}}
+            </div>
+        </div>
+        {{end}}
+        <p class="av-hint" id="av-empty-note" hidden>No avatars match that search.</p>
+    </section>
+
+    <section class="av-block">
+        <h2>Frame, banner and motion</h2>
+        <form method="post" action="/avatar/style" class="av-style">
+            <fieldset>
+                <legend>Frame</legend>
+                <div class="av-chips">
+                    {{range .Frames}}
+                    <label class="av-radio">
+                        <input type="radio" name="frame" value="{{.Slug}}"{{if eq .Slug $.User.Frame}} checked{{end}}>
+                        <span>{{.Name}}</span>
+                    </label>
+                    {{end}}
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Profile banner</legend>
+                <div class="av-chips">
+                    {{range .Banners}}
+                    <label class="av-radio">
+                        <input type="radio" name="banner" value="{{.Slug}}"{{if eq .Slug $.User.Banner}} checked{{end}}>
+                        <span class="bn-dot bn-{{.Slug}}">{{.Name}}</span>
+                    </label>
+                    {{end}}
+                </div>
+            </fieldset>
+
+            <label class="av-check">
+                <input type="checkbox" name="calm"{{if .User.CalmMode}} checked{{end}}>
+                <span>Reduce motion (turn off animated frames)</span>
+            </label>
+
+            <button type="submit" class="pill-btn pill-primary">Save my look</button>
+        </form>
+    </section>
+
+    <script>
+    (function () {
+        var file = document.getElementById('pf-file');
+        var wrap = document.getElementById('pf-crop-wrap');
+        var canvas = document.getElementById('pf-crop');
+        var zoom = document.getElementById('pf-zoom');
+        var save = document.getElementById('pf-save');
+        var cancel = document.getElementById('pf-cancel');
+        var form = document.getElementById('pf-upload-form');
+        var live = document.getElementById('av-live');
+        if (!file || !canvas || !form) return;
+
+        var ctx = canvas.getContext('2d');
+        var img = null, scale = 1, minScale = 1, ox = 0, oy = 0;
+        var dragging = false, lastX = 0, lastY = 0;
+
+        function draw() {
+            ctx.clearRect(0, 0, 512, 512);
+            if (!img) return;
+            var w = img.width * scale, h = img.height * scale;
+            ctx.drawImage(img, 256 - w / 2 + ox, 256 - h / 2 + oy, w, h);
+        }
+
+        function clamp() {
+            if (!img) return;
+            var maxX = Math.max(0, (img.width * scale - 512) / 2);
+            var maxY = Math.max(0, (img.height * scale - 512) / 2);
+            ox = Math.min(maxX, Math.max(-maxX, ox));
+            oy = Math.min(maxY, Math.max(-maxY, oy));
+        }
+
+        file.addEventListener('change', function () {
+            var f = file.files && file.files[0];
+            if (!f) return;
+            var url = URL.createObjectURL(f);
+            var im = new Image();
+            im.onload = function () {
+                img = im;
+                minScale = Math.max(512 / im.width, 512 / im.height);
+                scale = minScale;
+                ox = 0; oy = 0;
+                zoom.value = 0;
+                wrap.hidden = false;
+                save.hidden = false;
+                cancel.hidden = false;
+                draw();
+            };
+            im.onerror = function () { alert('That file is not an image we can read.'); };
+            im.src = url;
+        });
+
+        zoom.addEventListener('input', function () {
+            if (!img) return;
+            scale = minScale * (1 + (zoom.value / 100) * 3);
+            clamp(); draw();
+        });
+
+        canvas.addEventListener('pointerdown', function (e) {
+            if (!img) return;
+            dragging = true; lastX = e.clientX; lastY = e.clientY;
+            canvas.setPointerCapture(e.pointerId);
+        });
+        canvas.addEventListener('pointermove', function (e) {
+            if (!dragging || !img) return;
+            ox += e.clientX - lastX; oy += e.clientY - lastY;
+            lastX = e.clientX; lastY = e.clientY;
+            clamp(); draw();
+        });
+        canvas.addEventListener('pointerup', function () { dragging = false; });
+        canvas.addEventListener('pointercancel', function () { dragging = false; });
+
+        cancel.addEventListener('click', function () {
+            img = null; file.value = '';
+            wrap.hidden = true; save.hidden = true; cancel.hidden = true;
+            ctx.clearRect(0, 0, 512, 512);
+        });
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!img) return;
+            save.disabled = true;
+            save.textContent = 'Saving…';
+            canvas.toBlob(function (blob) {
+                var fd = new FormData();
+                fd.append('picture', blob, 'avatar.jpg');
+                fetch('/avatar/upload', { method: 'POST', body: fd, credentials: 'same-origin' })
+                    .then(function (r) { window.location.href = r.redirected ? r.url : '/avatar-studio?ok=upload'; })
+                    .catch(function () {
+                        save.disabled = false; save.textContent = 'Save changes';
+                        alert('The upload failed. Please try again.');
+                    });
+            }, 'image/jpeg', 0.9);
+        });
+
+        // gallery filter + category chips
+        var search = document.getElementById('av-search');
+        var chips = document.getElementById('av-chips');
+        var groups = Array.prototype.slice.call(document.querySelectorAll('.av-group'));
+        var note = document.getElementById('av-empty-note');
+        var activeCat = 'all';
+
+        function filter() {
+            var q = (search.value || '').toLowerCase().trim();
+            var shown = 0;
+            groups.forEach(function (g) {
+                var catOk = activeCat === 'all' || g.getAttribute('data-cat') === activeCat;
+                var picks = g.querySelectorAll('.av-pick');
+                var any = false;
+                picks.forEach ? null : null;
+                Array.prototype.forEach.call(picks, function (p) {
+                    var name = (p.getAttribute('data-name') || '').toLowerCase();
+                    var ok = catOk && (q === '' || name.indexOf(q) !== -1);
+                    p.parentNode.style.display = ok ? '' : 'none';
+                    if (ok) any = true;
+                });
+                g.style.display = any ? '' : 'none';
+                if (any) shown++;
+            });
+            if (note) note.hidden = shown > 0;
+        }
+
+        if (search) search.addEventListener('input', filter);
+        if (chips) chips.addEventListener('click', function (e) {
+            var b = e.target.closest('.av-chip');
+            if (!b) return;
+            activeCat = b.getAttribute('data-cat');
+            Array.prototype.forEach.call(chips.querySelectorAll('.av-chip'), function (c) {
+                c.classList.toggle('is-on', c === b);
+            });
+            filter();
+        });
+
+        // live preview of the chosen frame
+        document.querySelectorAll('input[name=frame]').forEach(function (r) {
+            r.addEventListener('change', function () {
+                if (!live) return;
+                live.className = live.className.replace(/\bfr-[a-z]+\b/g, '').trim() + ' fr-' + r.value;
+            });
+        });
+    })();
+    </script>

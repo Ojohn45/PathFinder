@@ -20,9 +20,11 @@ func faviconHost(raw string) string {
 }
 
 var templates = template.Must(template.New("").Funcs(template.FuncMap{
-	"favicon":  faviconHost,
-	"initial":  initialLetter,
-	"iconName": func() string { return currentIcon() },
+	"favicon":   faviconHost,
+	"avatarURL": avatarPath,
+	"shownName": displayNameOf,
+	"initial":   initialLetter,
+	"iconName":  func() string { return currentIcon() },
 	"faviconOf": func(slug, id string) string {
 		if t, ok := topicBySlug[slug]; ok {
 			for _, r := range t.Resources {
@@ -37,8 +39,17 @@ var templates = template.Must(template.New("").Funcs(template.FuncMap{
 
 // One struct that every page can use. Each page only fills what it needs.
 type PageData struct {
-	User   *User // nil = guest
-	Recent []HistoryEntry
+	User *User // nil = guest
+
+	// avatar studio + profile
+	AvatarGroups []AvatarGroup
+	Frames       []StyleOption
+	Banners      []StyleOption
+	Achievements []Achievement
+	Saved        string
+	Bio          string
+	DisplayName  string
+	Recent       []HistoryEntry
 
 	// Browse / section / topic pages
 	Sections []Section
@@ -278,6 +289,18 @@ func main() {
 	mux.HandleFunc("GET /admin/branding", brandingPageHandler)
 	mux.HandleFunc("POST /admin/branding", brandingSaveHandler)
 	mux.HandleFunc("GET /settings", settingsPageHandler)
+
+	// avatar + profile
+	mux.HandleFunc("GET /avatar/{id}", avatarServeHandler)
+	mux.HandleFunc("GET /avatar/b/{id}", builtinPreviewHandler)
+	mux.HandleFunc("GET /avatar-studio", studioPageHandler)
+	mux.HandleFunc("POST /avatar/upload", avatarUploadHandler)
+	mux.HandleFunc("POST /avatar/builtin", avatarBuiltinHandler)
+	mux.HandleFunc("POST /avatar/remove", avatarRemoveHandler)
+	mux.HandleFunc("POST /avatar/style", avatarStyleHandler)
+	mux.HandleFunc("GET /profile", profilePageHandler)
+	mux.HandleFunc("GET /profile/edit", profileEditHandler)
+	mux.HandleFunc("POST /profile/edit", profileEditSaveHandler)
 	mux.HandleFunc("POST /settings/name", settingsNameHandler)
 	mux.HandleFunc("POST /settings/password", settingsPasswordHandler)
 	mux.HandleFunc("GET /section/programming/{tab}", programmingTabHandler)

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{.Theme}}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit profile - PathFinder</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/{{iconName}}-192.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body class="wide" data-theme="{{.Theme}}">
+    {{template "topbar" .}}
+
+    <section class="page-head">
+        <span class="crumb">Your profile</span>
+        <h1>Edit profile</h1>
+        <p>Your display name and bio are what other people see.</p>
+    </section>
+
+    {{if .Error}}<p class="av-flash av-flash-err" role="alert">{{.Error}}</p>{{end}}
+
+    <form method="post" action="/profile/edit" class="profile-form">
+        <label>
+            <span>Display name</span>
+            <input type="text" name="display_name" value="{{.DisplayName}}" maxlength="40" placeholder="{{.User.FullName}}">
+            <small>Leave empty to use your full name.</small>
+        </label>
+        <label>
+            <span>Bio</span>
+            <textarea name="bio" rows="4" maxlength="300" placeholder="A line or two about you">{{.Bio}}</textarea>
+            <small>Up to 300 characters.</small>
+        </label>
+        <div class="av-actions">
+            <button type="submit" class="pill-btn pill-primary">Save profile</button>
+            <a class="pill-btn pill-ghost" href="/profile">Cancel</a>
+        </div>
+    </form>
+</body>
+</html>

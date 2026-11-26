@@ -25,6 +25,18 @@ type User struct {
 	PasswordHash string    `json:"password_hash"`
 	Role         string    `json:"role,omitempty"` // "" = normal user, "admin", "head_admin"
 	CreatedAt    time.Time `json:"created_at"`
+
+	// How the account looks. AvatarKind is "" (no picture), "builtin"
+	// (one of our own drawings, named by AvatarRef) or "upload".
+	DisplayName string    `json:"display_name,omitempty"`
+	Bio         string    `json:"bio,omitempty"`
+	AvatarKind  string    `json:"avatar_kind,omitempty"`
+	AvatarRef   string    `json:"avatar_ref,omitempty"`
+	AvatarData  []byte    `json:"avatar_data,omitempty"`
+	AvatarAt    time.Time `json:"avatar_at,omitempty"`
+	Frame       string    `json:"frame,omitempty"`
+	Banner      string    `json:"banner,omitempty"`
+	CalmMode    bool      `json:"calm_mode,omitempty"`
 }
 
 const (
@@ -459,40 +471,6 @@ func promoteToHeadAdmin(id int, fullName, username, passwordHash string) error {
 	users[idx].PasswordHash = passwordHash
 	users[idx].Role = RoleHeadAdmin
 
-	if err := saveJSON(usersFile, users); err != nil {
-		users[idx] = old
-		return err
-	}
-	return nil
-}
-
-// updateHeadAdminDetails applies configured identity fields to the current
-// head admin without allowing username or email collisions.
-func updateHeadAdminDetails(id int, fullName, username, email string) error {
-	mu.Lock()
-	defer mu.Unlock()
-
-	idx := -1
-	for i, u := range users {
-		if u.ID == id {
-			idx = i
-			continue
-		}
-		if strings.EqualFold(u.Username, username) {
-			return ErrUsernameTaken
-		}
-		if strings.EqualFold(u.Email, email) {
-			return ErrEmailTaken
-		}
-	}
-	if idx < 0 {
-		return errors.New("user not found")
-	}
-
-	old := users[idx]
-	users[idx].FullName = fullName
-	users[idx].Username = username
-	users[idx].Email = email
 	if err := saveJSON(usersFile, users); err != nil {
 		users[idx] = old
 		return err

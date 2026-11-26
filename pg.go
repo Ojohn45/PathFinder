@@ -90,6 +90,17 @@ func pgMigrate() error {
 			role          TEXT NOT NULL DEFAULT '',
 			created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 		)`,
+		// Avatar and profile columns. ADD COLUMN IF NOT EXISTS means an existing
+		// database simply gains them on the next start, losing nothing.
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS display_name TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_kind TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_ref TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_data BYTEA`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_at TIMESTAMPTZ`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS frame TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS banner TEXT NOT NULL DEFAULT ''`,
+		`ALTER TABLE users ADD COLUMN IF NOT EXISTS calm_mode BOOLEAN NOT NULL DEFAULT false`,
 		`CREATE UNIQUE INDEX IF NOT EXISTS users_username_lower ON users (lower(username))`,
 		`CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower ON users (lower(email)) WHERE email <> ''`,
 
@@ -170,7 +181,8 @@ func pgLoad(path string, v any) error {
 }
 
 func pgLoadUsers(dst *[]User) error {
-	rows, err := db.Query(`SELECT id, full_name, username, email, phone, password_hash, role, created_at
+	rows, err := db.Query(`SELECT id, full_name, username, email, phone, password_hash, role, created_at,
+			display_name, bio, avatar_kind, avatar_ref, avatar_data, avatar_at, frame, banner, calm_mode
 		FROM users ORDER BY id`)
 	if err != nil {
 		return err
@@ -180,9 +192,17 @@ func pgLoadUsers(dst *[]User) error {
 	out := []User{}
 	for rows.Next() {
 		var u User
+		var avatarAt sql.NullTime
+		var avatarData []byte
 		if err := rows.Scan(&u.ID, &u.FullName, &u.Username, &u.Email, &u.Phone,
-			&u.PasswordHash, &u.Role, &u.CreatedAt); err != nil {
+			&u.PasswordHash, &u.Role, &u.CreatedAt,
+			&u.DisplayName, &u.Bio, &u.AvatarKind, &u.AvatarRef, &avatarData, &avatarAt,
+			&u.Frame, &u.Banner, &u.CalmMode); err != nil {
 			return err
+		}
+		u.AvatarData = avatarData
+		if avatarAt.Valid {
+			u.AvatarAt = avatarAt.Time
 		}
 		out = append(out, u)
 	}
@@ -287,16 +307,29 @@ func pgSyncUsers(list []User) error {
 	for _, u := range list {
 		ids = append(ids, int64(u.ID))
 		if _, err := tx.Exec(`INSERT INTO users
-				(id, full_name, username, email, phone, password_hash, role, created_at)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+				(id, full_name, username, email, phone, password_hash, role, created_at,
+				 display_name, bio, avatar_kind, avatar_ref, avatar_data, avatar_at,
+				 frame, banner, calm_mode)
+			VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
 			ON CONFLICT (id) DO UPDATE SET
 				full_name = EXCLUDED.full_name,
 				username  = EXCLUDED.username,
 				email     = EXCLUDED.email,
 				phone     = EXCLUDED.phone,
 				password_hash = EXCLUDED.password_hash,
-				role      = EXCLUDED.role`,
-			u.ID, u.FullName, u.Username, u.Email, u.Phone, u.PasswordHash, u.Role, u.CreatedAt); err != nil {
+				role      = EXCLUDED.role,
+				display_name = EXCLUDED.display_name,
+				bio          = EXCLUDED.bio,
+				avatar_kind  = EXCLUDED.avatar_kind,
+				avatar_ref   = EXCLUDED.avatar_ref,
+				avatar_data  = EXCLUDED.avatar_data,
+				avatar_at    = EXCLUDED.avatar_at,
+				frame        = EXCLUDED.frame,
+				banner       = EXCLUDED.banner,
+				calm_mode    = EXCLUDED.calm_mode`,
+			u.ID, u.FullName, u.Username, u.Email, u.Phone, u.PasswordHash, u.Role, u.CreatedAt,
+			u.DisplayName, u.Bio, u.AvatarKind, u.AvatarRef, u.AvatarData, u.AvatarAt,
+			u.Frame, u.Banner, u.CalmMode); err != nil {
 			return err
 		}
 	}

@@ -69,6 +69,28 @@
         <a class="sidebar-name" href="/" aria-label="PathFinder home">PathFinder</a>
     </div>
 
+    {{if .User}}
+    <div class="side-user">
+        <button type="button" class="side-user-btn" id="user-menu-btn" aria-haspopup="true" aria-expanded="false">
+            {{if .User.AvatarKind}}
+            <img class="av av-sm fr-{{.User.Frame}}" src="{{avatarURL .User}}" alt="">
+            {{else}}
+            <span class="av av-sm av-empty fr-{{.User.Frame}}">{{initial (shownName .User)}}</span>
+            {{end}}
+            <span class="side-user-name">{{shownName .User}}</span>
+            <svg class="side-user-caret" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="user-menu" id="user-menu" hidden>
+            <a href="/profile">View profile</a>
+            <a href="/profile/edit">Edit profile</a>
+            <a href="/avatar-studio">Change avatar</a>
+            <a href="/avatar-studio#upload">Upload picture</a>
+            <a href="/settings">Account settings</a>
+            <button type="button" class="user-menu-out" id="user-menu-out">Log out</button>
+        </div>
+    </div>
+    {{end}}
+
     <nav class="sidebar-nav">
         {{if .User}}
         <a href="/home"{{if eq .Nav "home"}} class="current"{{end}}>Home</a>
@@ -168,7 +190,29 @@
         document.getElementById("logout-no").addEventListener("click", close);
         modal.addEventListener("click", function (e) { if (e.target === modal) close(); });
         document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
-    })();
+    
+    // avatar menu
+    var umBtn = document.getElementById('user-menu-btn');
+    var um = document.getElementById('user-menu');
+    var umOut = document.getElementById('user-menu-out');
+    if (umBtn && um) {
+        function closeMenu() { um.hidden = true; umBtn.setAttribute('aria-expanded', 'false'); }
+        umBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var open = um.hidden;
+            um.hidden = !open;
+            umBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        document.addEventListener('click', function (e) {
+            if (!um.hidden && !um.contains(e.target) && e.target !== umBtn) closeMenu();
+        });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeMenu(); });
+        if (umOut) umOut.addEventListener('click', function () {
+            var out = document.getElementById('logout-open');
+            if (out) { out.click(); } else { window.location.href = '/goodbye'; }
+        });
+    }
+})();
 </script>
 {{end}}
 {{end}}
