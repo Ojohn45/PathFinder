@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PathFinder - Find your way to the right resource</title>
-    <meta name="description" content="PathFinder is a curated launchpad to the best places on the internet for whatever you want to do today.">
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/{{iconName}}-192.png">
@@ -13,207 +12,165 @@
 <body class="wide" data-theme="{{.Theme}}">
     {{template "topbar" .}}
 
-    <main class="landing">
+    <div class="lp">
 
         <!-- 1. Hero -->
-        <section class="hero">
-            <div class="hero-copy">
-                <h1>Find your way to the right resource.</h1>
-                <p class="hero-sub">A curated launchpad to the best places on the internet for whatever you want to do today.</p>
-                <div class="hero-actions">
-                    <a class="pill hero-primary" href="/browse">
-                        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-                        Browse
-                    </a>
-                    {{if .User}}
-                    <a class="pill hero-ghost" href="/history">Continue where you left off</a>
-                    {{else}}
-                    <a class="pill hero-ghost" href="/signup">Create Free Account</a>
-                    {{end}}
-                </div>
-            </div>
-            <div class="hero-art">
-                <img src="/static/img/hero-browse.jpg" width="900" height="700" alt="The PathFinder Browse page showing coloured section cards" fetchpriority="high">
-            </div>
+        <section class="lp-hero reveal">
+            <h1>Find your way to the right resource.</h1>
+            <p class="lp-sub">PathFinder takes you straight to the best places on the internet for whatever you want to do today.</p>
         </section>
 
-        <!-- 2. What is PathFinder -->
+        <!-- 2. What is PathFinder? -->
         <section class="lp-block reveal">
             <h2>What is PathFinder?</h2>
-            <p class="lp-lead">PathFinder is not a course platform trying to teach you everything from scratch. It is a curated launchpad: pick a section and it points you to the best places inside it, the official docs, the free courses, the practice grounds, the documentaries, the sites people actually finish.</p>
-            <p class="lp-quote">No more spending an hour searching "best way to learn Python".</p>
+            <p>Pick a section: Programming, Entertainment, Learning, Lifestyle, Create and Work, or Read Comix. PathFinder shows you the 15 best places inside it, hand-picked, so you never waste time searching.</p>
+            <figure class="lp-figure">
+                <img src="/static/img/sections.jpg" width="1000" height="600"
+                     alt="The PathFinder sections screen, showing Programming, Entertainment, Learning, Lifestyle, Create and Work and Read Comix">
+            </figure>
+            <div class="lp-actions">
+                <a class="lp-btn lp-btn-primary" href="/browse">Browse</a>
+                {{if .User}}
+                <a class="lp-btn lp-btn-ghost" href="/history">Continue where you left off</a>
+                {{else}}
+                <a class="lp-btn lp-btn-ghost" href="/signup">Create Free Account</a>
+                {{end}}
+            </div>
         </section>
 
-        <!-- 3. Made for every day -->
+        <!-- 3. Good for every day -->
         <section class="lp-block reveal">
-            <h2>Whatever you want to do today, PathFinder points the way.</h2>
-            <div class="day-grid">
-                <a class="day-card" href="/section/programming">
-                    <span class="day-ico" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><polyline points="9 7 4 12 9 17"/><polyline points="15 7 20 12 15 17"/></svg>
-                    </span>
-                    <b>Want to learn to code?</b>
-                    <span>Programming, from first steps to official docs.</span>
+            <h2>Good for every day</h2>
+            <div class="lp-cards">
+                <a class="lp-card" href="/section/programming">
+                    <span class="lp-ic" aria-hidden="true">🛠️</span>
+                    <span><b>Want to build something?</b><em>Open Programming.</em></span>
                 </a>
-                <a class="day-card" href="/section/entertainment">
-                    <span class="day-ico" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9.5l5 2.5-5 2.5z"/></svg>
-                    </span>
-                    <b>Bored tonight?</b>
-                    <span>Entertainment: anime, film, music and more.</span>
+                <a class="lp-card" href="/section/entertainment">
+                    <span class="lp-ic" aria-hidden="true">🍿</span>
+                    <span><b>Bored tonight?</b><em>Open Entertainment.</em></span>
                 </a>
-                <a class="day-card" href="/section/learning">
-                    <span class="day-ico" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 016.5 4H19v16H6.5A2.5 2.5 0 014 17.5z"/><path d="M9 8h6M9 12h6"/></svg>
-                    </span>
-                    <b>Learn something new</b>
-                    <span>Learning: science, languages, history, writing.</span>
+                <a class="lp-card" href="/section/create-work">
+                    <span class="lp-ic" aria-hidden="true">💼</span>
+                    <span><b>Need to get work done?</b><em>Open Create and Work.</em></span>
                 </a>
-                <a class="day-card" href="/section/lifestyle">
-                    <span class="day-ico" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-9a4 4 0 017-2.6A4 4 0 0119 11c0 4.6-7 9-7 9z"/></svg>
-                    </span>
-                    <b>Improve your daily life</b>
-                    <span>Lifestyle: health, money, cooking, fitness.</span>
+                <a class="lp-card" href="/section/comix">
+                    <span class="lp-ic" aria-hidden="true">📖</span>
+                    <span><b>Want a good read?</b><em>Open Read Comix.</em></span>
                 </a>
-                <a class="day-card" href="/section/create-work">
-                    <span class="day-ico" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><path d="M4 20l4-1 9-9-3-3-9 9z"/><path d="M14 6l3 3"/></svg>
-                    </span>
-                    <b>Make something, or get work done</b>
-                    <span>Create and Work: design, business, tools.</span>
-                </a>
-                <a class="day-card" href="/section/comix">
-                    <span class="day-ico" aria-hidden="true">
-                        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M7 20l3-3"/><path d="M8 8h8M8 12h5"/></svg>
-                    </span>
-                    <b>Read manga, manhwa and comics</b>
-                    <span>Read Comix: the best places to read, picked.</span>
+                <a class="lp-card" href="/section/lifestyle">
+                    <span class="lp-ic" aria-hidden="true">🌿</span>
+                    <span><b>Improve your day?</b><em>Open Lifestyle.</em></span>
                 </a>
             </div>
+            <p class="lp-quote">Whatever you want to do today, PathFinder points the way.</p>
         </section>
 
         <!-- 4. How it works -->
         <section class="lp-block reveal">
             <h2>How it works</h2>
-            <ol class="steps">
-                <li class="step">
-                    <div class="step-art"><img src="/static/img/step-browse.jpg" width="1180" height="760" loading="lazy" decoding="async" alt="The Browse page with the PathFinder menu on the left"></div>
-                    <div class="step-text">
-                        <span class="step-num">Step 1</span>
-                        <b>Pick a section</b>
-                        <p>Programming, entertainment, learning, lifestyle, create and work, or straight to reading. Each one has its own colour so you always know where you are.</p>
-                    </div>
-                </li>
-                <li class="step">
-                    <div class="step-art"><img src="/static/img/step-section.jpg" width="1180" height="760" loading="lazy" decoding="async" alt="A section page listing its topics"></div>
-                    <div class="step-text">
-                        <span class="step-num">Step 2</span>
-                        <b>See the best places, hand-picked</b>
-                        <p>Inside a section you choose a topic, and every topic opens the places worth your hours, not a page of search results.</p>
-                    </div>
-                </li>
-                <li class="step">
-                    <div class="step-art"><img src="/static/img/step-places.jpg" width="1180" height="760" loading="lazy" decoding="async" alt="A topic page showing website cards with logos"></div>
-                    <div class="step-text">
-                        <span class="step-num">Step 3</span>
-                        <b>Open one and start</b>
-                        <p>Tap a place and it opens in a new tab. PathFinder quietly notes where you went, so nothing is lost.</p>
-                    </div>
-                </li>
-                <li class="step">
-                    <div class="step-art"><img src="/static/img/step-history.jpg" width="1180" height="760" loading="lazy" decoding="async" alt="The History page showing places already visited"></div>
-                    <div class="step-text">
-                        <span class="step-num">Step 4</span>
-                        <b>Come back and carry on</b>
-                        <p>Your history shows what you opened and when, on any device, so you pick up where you stopped.</p>
-                    </div>
-                </li>
-            </ol>
-        </section>
+            <div class="lp-steps">
 
-        <!-- 5. Why create a free account -->
-        <section class="lp-block lp-why reveal">
-            <h2>Why create a free account</h2>
-            <ul class="why-list">
-                <li><b>Saves your history</b><span>Every place you open is remembered.</span></li>
-                <li><b>Never lose your place</b><span>Come back weeks later and continue.</span></li>
-                <li><b>Works on any device</b><span>Phone, tablet or laptop, same account.</span></li>
-            </ul>
-            {{if .User}}
-            <a class="pill hero-primary" href="/history">See your history</a>
-            {{else}}
-            <a class="pill hero-primary" href="/signup">Create Free Account</a>
-            {{end}}
-        </section>
+                <div class="lp-step">
+                    <h3>Step 1: Pick a section.</h3>
+                    <p>Six sections, each with its own colour.</p>
+                    <figure class="lp-figure">
+                        <img src="/static/img/sections.jpg" width="1000" height="600" loading="lazy" decoding="async"
+                             alt="The sections screen with six coloured sections to choose from">
+                    </figure>
+                </div>
 
-        <!-- Jump straight in -->
-        <section class="lp-block reveal">
-            <h2>Every section, one tap away</h2>
-            <div class="section-grid">
-                {{range .Sections}}
-                <a class="sect-card theme-{{.Theme}}" href="/section/{{.Slug}}">
-                    <b>{{.Name}}</b>
-                    <span>{{.Tagline}}</span>
-                </a>
-                {{end}}
+                <div class="lp-step">
+                    <h3>Step 2: See the 15 best places.</h3>
+                    <p>Hand-picked for that section. No guessing.</p>
+                    <figure class="lp-figure">
+                        <img src="/static/img/places.jpg" width="1000" height="600" loading="lazy" decoding="async"
+                             alt="A stack of hand-picked place cards, one of them being opened">
+                    </figure>
+                </div>
+
+                <div class="lp-step">
+                    <h3>Step 3: Open one. PathFinder remembers it.</h3>
+                    <p>Every place you open is saved to your history.</p>
+                    <figure class="lp-figure">
+                        <img src="/static/img/open.jpg" width="1000" height="600" loading="lazy" decoding="async"
+                             alt="A place card opening, with a tick showing the visit was saved">
+                    </figure>
+                </div>
+
+                <div class="lp-step">
+                    <h3>Step 4: Come back anytime and continue where you left off.</h3>
+                    <p>Your history is waiting for you.</p>
+                    <figure class="lp-figure">
+                        <img src="/static/img/return.jpg" width="1000" height="600" loading="lazy" decoding="async"
+                             alt="A history trail of visited places leading back to where you stopped">
+                    </figure>
+                </div>
+
             </div>
         </section>
 
+        <!-- 5. Easy to use on any device -->
+        <section class="lp-block reveal">
+            <h2>Easy to use on any device</h2>
+            <p>The menu slides in when you need it and stays out of the way when you don't.</p>
+            <figure class="lp-figure">
+                <img src="/static/img/phone.jpg" width="1000" height="600" loading="lazy" decoding="async"
+                     alt="A phone showing the PathFinder menu sliding in over the page">
+            </figure>
+        </section>
+
         {{if .Recent}}
+        <!-- Kept for signed-in visitors: the last few places you opened -->
         <section class="lp-block reveal">
             <h2>Recently visited</h2>
             <div class="site-grid">
                 {{range .Recent}}
-                <a class="site-box" href="/go/{{.LanguageSlug}}/{{.ResourceID}}" target="_blank" rel="noopener noreferrer">
-                    <img class="favicon" src="https://www.google.com/s2/favicons?domain={{faviconOf .LanguageSlug .ResourceID}}&sz=64" alt="" loading="lazy" onerror="this.style.display='none'">
+                <a class="site-box" href="/go/{{.LanguageSlug}}/{{.ResourceID}}">
                     <strong>{{.ResourceName}}</strong>
-                    <span>Open again</span>
+                    <span>{{.LanguageSlug}}</span>
                 </a>
                 {{end}}
             </div>
-            <p class="center" style="margin-top:14px"><a class="pill hero-ghost" href="/history">See your whole history</a></p>
         </section>
         {{end}}
 
-        <!-- 6. Final call to action -->
-        <section class="lp-cta reveal">
-            <h2>Ready to find your way?</h2>
-            <div class="hero-actions center-actions">
-                <a class="pill hero-primary" href="/browse">Browse</a>
+        <!-- 6. Bottom buttons -->
+        <section class="lp-block lp-final reveal">
+            <h2>Ready when you are.</h2>
+            <div class="lp-actions">
+                <a class="lp-btn lp-btn-primary" href="/browse">Browse</a>
                 {{if .User}}
-                <a class="pill hero-ghost" href="/history">Continue where you left off</a>
+                <a class="lp-btn lp-btn-ghost" href="/history">Continue where you left off</a>
                 {{else}}
-                <a class="pill hero-ghost" href="/signup">Create Free Account</a>
+                <a class="lp-btn lp-btn-ghost" href="/signup">Create Free Account</a>
                 {{end}}
             </div>
         </section>
 
         <footer class="lp-footer">
-            <span>&copy; PathFinder</span>
-            <nav>
-                <a href="/browse">Browse</a>
-                <a href="/history">History</a>
-                <a href="/settings">Settings</a>
-                {{if not .User}}<a href="/login">Log in</a>{{end}}
-            </nav>
+            <a href="/browse">Browse</a>
+            <a href="/history">History</a>
+            <a href="/settings">Settings</a>
+            {{if .User}}<a href="/logout">Log out</a>{{else}}<a href="/login">Log In / Sign Up</a>{{end}}
         </footer>
-    </main>
+
+    </div>
 
     <script>
+    // Gentle fade-in as each block scrolls into view. No libraries.
     (function () {
         var items = document.querySelectorAll('.reveal');
         if (!items.length) return;
-        var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (calm || !('IntersectionObserver' in window)) {
-            items.forEach(function (el) { el.classList.add('shown'); });
+        if (!('IntersectionObserver' in window)) {
+            items.forEach(function (el) { el.classList.add('in'); });
             return;
         }
         var io = new IntersectionObserver(function (entries) {
             entries.forEach(function (e) {
-                if (e.isIntersecting) { e.target.classList.add('shown'); io.unobserve(e.target); }
+                if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
             });
-        }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+        }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
         items.forEach(function (el) { io.observe(el); });
     })();
     </script>
