@@ -61,9 +61,9 @@ func saveIconChoice(choice string) error {
 	}
 
 	mailMu.Lock()
+	defer mailMu.Unlock()
 	next := mailSet
 	next.Favicon = choice
-	mailMu.Unlock()
 
 	data, err := json.MarshalIndent(next, "", "  ")
 	if err != nil {
@@ -73,9 +73,7 @@ func saveIconChoice(choice string) error {
 		return err
 	}
 
-	mailMu.Lock()
 	mailSet = next
-	mailMu.Unlock()
 	return nil
 }
 

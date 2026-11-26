@@ -14,34 +14,37 @@ import (
 
 // ---------- The head admin ----------
 //
-// The head admin is created automatically when the server starts, so you can
-// log in and use the admin page immediately.
-//
-// The password has a built-in default below. Override it (recommended before
-// this goes online) with an environment variable:
-//
-//   ADMIN_PASSWORD='a-new-password'  go run .
-//
-// The other details have defaults below, and can be changed with
-// ADMIN_EMAIL, ADMIN_FULLNAME and ADMIN_USERNAME.
+// The head admin is created automatically on first start when ADMIN_EMAIL and
+// ADMIN_PASSWORD are configured. Existing head admins remain usable without
+// those settings; setting ADMIN_PASSWORD explicitly updates their password.
 //
 // If there is NO head admin yet, one is created. If an account with the admin
 // email already exists, it is upgraded to head admin. After that, ADMIN_PASSWORD
 // in .env is always the head admin's password.
 
-// defaultHeadAdminPassword is used only when there is no head admin yet and
-// ADMIN_PASSWORD is not set. Change it here, or set ADMIN_PASSWORD.
-const defaultHeadAdminPassword = "49321111@John"
-
-// defaultHeadAdminPhone is the number the head admin logs in with. It is set on
-// the account at start-up, so nobody has to hunt for a phone field.
-const defaultHeadAdminPhone = "08127758529"
-
 func seedHeadAdmin() {
 	if head, exists := headAdmin(); exists {
-		// Make sure the head admin can always sign in with the registered number.
-		phone := getenv("ADMIN_PHONE", defaultHeadAdminPhone)
-		if head.Phone != phone {
+		fullName := head.FullName
+		username := head.Username
+		email := head.Email
+		if configured := strings.TrimSpace(os.Getenv("ADMIN_FULLNAME")); configured != "" {
+			fullName = configured
+		}
+		if configured := strings.TrimSpace(os.Getenv("ADMIN_USERNAME")); configured != "" {
+			username = configured
+		}
+		if configured := strings.ToLower(strings.TrimSpace(os.Getenv("ADMIN_EMAIL"))); configured != "" {
+			email = configured
+		}
+		if fullName != head.FullName || username != head.Username || email != head.Email {
+			if err := updateHeadAdminDetails(head.ID, fullName, username, email); err != nil {
+				log.Println("Could not update the head admin details:", err)
+			} else {
+				log.Printf("Head admin details updated for %q", username)
+			}
+		}
+		// Phone login is optional and only changes when explicitly configured.
+		if phone := strings.TrimSpace(os.Getenv("ADMIN_PHONE")); phone != "" && head.Phone != phone {
 			if err := setUserPhone(head.ID, phone); err != nil {
 				log.Println("Could not save the head admin phone number:", err)
 			} else {
@@ -64,11 +67,14 @@ func seedHeadAdmin() {
 		return
 	}
 
-	password := getenv("ADMIN_PASSWORD", defaultHeadAdminPassword)
-
-	email := strings.ToLower(getenv("ADMIN_EMAIL", "brucenic12@gmail.com"))
-	fullName := getenv("ADMIN_FULLNAME", "Odumu John")
-	username := getenv("ADMIN_USERNAME", "Ken")
+	password := os.Getenv("ADMIN_PASSWORD")
+	email := strings.ToLower(strings.TrimSpace(os.Getenv("ADMIN_EMAIL")))
+	if password == "" || email == "" {
+		log.Println("No head admin exists yet. Set ADMIN_EMAIL and ADMIN_PASSWORD to create one; no default admin credentials are enabled.")
+		return
+	}
+	fullName := getenv("ADMIN_FULLNAME", "PathFinder Admin")
+	username := getenv("ADMIN_USERNAME", "admin")
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -91,11 +97,12 @@ func seedHeadAdmin() {
 		log.Println("Could not create head admin:", err, "(is that username/email already used by another account?)")
 		return
 	}
-	phone := getenv("ADMIN_PHONE", defaultHeadAdminPhone)
-	if err := setUserPhone(newUser.ID, phone); err != nil {
-		log.Println("Could not save the head admin phone number:", err)
+	if phone := strings.TrimSpace(os.Getenv("ADMIN_PHONE")); phone != "" {
+		if err := setUserPhone(newUser.ID, phone); err != nil {
+			log.Println("Could not save the head admin phone number:", err)
+		}
 	}
-	log.Printf("Head admin created: %s (log in as %s or %s)", username, username, phone)
+	log.Printf("Head admin created: %s (log in as %s or %s)", username, username, email)
 }
 
 // ---------- Guards: who may open which page ----------

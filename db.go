@@ -466,6 +466,40 @@ func promoteToHeadAdmin(id int, fullName, username, passwordHash string) error {
 	return nil
 }
 
+// updateHeadAdminDetails applies configured identity fields to the current
+// head admin without allowing username or email collisions.
+func updateHeadAdminDetails(id int, fullName, username, email string) error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	idx := -1
+	for i, u := range users {
+		if u.ID == id {
+			idx = i
+			continue
+		}
+		if strings.EqualFold(u.Username, username) {
+			return ErrUsernameTaken
+		}
+		if strings.EqualFold(u.Email, email) {
+			return ErrEmailTaken
+		}
+	}
+	if idx < 0 {
+		return errors.New("user not found")
+	}
+
+	old := users[idx]
+	users[idx].FullName = fullName
+	users[idx].Username = username
+	users[idx].Email = email
+	if err := saveJSON(usersFile, users); err != nil {
+		users[idx] = old
+		return err
+	}
+	return nil
+}
+
 // ---------- Email diary ----------
 
 const maxEmailRecords = 300 // keep the newest 300 only

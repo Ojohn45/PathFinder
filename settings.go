@@ -68,8 +68,6 @@ func loadMailSettings() {
 // The file sits in storage/, which is already excluded from git, so the
 // password never reaches GitHub.
 func saveMailSettings(in MailSettings) error {
-	// keep whichever tab icon is already chosen
-	in.Favicon = currentIcon()
 	in.Host = strings.TrimSpace(in.Host)
 	in.Port = strings.TrimSpace(in.Port)
 	in.User = strings.TrimSpace(in.User)
@@ -92,6 +90,11 @@ func saveMailSettings(in MailSettings) error {
 		return errors.New("that does not look like an email address")
 	}
 
+	// Serialize the read-modify-write with icon saves so neither settings form
+	// can overwrite fields saved by the other one.
+	mailMu.Lock()
+	defer mailMu.Unlock()
+	in.Favicon = mailSet.Favicon
 	data, err := json.MarshalIndent(in, "", "  ")
 	if err != nil {
 		return err
@@ -100,10 +103,14 @@ func saveMailSettings(in MailSettings) error {
 		return err
 	}
 
-	mailMu.Lock()
 	mailSet = in
-	mailMu.Unlock()
 	return nil
+}
+
+func savedMailSettings() MailSettings {
+	mailMu.RLock()
+	defer mailMu.RUnlock()
+	return mailSet
 }
 
 // effectiveMail is what the app actually uses to send.
@@ -166,7 +173,7 @@ func emailSettingsPageHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := PageData{User: u}
 	data.Mail = effectiveMail()
-	data.MailSaved = mailSet.User != ""
+	data.MailSaved = savedMailSettings().User != ""
 	data.MailFromEnv = os.Getenv("SMTP_USER") != ""
 	data.MailReady = mailReady()
 
@@ -200,14 +207,15 @@ func emailSettingsSaveHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	// An empty password box means "keep the one already saved", so the head
 	// admin can change the address without retyping the secret.
-	if strings.TrimSpace(in.Pass) == "" && mailSet.Pass != "" {
-		in.Pass = mailSet.Pass
+	saved := savedMailSettings()
+	if strings.TrimSpace(in.Pass) == "" && saved.Pass != "" {
+		in.Pass = saved.Pass
 	}
 
 	if err := saveMailSettings(in); err != nil {
 		data := PageData{User: u, Error: err.Error()}
 		data.Mail = effectiveMail()
-		data.MailSaved = mailSet.User != ""
+		data.MailSaved = savedMailSettings().User != ""
 		data.MailFromEnv = os.Getenv("SMTP_USER") != ""
 		render(w, "email-settings.html", data)
 		return

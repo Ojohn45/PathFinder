@@ -91,13 +91,11 @@
 - **No public admin door.** The "Log In as Admin" button is gone from the landing
   page and the Log In page, and `/admin/login` now just sends you to the normal login
   page. Admins sign in on the same form as everybody else.
-- **Log in with the registered number.** The head admin account carries the phone
-  number 08127758529 (change it with `ADMIN_PHONE`), and the login box accepts a
-  username, an email address or a phone number. The number can be typed as
-  08127758529, 0812 775 8529 or +2348127758529. Signing in with it lands on the admin
-  dashboard.
-- The head admin is created at start-up as Odumu John / Ken with the password
-  49321111@John unless `ADMIN_PASSWORD` says otherwise.
+- **Log in with a username, email or phone number.** Phone login is optional and
+  is configured with `ADMIN_PHONE`.
+- A first-run head admin is created only when `ADMIN_EMAIL` and `ADMIN_PASSWORD`
+  are configured. There are no default admin credentials or personal account
+  details in the source code.
 - The download no longer ships `storage/*.json`. Earlier builds carried test accounts,
   which meant a fresh install inherited an old head admin password. `storage/` now
   arrives empty and is created on first run.

@@ -42,6 +42,10 @@ Environment). Nothing personal is written in the code and there is **no built-in
 | `ADMIN_PASSWORD` | the password                                      |
 | `ADMIN_PHONE`    | optional: a number they can also log in with      |
 
+On a fresh install, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` to create the first
+head admin. If either is missing, the site still starts but does not create an
+admin account. There are no default admin credentials.
+
 On every start the head admin is made to match these settings:
 
 - nobody is head admin yet: one is created;
