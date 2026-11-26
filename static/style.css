@@ -2896,3 +2896,314 @@ html { overflow-x: hidden; }
 }
 .load-more-btn:hover { border-color: var(--accent); background-color: var(--panel-2); }
 .load-more-btn:disabled { opacity: 0.55; cursor: default; }
+
+/* ==========================================================================
+   The landing page (/home)
+   One scrolling page that explains PathFinder in about thirty seconds.
+   ========================================================================== */
+
+.landing {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 8px 0 60px;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: center;
+    gap: 38px;
+    padding: 26px 0 34px;
+}
+
+.hero-copy h1 {
+    font-size: clamp(1.85rem, 4.2vw, 2.9rem);
+    line-height: 1.14;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+}
+
+.hero-sub {
+    font-size: clamp(0.98rem, 1.6vw, 1.12rem);
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 24px;
+    max-width: 34em;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pill.hero-primary,
+.pill.hero-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 48px;
+    padding: 0 22px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.98rem;
+    text-decoration: none;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.pill.hero-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: var(--on-accent);
+    border: 1px solid var(--accent);
+    box-shadow: 0 14px 34px -16px rgba(var(--glow), 0.85);
+}
+
+.pill.hero-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 44px -18px rgba(var(--glow), 0.95);
+    text-decoration: none;
+}
+
+.pill.hero-ghost {
+    background: rgba(var(--glow), 0.07);
+    color: var(--ink);
+    border: 1px solid var(--line-2);
+}
+
+.pill.hero-ghost:hover {
+    background: rgba(var(--glow), 0.14);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: var(--ink);
+}
+
+.hero-art img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 16px;
+    border: 1px solid var(--line-2);
+    box-shadow: 0 30px 70px -34px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(var(--glow), 0.08);
+}
+
+/* ---------- Shared blocks ---------- */
+.lp-block {
+    margin: 54px 0 0;
+    padding: 26px 24px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: linear-gradient(160deg, var(--panel), rgba(var(--glow), 0.05));
+}
+
+.lp-block h2 {
+    font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+    margin: 0 0 14px;
+    line-height: 1.25;
+}
+
+.lp-lead {
+    color: var(--muted);
+    line-height: 1.72;
+    font-size: 1rem;
+    margin: 0 0 14px;
+    max-width: 62ch;
+}
+
+.lp-quote {
+    margin: 0;
+    padding: 12px 16px;
+    border-left: 3px solid var(--accent);
+    background: rgba(var(--glow), 0.07);
+    border-radius: 0 12px 12px 0;
+    color: var(--ink);
+    font-style: italic;
+}
+
+/* ---------- Made for every day ---------- */
+.day-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 6px;
+}
+
+.day-card {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-height: 130px;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--line-2);
+    background: rgba(var(--glow), 0.05);
+    color: var(--ink);
+    text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.day-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    background: rgba(var(--glow), 0.11);
+    text-decoration: none;
+    color: var(--ink);
+}
+
+.day-ico {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    background: rgba(var(--glow), 0.16);
+    border: 1px solid var(--line-2);
+}
+
+.day-ico svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: var(--accent-3, var(--accent));
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.day-card b { font-size: 0.98rem; line-height: 1.3; }
+.day-card span { font-size: 0.86rem; color: var(--muted); line-height: 1.5; }
+
+/* ---------- How it works ---------- */
+.steps {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 18px;
+}
+
+.step {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 22px;
+    align-items: center;
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    background: rgba(var(--glow), 0.04);
+}
+
+.step-art img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    border: 1px solid var(--line-2);
+    box-shadow: 0 18px 40px -26px rgba(0, 0, 0, 0.9);
+}
+
+.step-num {
+    display: inline-block;
+    font-size: 0.7rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-3, var(--accent));
+    margin-bottom: 6px;
+}
+
+.step-text b { display: block; font-size: 1.06rem; margin-bottom: 6px; }
+.step-text p { margin: 0; color: var(--muted); line-height: 1.6; font-size: 0.92rem; }
+
+/* ---------- Why an account ---------- */
+.why-list {
+    list-style: none;
+    margin: 0 0 20px;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+}
+
+.why-list li {
+    display: grid;
+    gap: 2px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(var(--glow), 0.05);
+}
+
+.why-list b { font-size: 0.98rem; }
+.why-list span { color: var(--muted); font-size: 0.9rem; }
+
+/* ---------- Final call to action ---------- */
+.lp-cta {
+    margin-top: 54px;
+    padding: 38px 24px;
+    text-align: center;
+    border-radius: 22px;
+    border: 1px solid var(--line-2);
+    background:
+        radial-gradient(120% 140% at 50% 0%, rgba(var(--glow), 0.18), transparent 62%),
+        linear-gradient(160deg, var(--panel), var(--panel-2));
+}
+
+.lp-cta h2 { margin: 0 0 20px; font-size: clamp(1.3rem, 2.8vw, 1.75rem); }
+.center-actions { justify-content: center; }
+
+/* ---------- Footer ---------- */
+.lp-footer {
+    margin-top: 40px;
+    padding: 18px 4px 0;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 0.86rem;
+}
+
+.lp-footer nav { display: flex; flex-wrap: wrap; gap: 16px; }
+.lp-footer a { color: var(--muted); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+.lp-footer a:hover { color: var(--accent-3, var(--accent)); }
+
+/* ---------- Gentle reveal on scroll ---------- */
+.reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.reveal.shown {
+    opacity: 1;
+    transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ---------- Tablets and phones ---------- */
+@media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 24px; }
+    .hero-art { order: 2; }
+    .day-grid { grid-template-columns: repeat(2, 1fr); }
+    .step { grid-template-columns: 1fr; gap: 14px; }
+}
+
+@media (max-width: 768px) {
+    .landing { padding: 0 0 44px; }
+    .hero { padding: 12px 0 22px; }
+    .hero-actions { flex-direction: column; align-items: stretch; }
+    .pill.hero-primary, .pill.hero-ghost { width: 100%; min-height: 52px; }
+    .lp-block { margin-top: 34px; padding: 20px 16px; border-radius: 16px; }
+    .day-grid { grid-template-columns: 1fr; gap: 10px; }
+    .day-card { min-height: 0; }
+    .step { padding: 12px; }
+    .lp-cta { margin-top: 34px; padding: 28px 16px; }
+    .center-actions { flex-direction: column; align-items: stretch; }
+    .lp-footer { flex-direction: column; align-items: flex-start; }
+}

@@ -155,15 +155,17 @@ func guestRedirect(w http.ResponseWriter, r *http.Request) {
 // The page people land on after logging in: the four explanation boxes,
 // the Browse button and the sections.
 func homePageHandler(w http.ResponseWriter, r *http.Request) {
+	// The home page is also the landing page, so guests are welcome here.
+	// A guest simply sees the two "create account" buttons instead.
 	user := currentUser(r)
-	if user == nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
+	var recent []HistoryEntry
+	if user != nil {
+		recent = recentHistory(user.ID, 5)
 	}
 	render(w, "home.html", PageData{
 		User:       user,
 		Sections:   sections,
-		Recent:     recentHistory(user.ID, 5),
+		Recent:     recent,
 		Theme:      "base",
 		NoBack:     true,
 		CenterLogo: true,
